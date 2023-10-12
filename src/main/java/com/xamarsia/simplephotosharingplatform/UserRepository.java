@@ -15,5 +15,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE User c SET c.profileImageId = ?1 WHERE c.id = ?2")
-    Long updateProfileImageId(String profileImageId, Long customerId);
+    Long updateProfileImageId(String profileImageId, Long userId);
 }
