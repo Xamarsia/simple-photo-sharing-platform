@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.security.jwt;
 
 import com.xamarsia.simplephotosharingplatform.UserService;
+import com.xamarsia.simplephotosharingplatform.security.ApplicationConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,8 +23,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserService userService;
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String BEARER = "Bearer ";
 
     @Override
     protected void doFilterInternal(
@@ -32,14 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader(AUTHORIZATION);
+        final String authHeader = request.getHeader(ApplicationConstants.Validation.AUTHORIZATION);
 
-        if (authHeader == null || !authHeader.startsWith(BEARER)) {
+        if (authHeader == null ||!authHeader.startsWith(ApplicationConstants.Validation.BEARER)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(BEARER.length());
+        final String jwt = authHeader.substring(ApplicationConstants.Validation.BEARER.length());
         final String userEmail = jwtService.getSubject(jwt);
 
         if (userEmail != null &&
