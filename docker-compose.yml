@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  psql-db:
+    image: postgres
+    container_name: psql-db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "${LOCAL_DB_PORT}:5432"
+  api:
+    container_name: api_app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "${LOCAL_APP_PORT}:8080"
+    depends_on:
+      - psql-db
+volumes:
+  db-data:
+    driver: local
