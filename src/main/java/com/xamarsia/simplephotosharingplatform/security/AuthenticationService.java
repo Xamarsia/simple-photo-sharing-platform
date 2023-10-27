@@ -2,10 +2,10 @@ package com.xamarsia.simplephotosharingplatform.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.xamarsia.simplephotosharingplatform.User;
-import com.xamarsia.simplephotosharingplatform.UserDTO;
-import com.xamarsia.simplephotosharingplatform.UserDTOMapper;
-import com.xamarsia.simplephotosharingplatform.UserService;
+import com.xamarsia.simplephotosharingplatform.user.User;
+import com.xamarsia.simplephotosharingplatform.user.UserDTO;
+import com.xamarsia.simplephotosharingplatform.user.UserDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.UserService;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
 import com.xamarsia.simplephotosharingplatform.dto.auth.IsEmailAlreadyInUseRequest;
@@ -66,7 +66,7 @@ public class AuthenticationService {
         User user = userService.getByEmail(request.email());
         UserDTO userDTO = userDTOMapper.apply(user);
 
-        var jwtToken = jwtService.generateToken(user.getEmail());
+        var jwtToken = jwtService.generateToken(user.getId().toString());
         saveUserToken(user, jwtToken);
 
         return new AuthenticationResponse(jwtToken, userDTO);
@@ -103,13 +103,13 @@ public class AuthenticationService {
         }
 
         final String refreshToken = authHeader.substring(ApplicationConstants.Validation.BEARER.length());
-        final String userEmail = jwtService.getSubject(refreshToken);
+        final String userId = jwtService.getSubject(refreshToken);
 
-        User user = userService.getByEmail(userEmail);
+        User user = userService.getById(Long.parseLong(userId));
         UserDTO userDTO = userDTOMapper.apply(user);
 
-        if (jwtService.isTokenValid(refreshToken, userEmail)) {
-            var newToken = jwtService.generateToken(userEmail);
+        if (jwtService.isTokenValid(refreshToken, userId)) {
+            var newToken = jwtService.generateToken(userId);
 
             deleteAllUserTokens(user);
             saveUserToken(user, newToken);

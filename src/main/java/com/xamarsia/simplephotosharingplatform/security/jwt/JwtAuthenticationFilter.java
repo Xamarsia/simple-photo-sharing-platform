@@ -1,6 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.security.jwt;
 
-import com.xamarsia.simplephotosharingplatform.UserService;
+import com.xamarsia.simplephotosharingplatform.user.UserService;
 import com.xamarsia.simplephotosharingplatform.security.ApplicationConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -39,14 +39,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(ApplicationConstants.Validation.BEARER.length());
-        final String userEmail = jwtService.getSubject(jwt);
+        final String userId = jwtService.getSubject(jwt);
 
-        if (userEmail != null &&
+        if (userId != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            UserDetails userDetails = this.userService.getByEmail(userEmail);
+            UserDetails userDetails = this.userService.getById(Long.parseLong(userId));
 
-            if (jwtService.isTokenValid(jwt, userEmail)) {
+            if (jwtService.isTokenValid(jwt, userId)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
