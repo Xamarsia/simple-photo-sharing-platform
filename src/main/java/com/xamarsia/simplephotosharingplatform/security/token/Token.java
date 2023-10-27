@@ -1,6 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.security.token;
 
-import com.xamarsia.simplephotosharingplatform.User;
+import com.xamarsia.simplephotosharingplatform.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

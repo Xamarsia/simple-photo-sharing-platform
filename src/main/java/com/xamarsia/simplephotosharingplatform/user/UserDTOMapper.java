@@ -1,5 +1,7 @@
-package com.xamarsia.simplephotosharingplatform;
+package com.xamarsia.simplephotosharingplatform.user;
 
+import com.xamarsia.simplephotosharingplatform.user.User;
+import com.xamarsia.simplephotosharingplatform.user.UserDTO;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 

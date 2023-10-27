@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform;
+package com.xamarsia.simplephotosharingplatform.user;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

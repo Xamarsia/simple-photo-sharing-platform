@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform;
+package com.xamarsia.simplephotosharingplatform.user;
 
 /**
  * Roles for the User class

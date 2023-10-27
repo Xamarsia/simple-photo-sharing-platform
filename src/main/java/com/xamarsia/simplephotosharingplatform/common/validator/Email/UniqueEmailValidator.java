@@ -1,6 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.common.validator.Email;
 
-import com.xamarsia.simplephotosharingplatform.UserService;
+import com.xamarsia.simplephotosharingplatform.user.UserService;
 import lombok.NonNull;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

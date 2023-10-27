@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform;
+package com.xamarsia.simplephotosharingplatform.user;
 
 import com.xamarsia.simplephotosharingplatform.security.token.Token;
 import jakarta.persistence.*;
