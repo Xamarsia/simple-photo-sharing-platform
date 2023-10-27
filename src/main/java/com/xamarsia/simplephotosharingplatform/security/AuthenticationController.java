@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.security;
 
 
+import com.xamarsia.simplephotosharingplatform.user.UserDTO;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
 import com.xamarsia.simplephotosharingplatform.dto.auth.IsEmailAlreadyInUseRequest;
@@ -19,15 +20,13 @@ import java.io.IOException;
 
 
 @Validated
-@CrossOrigin
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
-
-    @PostMapping("/isEmailAlreadyInUse")
+    @GetMapping("/isEmailAlreadyInUse")
     public Boolean isEmailAlreadyInUse(
             @Valid @RequestBody IsEmailAlreadyInUseRequest request)
     {
@@ -38,8 +37,11 @@ public class AuthenticationController {
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request)
     {
-        authenticationService.register(request);
-        return new ResponseEntity<>(HttpStatus.OK);
+        UserDTO userDto = authenticationService.register(request);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userDto);
     }
 
     @PostMapping("/login")

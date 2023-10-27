@@ -43,7 +43,7 @@ public class AuthenticationService {
         return userService.isEmailUsed(request.getEmail());
     }
 
-    public User register(RegisterRequest registerRequest) {
+    public UserDTO register(RegisterRequest registerRequest) {
 
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
@@ -52,7 +52,8 @@ public class AuthenticationService {
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .build();
 
-        return userService.saveUser(user);
+        User savedUser = userService.saveUser(user);
+        return userDTOMapper.apply(savedUser);
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
