@@ -36,17 +36,17 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(String email) {
-        return generateToken(new HashMap<>(), email);
+    public String generateToken(String userId) {
+        return generateToken(new HashMap<>(), userId);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, String email) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(email).setIssuedAt(Date.from(Instant.now())).setExpiration(Date.from(Instant.now().plus(15, DAYS))).signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+    public String generateToken(Map<String, Object> extraClaims, String userId) {
+        return Jwts.builder().setClaims(extraClaims).setSubject(userId).setIssuedAt(Date.from(Instant.now())).setExpiration(Date.from(Instant.now().plus(15, DAYS))).signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
     }
 
-    public boolean isTokenValid(String token, String email) {
-        final String emailFromToken = getSubject(token);
-        return (emailFromToken.equals(email) && !isTokenExpired(token) && isTokenExist(token));
+    public boolean isTokenValid(String token, String userId) {
+        final String userIdFromToken = getSubject(token);
+        return (userIdFromToken.equals(userId) && !isTokenExpired(token) && isTokenExist(token));
     }
 
     private boolean isTokenExist(String token) {
@@ -66,8 +66,8 @@ public class JwtService {
         return claims;
     }
 
-    public void deleteExpiredToken(String token, String email) {
-        if (!isTokenValid(token, email)) {
+    public void deleteExpiredToken(String token, String userId) {
+        if (!isTokenValid(token, userId)) {
             Token storedToken = tokenRepository.findByToken(token).orElse(null);
 
             if (storedToken != null) {
