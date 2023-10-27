@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform;
+package com.xamarsia.simplephotosharingplatform.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,8 +1,12 @@
-package com.xamarsia.simplephotosharingplatform;
+package com.xamarsia.simplephotosharingplatform.user;
 
+import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,15 +17,33 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository repository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository repository) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
     public User getByEmail(String email) {
         return repository.findUserByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email " + email));
+                .orElseThrow(() -> new RuntimeException("User not found with email " + email));
+    }
+
+    @Transactional(readOnly = true)
+    public User getById(Long customerId) {
+        return selectUserById(customerId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + customerId));
+    }
+
+    public User getAuthenticatedUser(Authentication authentication) {
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            throw new RuntimeException("Authenticated user not found");
+        }
+
+        String name = authentication.getName();
+        return findUserByUsername(name)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + name));
     }
 
     public boolean isEmailUsed(String email) {
@@ -45,12 +67,28 @@ public class UserService {
         return repository.save(user);
     }
 
-    public void deleteUserById(Long customerId) {
-        repository.deleteById(customerId);
+    public void deleteUserById(Long id) {
+        if (!isUserWithIdExist(id)) {
+            throw new RuntimeException("User not found with id " + id);
+        }
+        repository.deleteById(id);
     }
 
-    public void updateUser(User update) {
-        repository.save(update);
+    public User updateUser(UserUpdateRequest newUserData, Long id) {
+        User user = selectUserById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+
+        user.setFullName(newUserData.getFullName());
+        user.setUsername(newUserData.getUsername());
+        user.setPassword(passwordEncoder.encode(newUserData.getPassword()));
+        user.setEmail(newUserData.getEmail());
+
+        return saveUser(user);
+    }
+
+
+    public Optional<User> findUserByUsername(String username) {
+        return repository.findUserByUsername(username);
     }
 
     public Optional<User> selectUserByEmail(String email) {
