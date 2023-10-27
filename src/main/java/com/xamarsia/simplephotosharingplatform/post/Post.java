@@ -18,8 +18,7 @@ public class Post {
     private Long id;
 
     private LocalDateTime createdDate = null;
-
-
+    
     private String description;
 
     @NotEmpty
