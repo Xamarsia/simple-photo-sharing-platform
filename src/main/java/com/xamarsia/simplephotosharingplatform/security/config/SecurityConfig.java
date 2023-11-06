@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
@@ -23,6 +24,7 @@ public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final LogoutHandler logoutHandler;
+    private final LogoutSuccessHandler logoutSuccessHandler;
     private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
@@ -43,7 +45,7 @@ public class SecurityConfig {
                         .addLogoutHandler(logoutHandler)
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
-                        .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext()))
+                        .logoutSuccessHandler(logoutSuccessHandler))
         ;
         return http.build();
     }
