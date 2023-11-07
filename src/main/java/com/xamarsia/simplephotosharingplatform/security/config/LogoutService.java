@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.security.config;
 
 import com.xamarsia.simplephotosharingplatform.security.ApplicationConstants;
+import com.xamarsia.simplephotosharingplatform.security.token.Token;
 import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,16 +22,16 @@ public class LogoutService implements LogoutHandler {
             HttpServletResponse response,
             Authentication authentication
     ) {
-
-
         final String authHeader = request.getHeader(ApplicationConstants.Validation.AUTHORIZATION);
 
-        if (authHeader == null ||!authHeader.startsWith(ApplicationConstants.Validation.BEARER)) {
-            return;
+        if (authHeader == null || !authHeader.startsWith(ApplicationConstants.Validation.BEARER)) {
+            throw new RuntimeException("Logout failed. User is not authorized");
         }
 
         final String jwt = authHeader.substring(ApplicationConstants.Validation.BEARER.length());
-        tokenRepository.findByToken(jwt)
-                .ifPresent(storedToken -> tokenRepository.deleteById(storedToken.id));
+
+        Token token = tokenRepository.findByToken(jwt)
+                .orElseThrow(() -> new RuntimeException("Logout failed. Token not found in repository"));
+        tokenRepository.deleteById(token.id);
     }
 }
