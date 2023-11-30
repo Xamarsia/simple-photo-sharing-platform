@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.dto.auth;
 
 import com.xamarsia.simplephotosharingplatform.common.validator.Email.UniqueEmail;
+import com.xamarsia.simplephotosharingplatform.common.validator.Username.UniqueUsername;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +17,7 @@ public class RegisterRequest {
 
     @NotNull
     @NotEmpty
+    @UniqueUsername
     private String username;
 
     @NotEmpty
