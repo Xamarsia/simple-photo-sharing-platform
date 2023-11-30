@@ -51,6 +51,10 @@ public class UserService {
         return repository.existsUserByEmail(email);
     }
 
+    public boolean isUsernameUsed(String username) {
+        return repository.existsUserByUsername(username);
+    }
+
     public boolean isUserWithIdExist(Long id) {
         return repository.existsUserById(id);
     }
