@@ -1,6 +1,5 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
-import com.xamarsia.simplephotosharingplatform.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,8 +13,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByUsername(String email);
 
     Set<User> findAllByIdIn(Set<Long> idSet);
-    boolean existsUserByEmail (String email);
-    boolean existsUserById (Long id);
+
+    boolean existsUserByEmail(String email);
+
+    boolean existsUserByUsername(String username);
+
+    boolean existsUserById(Long id);
 
     @Modifying(clearAutomatically = true)
     @Query("UPDATE User c SET c.profileImageId = ?1 WHERE c.id = ?2")

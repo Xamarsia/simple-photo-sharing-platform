@@ -1,6 +1,5 @@
 package com.xamarsia.simplephotosharingplatform.dto.user;
 
-import com.xamarsia.simplephotosharingplatform.common.validator.Email.UniqueEmail;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +7,8 @@ import jakarta.validation.constraints.NotNull;
 public class UserUpdateRequest {
 
     //TODO Move the email update logic to a separate request with a request for e-mail confirmation
-    @UniqueEmail
+    @NotNull
+    @NotEmpty
     @Size(min = 1, message = "Email is required.")
     private String email;
 
