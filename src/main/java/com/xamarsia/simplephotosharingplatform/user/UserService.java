@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -77,6 +78,16 @@ public class UserService {
     public User updateUser(UserUpdateRequest newUserData, Long id) {
         User user = selectUserById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        String newUsername = newUserData.getUsername();
+        String newEmail = newUserData.getEmail();
+
+        if (!Objects.equals(user.getEmail(), newEmail) && repository.existsUserByEmail(newEmail)) {
+            throw new RuntimeException("User with this email already exist! " + newEmail);
+        }
+
+        if (!Objects.equals(user.getUsername(), newUsername) && repository.existsUserByUsername(newUsername)) {
+            throw new RuntimeException("User with this username already exist! " + newUsername);
+        }
 
         user.setFullName(newUserData.getFullName());
         user.setUsername(newUserData.getUsername());
