@@ -18,8 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -35,8 +33,6 @@ public class AuthenticationService {
     private final UserService userService;
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-
     private final UserDTOMapper userDTOMapper;
 
     public Boolean isEmailAlreadyInUse(IsEmailAlreadyInUseRequest request) {
@@ -57,13 +53,6 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.email(),
-                        request.password()
-                )
-        );
-
         User user = userService.getByEmail(request.email());
         UserDTO userDTO = userDTOMapper.apply(user);
 
@@ -84,7 +73,6 @@ public class AuthenticationService {
 
     private void deleteAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllByUser_Id(user.getId());
-
         if (validUserTokens.isEmpty())
             return;
 
