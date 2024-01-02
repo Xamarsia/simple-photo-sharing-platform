@@ -1,5 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
+import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,20 +28,20 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getByEmail(String email) {
-        return repository.findUserByEmail(email).orElseThrow(() ->
-                new RuntimeException("User not found with email " + email));
+        return repository.findUserByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email " + email));
     }
 
     @Transactional(readOnly = true)
     public User getByUsername(String username) {
-        return repository.findUserByUsername(username).orElseThrow(() ->
-                new RuntimeException("User not found with username " + username));
+        return repository.findUserByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found with username " + username));
     }
 
     @Transactional(readOnly = true)
     public User getById(Long customerId) {
-        return selectUserById(customerId).orElseThrow(() ->
-                new RuntimeException("User not found with id " + customerId));
+        return selectUserById(customerId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + customerId));
     }
 
     public User getAuthenticatedUser(Authentication authentication) {
@@ -49,8 +50,8 @@ public class UserService {
         }
 
         String name = authentication.getName();
-        return findUserByUsername(name).orElseThrow(() ->
-                new UsernameNotFoundException("User not found with name " + name));
+        return findUserByUsername(name)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + name));
     }
 
     public boolean isEmailUsed(String email) {
@@ -83,6 +84,20 @@ public class UserService {
             throw new RuntimeException("Delete user by Id: User not found with id " + id);
         }
         repository.deleteById(id);
+    }
+
+
+    public User updateUserPassword(Authentication authentication,
+                                   PasswordUpdateRequest passwordData) {
+        User user = getAuthenticatedUser(authentication);
+        String oldPassword = passwordData.getOldPassword();
+        String newPassword = passwordData.getNewPassword();
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Update user password: Wrong confirmation password!");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        return saveUser(user);
     }
 
 

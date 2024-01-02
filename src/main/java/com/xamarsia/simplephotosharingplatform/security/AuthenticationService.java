@@ -56,6 +56,10 @@ public class AuthenticationService {
         User user = userService.getByEmail(request.email());
         UserDTO userDTO = userDTOMapper.apply(user);
 
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
+            throw new RuntimeException("Login: The password is incorrect!");
+        }
+
         var jwtToken = jwtService.generateToken(user.getId().toString());
         saveUserToken(user, jwtToken);
 
