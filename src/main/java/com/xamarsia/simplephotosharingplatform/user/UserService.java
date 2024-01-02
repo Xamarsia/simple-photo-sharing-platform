@@ -27,14 +27,20 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getByEmail(String email) {
-        return repository.findUserByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email " + email));
+        return repository.findUserByEmail(email).orElseThrow(() ->
+                new RuntimeException("User not found with email " + email));
+    }
+
+    @Transactional(readOnly = true)
+    public User getByUsername(String username) {
+        return repository.findUserByUsername(username).orElseThrow(() ->
+                new RuntimeException("User not found with username " + username));
     }
 
     @Transactional(readOnly = true)
     public User getById(Long customerId) {
-        return selectUserById(customerId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + customerId));
+        return selectUserById(customerId).orElseThrow(() ->
+                new RuntimeException("User not found with id " + customerId));
     }
 
     public User getAuthenticatedUser(Authentication authentication) {
@@ -43,8 +49,8 @@ public class UserService {
         }
 
         String name = authentication.getName();
-        return findUserByUsername(name)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + name));
+        return findUserByUsername(name).orElseThrow(() ->
+                new UsernameNotFoundException("User not found with name " + name));
     }
 
     public boolean isEmailUsed(String email) {
@@ -74,33 +80,32 @@ public class UserService {
 
     public void deleteUserById(Long id) {
         if (!isUserWithIdExist(id)) {
-            throw new RuntimeException("User not found with id " + id);
+            throw new RuntimeException("Delete user by Id: User not found with id " + id);
         }
         repository.deleteById(id);
     }
 
-    public User updateUser(UserUpdateRequest newUserData, Long id) {
-        User user = selectUserById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+
+    public User updateUser(Authentication authentication, UserUpdateRequest newUserData) {
+        User user = getAuthenticatedUser(authentication);
+
         String newUsername = newUserData.getUsername();
         String newEmail = newUserData.getEmail();
 
         if (!Objects.equals(user.getEmail(), newEmail) && repository.existsUserByEmail(newEmail)) {
-            throw new RuntimeException("User with this email already exist! " + newEmail);
+            throw new RuntimeException("Update user: User with this email already exist! " + newEmail);
         }
 
         if (!Objects.equals(user.getUsername(), newUsername) && repository.existsUserByUsername(newUsername)) {
-            throw new RuntimeException("User with this username already exist! " + newUsername);
+            throw new RuntimeException("Update user: User with this username already exist! " + newUsername);
         }
 
         user.setFullName(newUserData.getFullName());
         user.setUsername(newUserData.getUsername());
-        user.setPassword(passwordEncoder.encode(newUserData.getPassword()));
         user.setEmail(newUserData.getEmail());
 
         return saveUser(user);
     }
-
 
     public Optional<User> findUserByUsername(String username) {
         return repository.findUserByUsername(username);
