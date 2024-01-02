@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
 
+import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.security.jwt.JwtService;
 import jakarta.validation.Valid;
@@ -33,19 +34,17 @@ public class UserController {
         UserDTO userDTO = userDTOMapper.apply(service.getAuthenticatedUser(authentication));
         return ResponseEntity.ok().body(userDTO);
     }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserDTOById(@PathVariable Long id) {
-        User user = service.getById(id);
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDTO> getUserDTOByUsername(@PathVariable String username) {
+        User user = service.getByUsername(username);
         UserDTO userDTO = userDTOMapper.apply(user);
         return ResponseEntity.ok().body(userDTO);
     }
 
     @GetMapping("/all")
-    public CollectionModel<EntityModel<UserDTO>> all() {
-        List<EntityModel<UserDTO>> users = service.selectAllUsers().stream().map(user -> EntityModel.of(userDTOMapper.apply(user), linkTo(methodOn(UserController.class).getUserDTOById(user.getId())).withSelfRel())).collect(Collectors.toList());
-
-        return CollectionModel.of(users, linkTo(methodOn(UserController.class).all()).withSelfRel());
+    public List<UserDTO> all() {
+        return service.selectAllUsers().stream().map(userDTOMapper)
+                .collect(Collectors.toList());
     }
 
     @PutMapping("/update")
@@ -53,6 +52,15 @@ public class UserController {
         User updatedUser = service.updateUser(authentication, newUserData);
         UserDTO userDTO = userDTOMapper.apply(updatedUser);
         return ResponseEntity.ok().body(userDTO);
+    }
+
+    @PutMapping("/password/update")
+    ResponseEntity<?> updateUserPassword(Authentication authentication,
+                                 @RequestBody @Valid PasswordUpdateRequest newPasswordData) {
+        User updatedUser = service.updateUserPassword(authentication, newPasswordData);
+        UserDTO userDTO = userDTOMapper.apply(updatedUser);
+        return ResponseEntity.ok()
+                .body(userDTO);
     }
 
     @PutMapping("/updateImage/{id}")
