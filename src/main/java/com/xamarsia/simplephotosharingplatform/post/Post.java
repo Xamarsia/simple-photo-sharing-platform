@@ -4,14 +4,15 @@ import com.xamarsia.simplephotosharingplatform.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Getter
-@Setter
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
