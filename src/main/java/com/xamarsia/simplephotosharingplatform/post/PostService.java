@@ -89,4 +89,16 @@ public class PostService {
         User user = userService.getAuthenticatedUser(authentication);
         return post.getUser() == user;
     }
+
+    public void deletePostById(Authentication authentication, Long postId) {
+        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, postId);
+        if (!isUserPostOwner) {
+            throw new RuntimeException("Delete post: Only post owner can delete the post");
+        }
+
+        if (!isPostWithIdExist(postId)) {
+            throw new RuntimeException("Delete post by Id: Post not found with id " + postId);
+        }
+        repository.deleteById(postId);
+    }
 }
