@@ -51,6 +51,13 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deletePost(Authentication authentication,
+                                        @PathVariable Long postId) {
+        service.deletePostById(authentication, postId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("/{userId}/all")
     public List<PostDTO> getPostsByUserId(@PathVariable Long userId) {
         return service.findPostsByUserId(userId).stream().map(postDTOMapper).collect(Collectors.toList());

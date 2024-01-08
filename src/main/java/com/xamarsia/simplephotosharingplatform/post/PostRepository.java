@@ -9,6 +9,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Integer countPostsByUserId(Long userId);
 
+    boolean existsPostById(Long postId);
+
     Integer countAllByUserId(Long userId);
 
     List<Post> findAllByUserUsername(String username);
