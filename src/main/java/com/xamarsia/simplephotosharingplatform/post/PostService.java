@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
 import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
+import com.xamarsia.simplephotosharingplatform.dto.post.PostUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserService;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,24 @@ public class PostService {
         return repository.save(post);
     }
 
+    public Post updatePost(Authentication authentication, PostUpdateRequest req, Long postId) {
+        Post post = selectPostById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id " + postId));
+
+        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        if (!isUserPostOwner) {
+            throw new RuntimeException("Delete post: Only post owner can delete the post");
+        }
+        post.setDescription(req.description());
+        post.setImageUrl(req.imageUrl());
+        post.setCreatedDate(LocalDateTime.now());
+
+        return repository.save(post);
+    }
+
+    public boolean isPostWithIdExist(Long postId) {
+        return repository.existsPostById(postId);
+    }
 
     @Transactional(readOnly = true)
     public List<Post> findPostsByUserId(Long userId) {
@@ -60,7 +79,14 @@ public class PostService {
         return repository.findById(postId);
     }
 
-    public void deletePostById(Long postId) {
-        repository.deleteById(postId);
+    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Long postId) {
+        User user = userService.getAuthenticatedUser(authentication);
+        Post post = selectPostById(postId).orElseThrow(() -> new RuntimeException("Post not found with id " + postId));
+        return post.getUser() == user;
+    }
+
+    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Post post) {
+        User user = userService.getAuthenticatedUser(authentication);
+        return post.getUser() == user;
     }
 }

@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
 import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
+import com.xamarsia.simplephotosharingplatform.dto.post.PostUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTOMapper;
 import jakarta.validation.Valid;
@@ -24,12 +25,10 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostDTO> getPostById(@PathVariable Long postId) {
-
         Post post = service.getPostById(postId);
         PostDTO postDTO = postDTOMapper.apply(post);
 
-        return ResponseEntity.ok()
-                .body(postDTO);
+        return ResponseEntity.ok().body(postDTO);
     }
 
     @PostMapping("/create")
@@ -39,9 +38,17 @@ public class PostController {
         Post savedPost = service.savePost(authentication, newPost);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(postDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
+    }
+
+    @PutMapping("/{postId}/update")
+    public ResponseEntity<?> updatePost(Authentication authentication,
+                                        @Valid @RequestBody PostUpdateRequest newPost,
+                                        @PathVariable Long postId) {
+        Post savedPost = service.updatePost(authentication, newPost, postId);
+        PostDTO postDTO = postDTOMapper.apply(savedPost);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
     @GetMapping("/{userId}/all")

@@ -12,7 +12,7 @@ public class PostPreviewDTOMapper implements Function<Post, PostPreviewDTO> {
     public PostPreviewDTO apply(Post post) {
         return new PostPreviewDTO(
                 post.getId(),
-                post.getUser().getUsername()
+                post.getImageUrl()
         );
     }
 }
