@@ -1,5 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
+import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
 import com.xamarsia.simplephotosharingplatform.dto.post.PostUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTO;
@@ -55,7 +56,7 @@ public class PostController {
     public ResponseEntity<?> deletePost(Authentication authentication,
                                         @PathVariable Long postId) {
         service.deletePostById(authentication, postId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
     @GetMapping("/{userId}/all")
