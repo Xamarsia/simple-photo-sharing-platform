@@ -2,6 +2,7 @@ package com.xamarsia.simplephotosharingplatform.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserDTO;
 import com.xamarsia.simplephotosharingplatform.user.UserDTOMapper;
@@ -34,12 +35,18 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserDTOMapper userDTOMapper;
+    private final EmailVerificationService emailVerificationService;
 
     public Boolean isEmailAlreadyInUse(IsEmailAlreadyInUseRequest request) {
         return userService.isEmailUsed(request.getEmail());
     }
 
     public UserDTO register(RegisterRequest registerRequest) {
+        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
+                registerRequest.getEmailVerificationCode());
+        if(!isCodeCorrect) {
+            throw new RuntimeException("Register: Email verification failed");
+        }
 
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
@@ -91,11 +98,11 @@ public class AuthenticationService {
     ) throws IOException {
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith(ApplicationConstants.Validation.BEARER)) {
+        if (authHeader == null || !authHeader.startsWith(AuthenticationConstants.Validation.BEARER)) {
             return;
         }
 
-        final String refreshToken = authHeader.substring(ApplicationConstants.Validation.BEARER.length());
+        final String refreshToken = authHeader.substring(AuthenticationConstants.Validation.BEARER.length());
         final String userId = jwtService.getSubject(refreshToken);
 
         User user = userService.getById(Long.parseLong(userId));

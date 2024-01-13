@@ -3,7 +3,7 @@ package com.xamarsia.simplephotosharingplatform.security;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class ApplicationConstants {
+public class AuthenticationConstants {
     @UtilityClass
     public class Validation {
         public static final String AUTHORIZATION = "Authorization";
