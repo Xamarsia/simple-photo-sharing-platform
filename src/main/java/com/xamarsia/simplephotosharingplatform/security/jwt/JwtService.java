@@ -1,6 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.security.jwt;
 
-import com.xamarsia.simplephotosharingplatform.security.ApplicationConstants;
+import com.xamarsia.simplephotosharingplatform.security.AuthenticationConstants;
 import com.xamarsia.simplephotosharingplatform.security.token.Token;
 import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
 import io.jsonwebtoken.Claims;
@@ -41,7 +41,13 @@ public class JwtService {
     }
 
     public String generateToken(Map<String, Object> extraClaims, String userId) {
-        return Jwts.builder().setClaims(extraClaims).setSubject(userId).setIssuedAt(Date.from(Instant.now())).setExpiration(Date.from(Instant.now().plus(15, DAYS))).signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userId)
+                .setIssuedAt(Date.from(Instant.now()))
+                .setExpiration(Date.from(Instant.now().plus(15, DAYS)))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public boolean isTokenValid(String token, String userId) {
@@ -77,6 +83,6 @@ public class JwtService {
     }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(ApplicationConstants.Validation.SECRET_KEY.getBytes());
+        return Keys.hmacShaKeyFor(AuthenticationConstants.Validation.SECRET_KEY.getBytes());
     }
 }

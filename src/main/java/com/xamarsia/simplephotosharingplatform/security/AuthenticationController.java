@@ -1,11 +1,9 @@
 package com.xamarsia.simplephotosharingplatform.security;
 
-
+import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
+import com.xamarsia.simplephotosharingplatform.dto.auth.*;
+import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
 import com.xamarsia.simplephotosharingplatform.user.UserDTO;
-import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
-import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
-import com.xamarsia.simplephotosharingplatform.dto.auth.IsEmailAlreadyInUseRequest;
-import com.xamarsia.simplephotosharingplatform.dto.auth.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -25,38 +23,34 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
+    private final EmailVerificationService emailVerificationService;
 
     @GetMapping("/isEmailAlreadyInUse")
-    public Boolean isEmailAlreadyInUse(
-            @Valid @RequestBody IsEmailAlreadyInUseRequest request)
-    {
+    public Boolean isEmailAlreadyInUse(@Valid @RequestBody IsEmailAlreadyInUseRequest request) {
         return authenticationService.isEmailAlreadyInUse(request);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(
-            @Valid @RequestBody RegisterRequest request)
-    {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         UserDTO userDto = authenticationService.register(request);
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login( @Valid @RequestBody AuthenticationRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest request) {
         AuthenticationResponse response = authenticationService.login(request);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, response.token())
-                .body(response);
+        return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, response.token()).body(response);
+    }
+
+    @PostMapping("/sendVerificationCode")
+    public ResponseEntity<?> sendVerificationCodeToEmail(@Valid @RequestBody EmailVerificationRequest request) {
+        emailVerificationService.sendEmailVerificationCode(request.email());
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
     @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
+    public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         authenticationService.refreshToken(request, response);
     }
 }
