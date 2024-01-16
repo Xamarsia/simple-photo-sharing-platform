@@ -41,7 +41,7 @@ public class EmailVerificationService {
     }
 
     private boolean isCodeExpired(Integer lifeTimeInSeconds, EmailVerification code) {
-        return ChronoUnit.SECONDS.between(LocalDateTime.now(), code.creationDateTime) >= lifeTimeInSeconds;
+        return ChronoUnit.SECONDS.between(code.creationDateTime, LocalDateTime.now()) >= lifeTimeInSeconds;
     }
 
 //    public void deleteCodeByEmail(@NotNull @NotEmpty String email) {
@@ -77,7 +77,7 @@ public class EmailVerificationService {
 
     public boolean isVerificationCodeCorrect(String email, Integer code) {
         EmailVerification savedCode = getCodeByEmail(email);
-        if (isCodeExpired(ApplicationConstants.Validation.EMAIL_VERIFICATION_RESEND_TIME, savedCode)) {
+        if (isCodeExpired(ApplicationConstants.Validation.EMAIL_VERIFICATION_CODE_LIFETIME_IN_SECONDS, savedCode)) {
             throw new RuntimeException("Email verification code has expired. Please, create a new one.");
         } else if (savedCode.isUsed) {
             throw new RuntimeException("Email verification code cannot be used twice. Please, wait " +
