@@ -20,17 +20,13 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(
-        name = "_user",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "user_email_unique",
-                        columnNames = "email"
-                ),
-                @UniqueConstraint(
-                        name = "profile_image_id_unique",
-                        columnNames = "profileImageId"
-                )
-        }
+    name = "_user",
+    uniqueConstraints = {
+        @UniqueConstraint(
+            name = "user_email_unique",
+            columnNames = "email"
+        ),
+    }
 )
 public class User implements UserDetails {
 
@@ -50,8 +46,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    //    @Column(nullable = false)
-    private String profileImageId;
+    @Builder.Default
+    private Boolean isProfileImageExist = false;
 
     @Enumerated(EnumType.STRING)
     @Builder.Default
@@ -94,16 +90,16 @@ public class User implements UserDetails {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id)
-                && Objects.equals(fullName, user.fullName)
-                && Objects.equals(username, user.username)
-                && Objects.equals(email, user.email)
-                && Objects.equals(password, user.password)
-                && Objects.equals(profileImageId, user.profileImageId);
+            && Objects.equals(fullName, user.fullName)
+            && Objects.equals(username, user.username)
+            && Objects.equals(email, user.email)
+            && Objects.equals(password, user.password)
+            && Objects.equals(isProfileImageExist, user.isProfileImageExist);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, fullName, username, email, password, profileImageId);
+        return Objects.hash(id, fullName, username, email, password, isProfileImageExist);
     }
 
     @Override
@@ -114,7 +110,7 @@ public class User implements UserDetails {
                 ", username=" + username + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", profileImageId='" + profileImageId + '\'' +
+                ", isProfileImageExist='" + isProfileImageExist + '\'' +
                 '}';
     }
 }
