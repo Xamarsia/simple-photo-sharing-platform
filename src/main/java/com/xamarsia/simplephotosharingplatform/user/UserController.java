@@ -62,7 +62,7 @@ public class UserController {
     @DeleteMapping
     public ResponseEntity<?> deleteUser(Authentication authentication) {
         service.deleteUser(authentication);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
     @PostMapping(value = "/profile/image",
