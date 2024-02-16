@@ -21,9 +21,7 @@ public record UserDTO (
         @NotNull
         String email,
 
-        @NotEmpty
-        @NotNull
-        String profileImageId,
+        Boolean isProfileImageExist,
 
         @NotEmpty
         @NotNull

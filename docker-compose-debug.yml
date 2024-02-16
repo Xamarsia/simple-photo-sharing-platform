@@ -24,6 +24,7 @@ services:
         target: /opt/app/src
     env_file:
       - .env
+      - .aws-credentials
     ports:
       - "${LOCAL_APP_PORT}:8080"
     depends_on:
