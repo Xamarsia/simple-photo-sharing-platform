@@ -12,10 +12,6 @@ public record PostDTO(
         @NotNull
         String createdDate,
 
-        @NotEmpty
-        @NotNull
-        String imageUrl,
-
         String description,
 
         @NotEmpty

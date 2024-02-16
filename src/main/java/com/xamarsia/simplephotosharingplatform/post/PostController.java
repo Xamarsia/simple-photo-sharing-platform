@@ -2,12 +2,13 @@ package com.xamarsia.simplephotosharingplatform.post;
 
 import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
-import com.xamarsia.simplephotosharingplatform.dto.post.PostUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.dto.post.UpdatePostRequest;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTOMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -32,19 +33,24 @@ public class PostController {
         return ResponseEntity.ok().body(postDTO);
     }
 
-    @PostMapping("/create")
+    @GetMapping(value = "/{postId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] getPostImage(@PathVariable Long postId) {
+        return service.getPostImage(postId);
+    }
+
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPost(Authentication authentication,
-            @Valid @RequestBody CreatePostRequest newPost)
-    {
+                                        @ModelAttribute CreatePostRequest newPost) {
         Post savedPost = service.savePost(authentication, newPost);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
-    @PutMapping("/{postId}/update")
+    @PutMapping(value = "/{postId}/update",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePost(Authentication authentication,
-                                        @Valid @RequestBody PostUpdateRequest newPost,
+                                        @ModelAttribute UpdatePostRequest newPost,
                                         @PathVariable Long postId) {
         Post savedPost = service.updatePost(authentication, newPost, postId);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
