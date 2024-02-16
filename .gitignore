@@ -19,6 +19,12 @@ target/
 *.iml
 *.ipr
 
+### MVN ###
+.mvn
+.mvn/*
+*.jar
+
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
@@ -33,5 +39,5 @@ build/
 .vscode/
 
 ### Environment ###
-*.env
-*.aws-credentials
+.env
+.aws-credentials
