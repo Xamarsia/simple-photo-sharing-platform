@@ -1,11 +1,16 @@
 package com.xamarsia.simplephotosharingplatform.dto.post;
 
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 
-public record CreatePostRequest(
-        @NotNull @NotEmpty String imageUrl,
-        String description
-        ) {
+@Getter
+@Setter
+public class CreatePostRequest {
+    private String description;
+
+    @NotEmpty
+    private MultipartFile image;
 }

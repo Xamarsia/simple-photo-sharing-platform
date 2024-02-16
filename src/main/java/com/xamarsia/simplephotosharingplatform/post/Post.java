@@ -2,8 +2,6 @@ package com.xamarsia.simplephotosharingplatform.post;
 
 import com.xamarsia.simplephotosharingplatform.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,10 +19,6 @@ public class Post {
     private LocalDateTime createdDate = null;
     
     private String description;
-
-    @NotEmpty
-    @NotNull
-    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
