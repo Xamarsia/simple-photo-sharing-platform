@@ -53,7 +53,7 @@ public class User implements UserDetails {
     @Builder.Default
     private Role role = Role.USER;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Token> tokens;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

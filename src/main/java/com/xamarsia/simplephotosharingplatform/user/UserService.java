@@ -85,11 +85,12 @@ public class UserService {
         return repository.save(user);
     }
 
-    public void deleteUserById(Long id) {
-        if (!isUserWithIdExist(id)) {
-            throw new RuntimeException("Delete user by Id: User not found with id " + id);
+    public void deleteUser(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+        if (user.getIsProfileImageExist()) {
+            s3Service.deleteObject(s3Buckets.getProfilesImages(), user.getId().toString());
         }
-        repository.deleteById(id);
+        repository.deleteById(user.getId());
     }
 
 

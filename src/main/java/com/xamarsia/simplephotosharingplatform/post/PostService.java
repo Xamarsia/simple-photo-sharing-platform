@@ -148,6 +148,7 @@ public class PostService {
         if (!isPostWithIdExist(postId)) {
             throw new RuntimeException("Delete post by Id: Post not found with id " + postId);
         }
+        s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
         repository.deleteById(postId);
     }
 }
