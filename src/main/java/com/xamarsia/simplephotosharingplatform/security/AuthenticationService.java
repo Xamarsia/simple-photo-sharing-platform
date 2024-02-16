@@ -22,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -42,11 +43,11 @@ public class AuthenticationService {
     }
 
     public UserDTO register(RegisterRequest registerRequest) {
-        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
-                registerRequest.getEmailVerificationCode());
-        if(!isCodeCorrect) {
-            throw new RuntimeException("Register: Email verification failed");
-        }
+//        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
+//                registerRequest.getEmailVerificationCode());
+//        if(!isCodeCorrect) {
+//            throw new RuntimeException("Register: Email verification failed");
+//        }
 
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
@@ -56,6 +57,11 @@ public class AuthenticationService {
                 .build();
 
         User savedUser = userService.saveUser(user);
+
+        MultipartFile file = registerRequest.getImage();
+        if (file != null && !file.isEmpty()) {
+            userService.uploadProfileImage(user, registerRequest.getImage());
+        }
         return userDTOMapper.apply(savedUser);
     }
 

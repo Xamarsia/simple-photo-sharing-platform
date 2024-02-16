@@ -70,7 +70,8 @@ public class UserController {
     public ResponseEntity<?> uploadProfileImage(
             Authentication authentication,
             @RequestParam("file") MultipartFile file) {
-        service.uploadProfileImage(authentication, file);
+        User user = service.getAuthenticatedUser(authentication);
+        service.uploadProfileImage(user, file);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 

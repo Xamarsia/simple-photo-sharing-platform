@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
@@ -29,6 +30,8 @@ public class RegisterRequest {
     @Size(min = 6, message = "Password should be at least 6 characters.")
     private String password;
 
-    @NotNull(message = "Email verification code is required.")
-    Integer emailVerificationCode;
+    private MultipartFile image;
+
+//    @NotNull(message = "Email verification code is required.")
+//    Integer emailVerificationCode;
 }

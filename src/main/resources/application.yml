@@ -38,8 +38,8 @@ aws:
   region: ca-central-1
   s3:
     buckets:
-      posts:
-        images: spsp-posts-images
+      posts: "spsp-post-images"
+      profiles: "spsp-profile-images"
 
 server:
   port: 18080

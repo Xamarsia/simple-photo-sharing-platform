@@ -7,12 +7,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "aws.s3.buckets.posts")
+@ConfigurationProperties(prefix = "aws.s3.buckets")
 public class S3Buckets {
-    private String images;
+    private String posts;
+    private String profiles;
 
-    public String getImages() {
-        System.out.println("Images: " + images);
-        return images;
+    public String getPostsImages() {
+        System.out.println("Posts: " + posts);
+        return posts;
+    }
+
+    public String getProfilesImages() {
+        System.out.println("Profiles: " + profiles);
+        return profiles;
     }
 }

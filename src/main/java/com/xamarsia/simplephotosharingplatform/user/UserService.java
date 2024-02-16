@@ -136,26 +136,24 @@ public class UserService {
         return repository.findUserByEmail(email);
     }
 
-    public void uploadProfileImage(Authentication authentication, MultipartFile file) {
+    public void uploadProfileImage(User user, MultipartFile file) {
         if (file.isEmpty()) {
             throw new RuntimeException("[UploadProfileImage]: File is empty. Cannot save an empty file");
         }
-
         String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
         if (!(Objects.equals(extension, "jpg") || Objects.equals(extension, "jpeg "))) {
             throw new RuntimeException("[UploadProfileImage]: Wrong file extension found: " + extension
                     + ". Only .jpg and .jpeg files are allowed.");
         }
-
-        User user = getAuthenticatedUser(authentication);
         try {
-            s3Service.putObject(s3Buckets.getImages(),
-                    "profile-images/%s".formatted(user.getId()),
+            s3Service.putObject(s3Buckets.getProfilesImages(),
+                    user.getId().toString(),
                     file.getBytes()
             );
         } catch (IOException e) {
             throw new RuntimeException("[UploadProfileImage]: " + e.getMessage());
         }
+
         user.setIsProfileImageExist(true);
         saveUser(user);
     }
@@ -165,7 +163,7 @@ public class UserService {
         User user = getByUsername(username);
         String key = user.getIsProfileImageExist() ? user.getId().toString() : "default";
         //TODO: Check if profileImage is empty or null
-        return s3Service.getObject(s3Buckets.getImages(),
-                "profile-images/%s".formatted(key));
+        return s3Service.getObject(s3Buckets.getProfilesImages(),
+                key);
     }
 }
