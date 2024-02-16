@@ -21,8 +21,6 @@ public record UserDTO (
         @NotNull
         String email,
 
-        Boolean isProfileImageExist,
-
         @NotEmpty
         @NotNull
         List<String> roles) {

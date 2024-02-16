@@ -3,7 +3,8 @@ package com.xamarsia.simplephotosharingplatform.user;
 import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.security.jwt.JwtService;
+import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTOMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -22,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
     private final UserService service;
     private final UserDTOMapper userDTOMapper;
-    private final JwtService jwtService;
+    private final UserPreviewDTOMapper userPreviewDTOMapper;
 
     @GetMapping
     public ResponseEntity<UserDTO> getAuthenticatedUser(Authentication authentication) {
@@ -40,6 +41,12 @@ public class UserController {
     @GetMapping("/all")
     public List<UserDTO> all() {
         return service.selectAllUsers().stream().map(userDTOMapper)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("preview/all")
+    public List<UserPreviewDTO> getPostsPreview() {
+        return service.selectAllUsers().stream().map(userPreviewDTOMapper)
                 .collect(Collectors.toList());
     }
 

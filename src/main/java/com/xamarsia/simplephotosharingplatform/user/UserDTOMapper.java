@@ -15,7 +15,6 @@ public class UserDTOMapper implements Function<User, UserDTO> {
                 user.getFullName(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getIsProfileImageExist(),
                 user.getAuthorities()
                         .stream()
                         .map(GrantedAuthority::getAuthority)
