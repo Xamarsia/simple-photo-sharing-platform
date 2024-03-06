@@ -39,6 +39,30 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public State getState(Authentication authentication, String username) {
+        User currentUser = getAuthenticatedUser(authentication);
+        if (Objects.equals(currentUser.getUsername(), username)) {
+            return State.CURRENT;
+        }
+        if (isUserInFollowing(currentUser, username)) {
+            return State.FOLLOWED;
+        }
+        return State.UNFOLLOWED;
+    }
+
+    @Transactional(readOnly = true)
+    public State getState(Authentication authentication, User user) {
+        User currentUser = getAuthenticatedUser(authentication);
+        if (Objects.equals(currentUser.getUsername(), user.getUsername())) {
+            return State.CURRENT;
+        }
+        if (isUserInFollowing(currentUser, user.getUsername())) {
+            return State.FOLLOWED;
+        }
+        return State.UNFOLLOWED;
+    }
+
+    @Transactional(readOnly = true)
     public User getByUsername(String username) {
         return repository.findUserByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username " + username));
@@ -93,7 +117,6 @@ public class UserService {
         repository.deleteById(user.getId());
     }
 
-
     public User updateUserPassword(Authentication authentication,
                                    PasswordUpdateRequest passwordData) {
         User user = getAuthenticatedUser(authentication);
@@ -107,6 +130,40 @@ public class UserService {
         return saveUser(user);
     }
 
+    public User follow(Authentication authentication, String username) {
+        User user = getAuthenticatedUser(authentication);
+
+        User follower = repository.findUserByUsername(username)
+                .orElseThrow(() -> new RuntimeException("[Follow]: Follower not found with username " + username));
+        if (Objects.equals(user.getUsername(), follower.getUsername())) {
+            throw new RuntimeException("[Follow]: Invalid parameter. User and his follower can't have the same username: " + username);
+        }
+        user.getFollowings().add(follower);
+        saveUser(follower);
+        return saveUser(user);
+    }
+
+    public User unfollow(Authentication authentication, String username) {
+        User user = getAuthenticatedUser(authentication);
+
+        User follower = repository.findUserByUsername(username)
+                .orElseThrow(() -> new RuntimeException("[Unfollow]: Follower not found with username " + username));
+        if (Objects.equals(user.getUsername(), follower.getUsername())) {
+            throw new RuntimeException("[Unfollow]: Invalid parameter. User and his follower can't have the same username: " + username);
+        }
+        user.getFollowings().remove(follower);
+        saveUser(follower);
+        return saveUser(user);
+    }
+
+    public Boolean isUserInFollowing(Authentication authentication, String username) {
+        User user = getAuthenticatedUser(authentication);
+        return isUserInFollowing(user, username);
+    }
+
+    public Boolean isUserInFollowing(User currentUser, String username) {
+        return currentUser.getFollowings().stream().map(User::getUsername).anyMatch(username::equals);
+    }
 
     public User updateUser(Authentication authentication, UserUpdateRequest newUserData) {
         User user = getAuthenticatedUser(authentication);

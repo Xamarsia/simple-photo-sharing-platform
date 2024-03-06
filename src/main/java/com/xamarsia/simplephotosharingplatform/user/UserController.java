@@ -27,41 +27,98 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<UserDTO> getAuthenticatedUser(Authentication authentication) {
-        UserDTO userDTO = userDTOMapper.apply(service.getAuthenticatedUser(authentication));
+        UserDTO userDTO = userDTOMapper.apply(authentication, service.getAuthenticatedUser(authentication));
         return ResponseEntity.ok().body(userDTO);
     }
 
     @GetMapping("/{username}")
-    public ResponseEntity<UserDTO> getUserDTOByUsername(@PathVariable String username) {
+    public ResponseEntity<UserDTO> getUserDTOByUsername(Authentication authentication,
+                                                        @PathVariable String username) {
         User user = service.getByUsername(username);
-        UserDTO userDTO = userDTOMapper.apply(user);
+        UserDTO userDTO = userDTOMapper.apply(authentication, user);
+        return ResponseEntity.ok().body(userDTO);
+    }
+
+    @GetMapping("/{username}/followers")
+    public List<UserPreviewDTO> getUserFollowers(Authentication authentication,
+                                                 @PathVariable String username) {
+        User user = service.getByUsername(username);
+        return user.getFollowers().stream().map(follower -> userPreviewDTOMapper.apply(authentication, follower))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{followingUsername}/isUserInFollowing")
+    public ResponseEntity<Boolean> isUserInFollowing(Authentication authentication,
+                                                     @PathVariable String followingUsername) {
+        return ResponseEntity.ok().body(service.isUserInFollowing(authentication, followingUsername));
+    }
+
+    @GetMapping("/{username}/following")
+    public List<UserPreviewDTO> getUserFollowings(Authentication authentication,
+                                                  @PathVariable String username) {
+        User user = service.getByUsername(username);
+        return user.getFollowings().stream().map(following -> userPreviewDTOMapper.apply(authentication, following))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{username}/following/count")
+    public Integer getUserFollowingCount(@PathVariable String username) {
+        User user = service.getByUsername(username);
+        return user.getFollowings().size();
+    }
+
+    @GetMapping("/{username}/posts/count")
+    public Integer getUserPostsCount(@PathVariable String username) {
+        User user = service.getByUsername(username);
+        return user.getPosts().size();
+    }
+
+    @GetMapping("/{username}/followers/count")
+    public Integer getUserFollowersCount(@PathVariable String username) {
+        User user = service.getByUsername(username);
+        return user.getFollowers().size();
+    }
+
+    @PutMapping("/{followerUsername}/follow")
+    public ResponseEntity<?> addUserFollower(Authentication authentication,
+                                             @PathVariable String followerUsername) {
+        User user = service.follow(authentication, followerUsername);
+        UserDTO userDTO = userDTOMapper.apply(authentication, user);
+        return ResponseEntity.ok().body(userDTO);
+    }
+
+    @PutMapping("{followerUsername}/unfollow")
+    public ResponseEntity<?> removeUserFollower(Authentication authentication,
+                                                @PathVariable String followerUsername) {
+        User user = service.unfollow(authentication, followerUsername);
+        UserDTO userDTO = userDTOMapper.apply(authentication, user);
         return ResponseEntity.ok().body(userDTO);
     }
 
     @GetMapping("/all")
-    public List<UserDTO> all() {
-        return service.selectAllUsers().stream().map(userDTOMapper)
+    public List<UserDTO> all(Authentication authentication) {
+        return service.selectAllUsers().stream().map(user -> userDTOMapper.apply(authentication, user))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("preview/all")
-    public List<UserPreviewDTO> getPostsPreview() {
-        return service.selectAllUsers().stream().map(userPreviewDTOMapper)
+    public List<UserPreviewDTO> getUsersPreview(Authentication authentication) {
+        return service.selectAllUsers().stream().map(user -> userPreviewDTOMapper.apply(authentication, user))
                 .collect(Collectors.toList());
     }
 
     @PutMapping("/update")
     ResponseEntity<?> updateUser(Authentication authentication, @RequestBody @Valid UserUpdateRequest newUserData) {
         User updatedUser = service.updateUser(authentication, newUserData);
-        UserDTO userDTO = userDTOMapper.apply(updatedUser);
+        UserDTO userDTO = userDTOMapper.apply(authentication, updatedUser);
         return ResponseEntity.ok().body(userDTO);
     }
 
     @PutMapping("/password/update")
     ResponseEntity<?> updateUserPassword(Authentication authentication,
-                                 @RequestBody @Valid PasswordUpdateRequest newPasswordData) {
+                                         @RequestBody @Valid PasswordUpdateRequest newPasswordData) {
         User updatedUser = service.updateUserPassword(authentication, newPasswordData);
-        UserDTO userDTO = userDTOMapper.apply(updatedUser);
+        UserDTO userDTO = userDTOMapper.apply(authentication, updatedUser);
         return ResponseEntity.ok()
                 .body(userDTO);
     }

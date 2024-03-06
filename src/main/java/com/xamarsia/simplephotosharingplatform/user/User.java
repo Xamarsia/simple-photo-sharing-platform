@@ -20,13 +20,13 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(
-    name = "_user",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "user_email_unique",
-            columnNames = "email"
-        ),
-    }
+        name = "_user",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "user_email_unique",
+                        columnNames = "email"
+                ),
+        }
 )
 public class User implements UserDetails {
 
@@ -59,10 +59,27 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Post> posts = new HashSet<>();
 
+
+    @ManyToMany
+    @JoinTable(name = "following",
+            joinColumns = @JoinColumn(name = "followingId"),
+            inverseJoinColumns = @JoinColumn(name = "followerId")
+    )
+    private Set<User> followers = new HashSet<User>();
+
+    @ManyToMany
+    @JoinTable(name = "following",
+            joinColumns = @JoinColumn(name = "followerId"),
+            inverseJoinColumns = @JoinColumn(name = "followingId")
+    )
+    private Set<User> followings = new HashSet<User>();
+
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
+
 
     @Override
     public boolean isAccountNonExpired() {
@@ -90,11 +107,11 @@ public class User implements UserDetails {
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
         return Objects.equals(id, user.id)
-            && Objects.equals(fullName, user.fullName)
-            && Objects.equals(username, user.username)
-            && Objects.equals(email, user.email)
-            && Objects.equals(password, user.password)
-            && Objects.equals(isProfileImageExist, user.isProfileImageExist);
+                && Objects.equals(fullName, user.fullName)
+                && Objects.equals(username, user.username)
+                && Objects.equals(email, user.email)
+                && Objects.equals(password, user.password)
+                && Objects.equals(isProfileImageExist, user.isProfileImageExist);
     }
 
     @Override
