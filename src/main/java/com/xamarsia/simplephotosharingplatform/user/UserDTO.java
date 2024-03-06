@@ -1,10 +1,13 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
-public record UserDTO (
+public record UserDTO(
         @NotEmpty
         @NotNull
         Long id,
@@ -23,5 +26,11 @@ public record UserDTO (
 
         @NotEmpty
         @NotNull
-        List<String> roles) {
+        List<String> roles,
+
+        @NotEmpty
+        @NotNull
+        @Enumerated(EnumType.STRING)
+        State state
+) {
 }

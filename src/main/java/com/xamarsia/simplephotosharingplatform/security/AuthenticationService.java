@@ -3,10 +3,7 @@ package com.xamarsia.simplephotosharingplatform.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
-import com.xamarsia.simplephotosharingplatform.user.User;
-import com.xamarsia.simplephotosharingplatform.user.UserDTO;
-import com.xamarsia.simplephotosharingplatform.user.UserDTOMapper;
-import com.xamarsia.simplephotosharingplatform.user.UserService;
+import com.xamarsia.simplephotosharingplatform.user.*;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
 import com.xamarsia.simplephotosharingplatform.dto.auth.IsEmailAlreadyInUseRequest;
@@ -15,6 +12,8 @@ import com.xamarsia.simplephotosharingplatform.security.jwt.JwtService;
 import com.xamarsia.simplephotosharingplatform.security.token.Token;
 import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
 import com.xamarsia.simplephotosharingplatform.security.token.TokenType;
+import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTOMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -36,25 +35,21 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserDTOMapper userDTOMapper;
+    private final UserPreviewDTOMapper userPreviewDTOMapper;
     private final EmailVerificationService emailVerificationService;
 
     public Boolean isEmailAlreadyInUse(IsEmailAlreadyInUseRequest request) {
         return userService.isEmailUsed(request.getEmail());
     }
 
-    public UserDTO register(RegisterRequest registerRequest) {
+    public UserPreviewDTO register(RegisterRequest registerRequest) {
 //        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
 //                registerRequest.getEmailVerificationCode());
 //        if(!isCodeCorrect) {
 //            throw new RuntimeException("Register: Email verification failed");
 //        }
 
-        User user = User.builder()
-                .fullName(registerRequest.getFullName())
-                .username(registerRequest.getUsername())
-                .email(registerRequest.getEmail())
-                .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .build();
+        User user = User.builder().fullName(registerRequest.getFullName()).username(registerRequest.getUsername()).email(registerRequest.getEmail()).password(passwordEncoder.encode(registerRequest.getPassword())).build();
 
         User savedUser = userService.saveUser(user);
 
@@ -62,12 +57,12 @@ public class AuthenticationService {
         if (file != null && !file.isEmpty()) {
             userService.uploadProfileImage(user, registerRequest.getImage());
         }
-        return userDTOMapper.apply(savedUser);
+        return userPreviewDTOMapper.apply(savedUser, State.CURRENT);
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
         User user = userService.getByEmail(request.email());
-        UserDTO userDTO = userDTOMapper.apply(user);
+        UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new RuntimeException("Login: The password is incorrect!");
@@ -112,7 +107,7 @@ public class AuthenticationService {
         final String userId = jwtService.getSubject(refreshToken);
 
         User user = userService.getById(Long.parseLong(userId));
-        UserDTO userDTO = userDTOMapper.apply(user);
+        UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
 
         if (jwtService.isTokenValid(refreshToken, userId)) {
             var newToken = jwtService.generateToken(userId);

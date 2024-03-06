@@ -3,7 +3,7 @@ package com.xamarsia.simplephotosharingplatform.security;
 import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.dto.auth.*;
 import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
-import com.xamarsia.simplephotosharingplatform.user.UserDTO;
+import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -34,9 +34,8 @@ public class AuthenticationController {
     @PostMapping(value ="/register",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> register(@Valid @ModelAttribute RegisterRequest request) {
-        UserDTO userDto = authenticationService.register(request);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
+        UserPreviewDTO userPreviewDto = authenticationService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userPreviewDto);
     }
 
     @PostMapping("/login")
