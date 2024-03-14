@@ -5,6 +5,7 @@ import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -82,6 +83,24 @@ public class UserService {
         String name = authentication.getName();
         return findUserByUsername(name)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + name));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<User> getUserFollowersPage(String username,
+                                           Integer pageNumber,
+                                           Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        User user = getByUsername(username);
+        return repository.findUsersByFollowings(user, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<User> getUserFollowingsPage(String username,
+                                            Integer pageNumber,
+                                            Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        User user = getByUsername(username);
+        return repository.findUsersByFollowers(user, pageable);
     }
 
     public boolean isEmailUsed(String email) {

@@ -7,7 +7,9 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PostService {
@@ -99,6 +99,22 @@ public class PostService {
     @Transactional(readOnly = true)
     public List<Post> findPostsByUserId(Long userId) {
         return repository.findAllByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Post> getPostsPageByUserId(Long userId, Integer pageNumber, Integer pageSize) {
+        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdDate"));
+        return repository.findPostsByUserId(userId, sortedByCreatedDate);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Post> getUserFollowingsPostsPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
+        User user = userService.getAuthenticatedUser(authentication);
+
+        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Set<User> followings = user.getFollowings();
+
+        return repository.findPostsByUserIsIn(followings, sortedByCreatedDate);
     }
 
     @Transactional(readOnly = true)
