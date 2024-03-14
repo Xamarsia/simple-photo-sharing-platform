@@ -5,8 +5,9 @@ import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
 import com.xamarsia.simplephotosharingplatform.dto.post.UpdatePostRequest;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTOMapper;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -73,6 +74,25 @@ public class PostController {
     @GetMapping("preview/{userId}/all")
     public List<PostPreviewDTO> getPostsPreviewByUserId(@PathVariable Long userId) {
         return service.findPostsByUserId(userId).stream().map(postPreviewMapper).collect(Collectors.toList());
+    }
+
+    @GetMapping("preview/{userId}/page")
+    public Page<PostPreviewDTO> getPostsPreviewPageByUserId(@PathVariable Long userId,
+                                                            @RequestParam Integer size,
+                                                            @RequestParam Integer page) {
+        Page<Post> postsPage = service.getPostsPageByUserId(userId, page, size);
+        List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
+
+        return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
+    }
+
+    @GetMapping("following/preview/page")
+    public Page<PostPreviewDTO> getPostsPreviewByUserFollowing(Authentication authentication,
+                                                               @RequestParam Integer size,
+                                                               @RequestParam Integer page) {
+        Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
+        List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
+        return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
     }
 
     @GetMapping("/{userId}/count")

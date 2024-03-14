@@ -8,6 +8,8 @@ import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTOMapper
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,26 @@ public class UserController {
         User user = service.getByUsername(username);
         return user.getFollowers().stream().map(follower -> userPreviewDTOMapper.apply(authentication, follower))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{username}/followers/page")
+    public Page<UserPreviewDTO> getUserFollowersPage(Authentication authentication,
+                                                     @PathVariable String username,
+                                                     @RequestParam Integer size,
+                                                     @RequestParam Integer page) {
+        Page<User> followersPage = service.getUserFollowersPage(username, page, size);
+        List<UserPreviewDTO> followingsPreviewDTO = followersPage.stream().map(follower -> userPreviewDTOMapper.apply(authentication, follower)).collect(Collectors.toList());
+        return new PageImpl<>(followingsPreviewDTO, followersPage.getPageable(), followersPage.getTotalElements());
+    }
+
+    @GetMapping("/{username}/followings/page")
+    public Page<UserPreviewDTO> getUserFollowingsPage(Authentication authentication,
+                                                      @PathVariable String username,
+                                                      @RequestParam Integer size,
+                                                      @RequestParam Integer page) {
+        Page<User> followingsPage = service.getUserFollowingsPage(username, page, size);
+        List<UserPreviewDTO> followingsPreviewDTO = followingsPage.stream().map(following -> userPreviewDTOMapper.apply(authentication, following)).collect(Collectors.toList());
+        return new PageImpl<>(followingsPreviewDTO, followingsPage.getPageable(), followingsPage.getTotalElements());
     }
 
     @GetMapping("/{followingUsername}/isUserInFollowing")
