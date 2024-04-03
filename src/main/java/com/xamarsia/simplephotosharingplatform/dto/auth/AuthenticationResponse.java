@@ -1,10 +1,9 @@
 package com.xamarsia.simplephotosharingplatform.dto.auth;
 
 import com.xamarsia.simplephotosharingplatform.user.UserDTO;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record AuthenticationResponse(
-        @NotNull @NotEmpty String token,
-        @NotNull @NotEmpty UserDTO userDTO) {
+        @NotBlank String token,
+        @NotBlank UserDTO userDTO) {
 }

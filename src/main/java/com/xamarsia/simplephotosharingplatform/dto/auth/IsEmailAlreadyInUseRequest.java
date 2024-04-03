@@ -1,18 +1,13 @@
 package com.xamarsia.simplephotosharingplatform.dto.auth;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
+
+@Setter
+@Getter
 public class IsEmailAlreadyInUseRequest {
-    @NotEmpty
-    @NotNull(message = "Email is required.")
+    @NotBlank(message = "Email is required.")
     private String email;
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }

@@ -1,24 +1,24 @@
 package com.xamarsia.simplephotosharingplatform.dto.user;
 
-import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import com.xamarsia.simplephotosharingplatform.common.validator.Email.UniqueEmail;
+import com.xamarsia.simplephotosharingplatform.common.validator.Username.UniqueUsername;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class UserUpdateRequest {
 
     //TODO Move the email update logic to a separate request with a request for e-mail confirmation
-    @NotNull
-    @NotEmpty
-    @Size(min = 1, message = "Email is required.")
+    @UniqueEmail(message = "A user with email '${validatedValue}' already exists.")
+    @NotBlank(message = "Email is required.")
     private String email;
 
-    @NotNull
-    @NotEmpty
+    @NotBlank(message = "Full name is required.")
     private String fullName;
 
-    @NotNull
-    @NotEmpty
+    @NotBlank(message = "Email is required.")
+    @UniqueUsername(message = "A user with username '${validatedValue}' already exists.")
     private String username;
 }
