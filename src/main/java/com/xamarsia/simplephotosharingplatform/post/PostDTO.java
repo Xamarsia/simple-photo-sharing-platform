@@ -1,20 +1,16 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record PostDTO(
-        @NotEmpty
-        @NotNull
+        @NotBlank(message = "Id is required.")
         Long id,
 
-        @NotEmpty
-        @NotNull
+        @NotBlank(message = "Created date is required.")
         String createdDate,
 
         String description,
 
-        @NotEmpty
-        @NotNull
+        @NotBlank(message = "Username is required.")
         String username) {
 }

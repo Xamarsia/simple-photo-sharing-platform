@@ -18,7 +18,7 @@ public class RegisterRequest {
     @NotBlank(message = "Full name is required.")
     private String fullName;
 
-    @NotBlank(message = "Email is required.")
+    @NotBlank(message = "Username is required.")
     @UniqueUsername(message = "A user with username '${validatedValue}' already exists.")
     private String username;
 

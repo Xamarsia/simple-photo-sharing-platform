@@ -11,8 +11,8 @@ import lombok.Setter;
 public class UserUpdateRequest {
 
     //TODO Move the email update logic to a separate request with a request for e-mail confirmation
-    @UniqueEmail(message = "A user with email '${validatedValue}' already exists.")
     @NotBlank(message = "Email is required.")
+    @UniqueEmail(message = "A user with email '${validatedValue}' already exists.")
     private String email;
 
     @NotBlank(message = "Full name is required.")

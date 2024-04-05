@@ -36,7 +36,7 @@ public class UserController {
     @GetMapping("/{username}")
     public ResponseEntity<UserDTO> getUserDTOByUsername(Authentication authentication,
                                                         @PathVariable String username) {
-        User user = service.getByUsername(username);
+        User user = service.getUserByUsername(username);
         UserDTO userDTO = userDTOMapper.apply(authentication, user);
         return ResponseEntity.ok().body(userDTO);
     }
@@ -44,7 +44,7 @@ public class UserController {
     @GetMapping("/{username}/followers")
     public List<UserPreviewDTO> getUserFollowers(Authentication authentication,
                                                  @PathVariable String username) {
-        User user = service.getByUsername(username);
+        User user = service.getUserByUsername(username);
         return user.getFollowers().stream().map(follower -> userPreviewDTOMapper.apply(authentication, follower))
                 .collect(Collectors.toList());
     }
@@ -78,26 +78,26 @@ public class UserController {
     @GetMapping("/{username}/following")
     public List<UserPreviewDTO> getUserFollowings(Authentication authentication,
                                                   @PathVariable String username) {
-        User user = service.getByUsername(username);
+        User user = service.getUserByUsername(username);
         return user.getFollowings().stream().map(following -> userPreviewDTOMapper.apply(authentication, following))
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{username}/following/count")
     public Integer getUserFollowingCount(@PathVariable String username) {
-        User user = service.getByUsername(username);
+        User user = service.getUserByUsername(username);
         return user.getFollowings().size();
     }
 
     @GetMapping("/{username}/posts/count")
     public Integer getUserPostsCount(@PathVariable String username) {
-        User user = service.getByUsername(username);
+        User user = service.getUserByUsername(username);
         return user.getPosts().size();
     }
 
     @GetMapping("/{username}/followers/count")
     public Integer getUserFollowersCount(@PathVariable String username) {
-        User user = service.getByUsername(username);
+        User user = service.getUserByUsername(username);
         return user.getFollowers().size();
     }
 
