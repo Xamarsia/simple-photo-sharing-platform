@@ -1,11 +1,9 @@
 package com.xamarsia.simplephotosharingplatform.post.preview;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record PostPreviewDTO(
-        @NotEmpty
-        @NotNull
+        @NotBlank(message = "Id is required.")
         Long id
 ) {
 }

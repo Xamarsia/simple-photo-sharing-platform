@@ -23,24 +23,24 @@ import java.io.IOException;
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
-    private final AuthenticationService authenticationService;
+    private final AuthenticationService authService;
     private final EmailVerificationService emailVerificationService;
 
     @GetMapping("/isEmailAlreadyInUse")
     public Boolean isEmailAlreadyInUse(@Valid @RequestBody IsEmailAlreadyInUseRequest request) {
-        return authenticationService.isEmailAlreadyInUse(request);
+        return authService.isEmailAlreadyInUse(request);
     }
 
     @PostMapping(value ="/register",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> register(@Valid @ModelAttribute RegisterRequest request) {
-        UserPreviewDTO userPreviewDto = authenticationService.register(request);
+        UserPreviewDTO userPreviewDto = authService.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(userPreviewDto);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest request) {
-        AuthenticationResponse response = authenticationService.login(request);
+        AuthenticationResponse response = authService.login(request);
         return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, response.token()).body(response);
     }
 
@@ -52,6 +52,6 @@ public class AuthenticationController {
 
     @PostMapping("/refresh-token")
     public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        authenticationService.refreshToken(request, response);
+        authService.refreshToken(request, response);
     }
 }

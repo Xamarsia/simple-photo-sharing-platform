@@ -1,5 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.security.config;
 
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidJWTException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
 import com.xamarsia.simplephotosharingplatform.security.AuthenticationConstants;
 import com.xamarsia.simplephotosharingplatform.security.token.Token;
 import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
@@ -9,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +28,13 @@ public class LogoutService implements LogoutHandler {
         final String authHeader = request.getHeader(AuthenticationConstants.Validation.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith(AuthenticationConstants.Validation.BEARER)) {
-            throw new RuntimeException("Logout failed. User is not authorized");
+            throw new UnauthorizedAccessException("[logout]: Logout failed. User is not authorized.");
         }
 
         final String jwt = authHeader.substring(AuthenticationConstants.Validation.BEARER.length());
 
         Token token = tokenRepository.findByToken(jwt)
-                .orElseThrow(() -> new RuntimeException("Logout failed. Token not found in repository"));
+                .orElseThrow(() -> new InvalidJWTException("[logout]: Logout failed. Token not found in repository."));
         tokenRepository.deleteById(token.id);
     }
 }
