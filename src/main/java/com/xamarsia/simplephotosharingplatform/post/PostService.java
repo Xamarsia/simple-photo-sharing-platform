@@ -2,6 +2,9 @@ package com.xamarsia.simplephotosharingplatform.post;
 
 import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
 import com.xamarsia.simplephotosharingplatform.dto.post.UpdatePostRequest;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.AWSException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.AccessDeniedException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.user.User;
@@ -35,13 +38,13 @@ public class PostService {
 
     public void uploadPostImage(Long postId, MultipartFile file) {
         if (file.isEmpty()) {
-            throw new RuntimeException("[UploadPostImage]: File is empty. Unable to save empty file");
+            throw new IllegalArgumentException("[UploadPostImage]: File is empty. Unable to save empty file");
         }
 
         String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
         if (!(Objects.equals(extension, "jpg") || Objects.equals(extension, "jpeg "))) {
-            throw new RuntimeException("[UploadPostImage]: Wrong file extension found: " + extension
-                    + ". Only .jpg and .jpeg files are allowed.");
+            throw new IllegalArgumentException(String.format("[UploadPostImage]: Wrong file extension '%s' found. "
+                    + "Only .jpg and .jpeg files are allowed.", extension));
         }
         try {
             s3Service.putObject(s3Buckets.getPostsImages(),
@@ -49,7 +52,7 @@ public class PostService {
                     file.getBytes()
             );
         } catch (IOException e) {
-            throw new RuntimeException("[UploadPostImage]: " + e.getMessage());
+            throw new AWSException("[UploadPostImage]: " + e.getMessage());
         }
     }
 
@@ -67,15 +70,13 @@ public class PostService {
 
     public Post updatePost(Authentication authentication, UpdatePostRequest req, Long postId) {
         if (req.isEmpty()) {
-            throw new RuntimeException("[UpdatePost]: Invalid argument, UpdatePostRequest is empty");
+            throw new IllegalArgumentException("[UpdatePost]: Invalid argument. UpdatePostRequest is empty.");
         }
 
-        Post post = selectPostById(postId)
-                .orElseThrow(() -> new RuntimeException("[UpdatePost]: Post not found with id " + postId));
-
+        Post post = getPostById(postId);
         boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
         if (!isUserPostOwner) {
-            throw new RuntimeException("[UpdatePost]: Only post owner can update the post");
+            throw new AccessDeniedException("[UpdatePost]: Only post owner can update the post.");
         }
 
         var description = req.getDescription();
@@ -122,10 +123,9 @@ public class PostService {
         return repository.countAllByUserId(userId);
     }
 
-    @Transactional(readOnly = true)
     public Post getPostById(Long postId) {
         return selectPostById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found with id " + postId));
+                .orElseThrow(() -> new ResourceNotFoundException("[GetPostById]: Post not found with id " + postId));
     }
 
     @Transactional(readOnly = true)
@@ -146,7 +146,7 @@ public class PostService {
 
     private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Long postId) {
         User user = userService.getAuthenticatedUser(authentication);
-        Post post = selectPostById(postId).orElseThrow(() -> new RuntimeException("Post not found with id " + postId));
+        Post post = getPostById(postId);
         return post.getUser() == user;
     }
 
@@ -158,11 +158,7 @@ public class PostService {
     public void deletePostById(Authentication authentication, Long postId) {
         boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, postId);
         if (!isUserPostOwner) {
-            throw new RuntimeException("Delete post: Only post owner can delete the post");
-        }
-
-        if (!isPostWithIdExist(postId)) {
-            throw new RuntimeException("Delete post by Id: Post not found with id " + postId);
+            throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
         }
         s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
         repository.deleteById(postId);

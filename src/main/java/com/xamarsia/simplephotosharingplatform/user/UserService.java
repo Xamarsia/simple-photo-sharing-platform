@@ -2,14 +2,18 @@ package com.xamarsia.simplephotosharingplatform.user;
 
 import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +39,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getByEmail(String email) {
-        return repository.findUserByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email " + email));
+        return repository.findUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByEmail]: User not found with email '%s'.", email)));
     }
 
     @Transactional(readOnly = true)
@@ -64,42 +67,35 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getByUsername(String username) {
-        return repository.findUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username " + username));
+    public User getUserByUsername(String username) {
+        return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByUsername]: User not found with username '%s'.", username)));
     }
 
     @Transactional(readOnly = true)
     public User getById(Long customerId) {
-        return selectUserById(customerId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + customerId));
+        return selectUserById(customerId).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByID]: User not found with id '%s'.", customerId)));
     }
 
     public User getAuthenticatedUser(Authentication authentication) {
         if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new RuntimeException("Authenticated user not found");
+            throw new UnauthorizedAccessException("[GetAuthenticatedUser]: User not authenticated.");
         }
 
-        String name = authentication.getName();
-        return findUserByUsername(name)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with name " + name));
+        String username = authentication.getName();
+        return findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByUsername]: User not found with username '%s'.", username)));
     }
 
     @Transactional(readOnly = true)
-    public Page<User> getUserFollowersPage(String username,
-                                           Integer pageNumber,
-                                           Integer pageSize) {
+    public Page<User> getUserFollowersPage(String username, Integer pageNumber, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        User user = getByUsername(username);
+        User user = getUserByUsername(username);
         return repository.findUsersByFollowings(user, pageable);
     }
 
     @Transactional(readOnly = true)
-    public Page<User> getUserFollowingsPage(String username,
-                                            Integer pageNumber,
-                                            Integer pageSize) {
+    public Page<User> getUserFollowingsPage(String username, Integer pageNumber, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        User user = getByUsername(username);
+        User user = getUserByUsername(username);
         return repository.findUsersByFollowers(user, pageable);
     }
 
@@ -136,14 +132,13 @@ public class UserService {
         repository.deleteById(user.getId());
     }
 
-    public User updateUserPassword(Authentication authentication,
-                                   PasswordUpdateRequest passwordData) {
+    public User updateUserPassword(Authentication authentication, PasswordUpdateRequest passwordData) {
         User user = getAuthenticatedUser(authentication);
         String oldPassword = passwordData.getOldPassword();
         String newPassword = passwordData.getNewPassword();
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new RuntimeException("Update user password: Wrong confirmation password!");
+            throw new BadCredentialsException("[UpdateUserPassword]: Wrong confirmation password.");
         }
         user.setPassword(passwordEncoder.encode(newPassword));
         return saveUser(user);
@@ -152,10 +147,9 @@ public class UserService {
     public User follow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
-        User follower = repository.findUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException("[Follow]: Follower not found with username " + username));
+        User follower = repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[Follow]: Follower not found with username '%s'.", username)));
         if (Objects.equals(user.getUsername(), follower.getUsername())) {
-            throw new RuntimeException("[Follow]: Invalid parameter. User and his follower can't have the same username: " + username);
+            throw new IllegalArgumentException(String.format("[Follow]: Invalid parameter. User and his follower can't have the same username '%s'.", username));
         }
         user.getFollowings().add(follower);
         saveUser(follower);
@@ -165,10 +159,9 @@ public class UserService {
     public User unfollow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
-        User follower = repository.findUserByUsername(username)
-                .orElseThrow(() -> new RuntimeException("[Unfollow]: Follower not found with username " + username));
+        User follower = repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[Unfollow]: Follower not found with username '%s'.", username)));
         if (Objects.equals(user.getUsername(), follower.getUsername())) {
-            throw new RuntimeException("[Unfollow]: Invalid parameter. User and his follower can't have the same username: " + username);
+            throw new IllegalArgumentException(String.format("[Unfollow]: Invalid parameter. User and his follower can't have the same username '%s'.", username));
         }
         user.getFollowings().remove(follower);
         saveUser(follower);
@@ -191,11 +184,11 @@ public class UserService {
         String newEmail = newUserData.getEmail();
 
         if (!Objects.equals(user.getEmail(), newEmail) && repository.existsUserByEmail(newEmail)) {
-            throw new RuntimeException("Update user: User with this email already exist! " + newEmail);
+            throw new IllegalArgumentException(String.format("[UpdateUser]: User with email '%s' already exist.", newEmail));
         }
 
         if (!Objects.equals(user.getUsername(), newUsername) && repository.existsUserByUsername(newUsername)) {
-            throw new RuntimeException("Update user: User with this username already exist! " + newUsername);
+            throw new IllegalArgumentException(String.format("[UpdateUser]: User with username '%s' already exist.", newUsername));
         }
 
         user.setFullName(newUserData.getFullName());
@@ -215,20 +208,17 @@ public class UserService {
 
     public void uploadProfileImage(User user, MultipartFile file) {
         if (file.isEmpty()) {
-            throw new RuntimeException("[UploadProfileImage]: File is empty. Cannot save an empty file");
+            throw new IllegalArgumentException("[UploadProfileImage]: File is empty. Cannot save an empty file");
         }
         String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
         if (!(Objects.equals(extension, "jpg") || Objects.equals(extension, "jpeg "))) {
-            throw new RuntimeException("[UploadProfileImage]: Wrong file extension found: " + extension
-                    + ". Only .jpg and .jpeg files are allowed.");
+            throw new IllegalArgumentException(String.format("[UploadProfileImage]: Wrong file extension '%s' found. "
+                    + "Only .jpg and .jpeg files are allowed.", extension));
         }
         try {
-            s3Service.putObject(s3Buckets.getProfilesImages(),
-                    user.getId().toString(),
-                    file.getBytes()
-            );
+            s3Service.putObject(s3Buckets.getProfilesImages(), user.getId().toString(), file.getBytes());
         } catch (IOException e) {
-            throw new RuntimeException("[UploadProfileImage]: " + e.getMessage());
+            throw new ApplicationException(ApplicationError.AWS_S3_ERROR, "[UploadProfileImage]: " + e.getMessage());
         }
 
         user.setIsProfileImageExist(true);
@@ -237,10 +227,9 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public byte[] getProfileImage(String username) {
-        User user = getByUsername(username);
+        User user = getUserByUsername(username);
         String key = user.getIsProfileImageExist() ? user.getId().toString() : "default";
         //TODO: Check if profileImage is empty or null
-        return s3Service.getObject(s3Buckets.getProfilesImages(),
-                key);
+        return s3Service.getObject(s3Buckets.getProfilesImages(), key);
     }
 }

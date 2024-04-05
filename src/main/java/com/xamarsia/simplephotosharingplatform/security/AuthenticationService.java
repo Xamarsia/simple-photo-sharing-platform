@@ -3,6 +3,7 @@ package com.xamarsia.simplephotosharingplatform.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.InternalValidationException;
 import com.xamarsia.simplephotosharingplatform.user.*;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
@@ -16,14 +17,19 @@ import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTOMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Set;
+
 
 @Service
 @Validated
@@ -37,6 +43,7 @@ public class AuthenticationService {
     private final UserDTOMapper userDTOMapper;
     private final UserPreviewDTOMapper userPreviewDTOMapper;
     private final EmailVerificationService emailVerificationService;
+    private final Validator validator;
 
     public Boolean isEmailAlreadyInUse(IsEmailAlreadyInUseRequest request) {
         return userService.isEmailUsed(request.getEmail());
@@ -49,7 +56,12 @@ public class AuthenticationService {
 //            throw new RuntimeException("Register: Email verification failed");
 //        }
 
-        User user = User.builder().fullName(registerRequest.getFullName()).username(registerRequest.getUsername()).email(registerRequest.getEmail()).password(passwordEncoder.encode(registerRequest.getPassword())).build();
+        User user = User.builder()
+                .fullName(registerRequest.getFullName())
+                .username(registerRequest.getUsername())
+                .email(registerRequest.getEmail())
+                .password(passwordEncoder.encode(registerRequest.getPassword()))
+                .build();
 
         User savedUser = userService.saveUser(user);
 
@@ -65,13 +77,18 @@ public class AuthenticationService {
         UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new RuntimeException("Login: The password is incorrect!");
+            throw new BadCredentialsException("[Login]: The password is incorrect.");
         }
 
-        var jwtToken = jwtService.generateToken(user.getId().toString());
+        String jwtToken = jwtService.generateToken(user.getId().toString());
         saveUserToken(user, jwtToken);
 
-        return new AuthenticationResponse(jwtToken, userDTO);
+        AuthenticationResponse response = new AuthenticationResponse(jwtToken, userDTO);
+        Set<ConstraintViolation<AuthenticationResponse>> violations = validator.validate(response);
+        if (!violations.isEmpty()) {
+            throw new InternalValidationException(violations);
+        }
+        return response;
     }
 
     private void saveUserToken(User user, String jwtToken) {
@@ -116,7 +133,10 @@ public class AuthenticationService {
             saveUserToken(user, newToken);
 
             var authResponse = new AuthenticationResponse(newToken, userDTO);
-
+            Set<ConstraintViolation<AuthenticationResponse>> violations = validator.validate(authResponse);
+            if (!violations.isEmpty()) {
+                throw new InternalValidationException(violations);
+            }
             new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
         }
     }

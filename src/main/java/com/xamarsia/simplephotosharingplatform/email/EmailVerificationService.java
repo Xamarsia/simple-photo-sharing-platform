@@ -1,6 +1,9 @@
 package com.xamarsia.simplephotosharingplatform.email;
 
 import com.xamarsia.simplephotosharingplatform.ApplicationConstants;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmailVerification;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.TooManyRequestsException;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -37,7 +40,7 @@ public class EmailVerificationService {
 
     private EmailVerification getCodeByEmail(String email) {
         return repository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Email verification code not found with email " + email));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("[GetEmailVerificationCodeByEmail]: Email verification code not found with email '%s'.", email)));
     }
 
     private boolean isCodeExpired(Integer lifeTimeInSeconds, EmailVerification code) {
@@ -60,7 +63,7 @@ public class EmailVerificationService {
                 code.setCreationDateTime(LocalDateTime.now());
                 code.setIsUsed(false);
             } else {
-                throw new RuntimeException("Email verification code cannot be created for less than 30 seconds.");
+                throw new TooManyRequestsException("[CreateNewVerificationCode]: Email verification code cannot be created for less than 30 seconds.");
             }
             return repository.save(code);
         }
@@ -78,9 +81,9 @@ public class EmailVerificationService {
     public boolean isVerificationCodeCorrect(String email, Integer code) {
         EmailVerification savedCode = getCodeByEmail(email);
         if (isCodeExpired(ApplicationConstants.Validation.EMAIL_VERIFICATION_CODE_LIFETIME_IN_SECONDS, savedCode)) {
-            throw new RuntimeException("Email verification code has expired. Please, create a new one.");
+            throw new InvalidEmailVerification("[IsVerificationCodeCorrect]: Email verification code has expired. Please, create a new one.");
         } else if (savedCode.isUsed) {
-            throw new RuntimeException("Email verification code cannot be used twice. Please, wait " +
+            throw new InvalidEmailVerification("[IsVerificationCodeCorrect]: Email verification code cannot be used twice. Please, wait " +
                     (ApplicationConstants.Validation.EMAIL_VERIFICATION_RESEND_TIME / 60) +
                     " minutes and create new one.");
         } else if (!Objects.equals(savedCode.getVerificationCode(), code)) {

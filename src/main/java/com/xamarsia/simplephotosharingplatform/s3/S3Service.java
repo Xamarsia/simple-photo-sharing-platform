@@ -1,5 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.s3;
 
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.AWSException;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -9,7 +10,6 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 
 @Service
 public class S3Service {
@@ -24,7 +24,11 @@ public class S3Service {
                 .bucket(bucketName)
                 .key(key)
                 .build();
-        s3.putObject(objectRequest, RequestBody.fromBytes(file));
+        try {
+            s3.putObject(objectRequest, RequestBody.fromBytes(file));
+        } catch (Exception e) {
+            throw new AWSException("[S3Service]: putObject error with key " + key + "\n Error: " + e.getMessage());
+        }
     }
 
     public byte[] getObject(String bucketName, String key) {
@@ -32,11 +36,11 @@ public class S3Service {
                 .bucket(bucketName)
                 .key(key)
                 .build();
-        ResponseInputStream<GetObjectResponse> res = s3.getObject(getObjectRequest);
         try {
+            ResponseInputStream<GetObjectResponse> res = s3.getObject(getObjectRequest);
             return res.readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException("[S3Service]: getObject error with key " + key + "\n Error: " + e.getMessage());
+        } catch (Exception e) {
+            throw new AWSException("[S3Service]: getObject error with key " + key + "\n Error: " + e.getMessage());
         }
     }
 
@@ -45,7 +49,10 @@ public class S3Service {
                 .bucket(bucketName)
                 .key(key)
                 .build();
-
-        s3.deleteObject(deleteObjectRequest);
+        try {
+            s3.deleteObject(deleteObjectRequest);
+        } catch (Exception e) {
+            throw new AWSException("[S3Service]: deleteObject error with key " + key + "\n Error: " + e.getMessage());
+        }
     }
 }
