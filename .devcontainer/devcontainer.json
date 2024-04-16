@@ -1,0 +1,17 @@
+{
+	"name": "SPSP backend",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "api",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    
+	"customizations": {
+        "vscode": {
+            "settings": {},
+            "extensions": [
+                "esbenp.prettier-vscode",
+                "vscjava.vscode-java-pack"
+            ]
+        }
+	},
+	"postCreateCommand": "mvn package"
+}
