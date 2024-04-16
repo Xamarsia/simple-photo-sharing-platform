@@ -9,7 +9,8 @@
             "settings": {},
             "extensions": [
                 "esbenp.prettier-vscode",
-                "vscjava.vscode-java-pack"
+                "vscjava.vscode-java-pack",
+                "eamodio.gitlens"
             ]
         }
 	},

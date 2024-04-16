@@ -11,7 +11,7 @@ public class PostDTOMapper implements Function<Post, PostDTO> {
     public PostDTO apply(Post post) {
         return new PostDTO(
                 post.getId(),
-                post.getCreatedDate().toString(),
+                post.creationDateTime.toString(),
                 post.getDescription(),
                 post.getUser().getUsername()
         );

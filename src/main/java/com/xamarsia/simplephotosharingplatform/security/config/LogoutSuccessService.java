@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+
 @Service
 @RequiredArgsConstructor
 public class LogoutSuccessService extends SimpleUrlLogoutSuccessHandler implements LogoutSuccessHandler {

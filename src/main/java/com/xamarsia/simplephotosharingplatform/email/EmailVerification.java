@@ -22,12 +22,13 @@ public class EmailVerification {
     public Integer verificationCode;
 
     @Column(nullable = false)
-    public LocalDateTime creationDateTime = LocalDateTime.now();
+    public final LocalDateTime creationDateTime = LocalDateTime.now();
 
     @Column(nullable = false)
     public String email;
 
     @Column(nullable = false)
+    @Builder.Default
     public Boolean isUsed = false;
 }
 
