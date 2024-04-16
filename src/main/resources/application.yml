@@ -40,6 +40,3 @@ aws:
     buckets:
       posts: "spsp-post-images"
       profiles: "spsp-profile-images"
-
-server:
-  port: 18080

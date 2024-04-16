@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: dev-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: simple-photo-sharing-platform-api
+    env_file:
+      - ../.env
+      - ../.aws-credentials
+    volumes:
+      - ../..:/workspaces:cached
+    command: sleep infinity
+    network_mode: service:psql-db
+
+  psql-db:
+    container_name: psql-db
+    image: postgres:latest
+    
+    # restart: always
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+  
