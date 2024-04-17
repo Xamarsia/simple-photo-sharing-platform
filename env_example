@@ -7,3 +7,6 @@ MAIL_PORT=587
 VERIFICATION_MAIL_USERNAME="***********@gmail.com"
 VERIFICATION_MAIL_PASSWORD="******************"
 VERIFICATION_MAIL_HOST = "smtp.gmail.com"
+JWT_SECRET_KEY="****************************************************************"
+JWT_EXPIRATION=2400
+JWT_REFRESH_TOKEN_EXPIRATION=60400
