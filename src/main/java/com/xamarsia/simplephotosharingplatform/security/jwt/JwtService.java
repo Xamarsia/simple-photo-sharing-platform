@@ -1,13 +1,12 @@
 package com.xamarsia.simplephotosharingplatform.security.jwt;
 
-import com.xamarsia.simplephotosharingplatform.security.AuthenticationConstants;
-import com.xamarsia.simplephotosharingplatform.security.token.Token;
-import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -17,15 +16,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 public class JwtService {
-    private final TokenRepository tokenRepository;
+    @Value("${application.security.jwt.secret-key}")
+    private String secretKey;
 
-    public JwtService(TokenRepository tokenRepository) {
-        this.tokenRepository = tokenRepository;
-    }
+    @Value("${application.security.jwt.expiration}")
+    private long jwtExpiration;
+
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long refreshExpiration;
 
     public String getSubject(String token) {
         return extractAllClaims(token).getSubject();
@@ -40,27 +41,35 @@ public class JwtService {
         return generateToken(new HashMap<>(), userId);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, String userId) {
-        return Jwts.builder()
+    public String generateToken(
+            Map<String, Object> extraClaims,
+            String userId
+    ) {
+        return buildToken(extraClaims, userId, jwtExpiration);
+    }
+
+    public String generateRefreshToken(String userId) {
+        return buildToken(new HashMap<>(), userId, refreshExpiration);
+    }
+
+    private String buildToken(
+            Map<String, Object> extraClaims,
+            String userId,
+            long expiration) {
+        return Jwts
+                .builder()
                 .setClaims(extraClaims)
                 .setSubject(userId)
-                .setIssuedAt(Date.from(Instant.now()))
-                .setExpiration(Date.from(Instant.now().plus(15, DAYS)))
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public boolean isTokenValid(String token, String userId) {
         final String userIdFromToken = getSubject(token);
-        return (userIdFromToken.equals(userId) && !isTokenExpired(token) && isTokenExist(token));
+        return (userIdFromToken.equals(userId) && !isTokenExpired(token));
     }
-
-    private boolean isTokenExist(String token) {
-        Token storedToken = tokenRepository.findByToken(token).orElse(null);
-
-        return (storedToken != null);
-    }
-
 
     private boolean isTokenExpired(String token) {
         Date today = Date.from(Instant.now());
@@ -68,21 +77,16 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        Claims claims = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token).getBody();
-        return claims;
-    }
-
-    public void deleteExpiredToken(String token, String userId) {
-        if (!isTokenValid(token, userId)) {
-            Token storedToken = tokenRepository.findByToken(token).orElse(null);
-
-            if (storedToken != null) {
-                tokenRepository.deleteById(storedToken.id);
-            }
-        }
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(AuthenticationConstants.Validation.SECRET_KEY.getBytes());
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

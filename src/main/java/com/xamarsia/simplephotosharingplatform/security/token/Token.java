@@ -24,6 +24,12 @@ public class Token {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     public TokenType tokenType = TokenType.BEARER;
+    
+    @Builder.Default
+    public boolean revoked = false;
+    
+    @Builder.Default
+    public boolean expired = false;
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "user_id")

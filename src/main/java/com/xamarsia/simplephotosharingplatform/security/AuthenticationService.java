@@ -28,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 
 
@@ -50,12 +51,6 @@ public class AuthenticationService {
     }
 
     public UserPreviewDTO register(RegisterRequest registerRequest) {
-//        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
-//                registerRequest.getEmailVerificationCode());
-//        if(!isCodeCorrect) {
-//            throw new RuntimeException("Register: Email verification failed");
-//        }
-
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
                 .username(registerRequest.getUsername())
@@ -72,27 +67,33 @@ public class AuthenticationService {
         return userPreviewDTOMapper.apply(savedUser, State.CURRENT);
     }
 
+    private void validateResponse(AuthenticationResponse response){
+        Set<ConstraintViolation<AuthenticationResponse>> violations = validator.validate(response);
+        if (!violations.isEmpty()) {
+            throw new InternalValidationException(violations);
+        }
+    }
+
     public AuthenticationResponse login(AuthenticationRequest request) {
         User user = userService.getByEmail(request.email());
-        UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BadCredentialsException("[Login]: The password is incorrect.");
         }
 
         String jwtToken = jwtService.generateToken(user.getId().toString());
+        String refreshToken = jwtService.generateRefreshToken(user.getId().toString());
+
         saveUserToken(user, jwtToken);
 
-        AuthenticationResponse response = new AuthenticationResponse(jwtToken, userDTO);
-        Set<ConstraintViolation<AuthenticationResponse>> violations = validator.validate(response);
-        if (!violations.isEmpty()) {
-            throw new InternalValidationException(violations);
-        }
+        UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
+        AuthenticationResponse response = new AuthenticationResponse(jwtToken, refreshToken, userDTO);
+        validateResponse(response);
         return response;
     }
 
     private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
+        Token token = Token.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
@@ -100,15 +101,28 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    private void deleteAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllByUser_Id(user.getId());
+//    private void deleteAllUserTokens(User user) {
+//        var validUserTokens = tokenRepository.findAllByUser_Id(user.getId());
+//        if (validUserTokens.isEmpty())
+//            return;
+//
+//        validUserTokens.forEach(storedToken -> {
+//            tokenRepository.deleteById(storedToken.id);
+//        });
+//    }
+
+    private void revokeAllUserTokens(User user) {
+        List<Token> validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
             return;
-
-        validUserTokens.forEach(storedToken -> {
-            tokenRepository.deleteById(storedToken.id);
+        validUserTokens.forEach(token -> {
+            token.setExpired(true);
+            token.setRevoked(true);
         });
+        tokenRepository.saveAll(validUserTokens);
     }
+
+
 
     public void refreshToken(
             HttpServletRequest request,
@@ -116,27 +130,26 @@ public class AuthenticationService {
     ) throws IOException {
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith(AuthenticationConstants.Validation.BEARER)) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
 
-        final String refreshToken = authHeader.substring(AuthenticationConstants.Validation.BEARER.length());
+        final String refreshToken = authHeader.substring("Bearer ".length());
         final String userId = jwtService.getSubject(refreshToken);
 
         User user = userService.getById(Long.parseLong(userId));
         UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
 
         if (jwtService.isTokenValid(refreshToken, userId)) {
-            var newToken = jwtService.generateToken(userId);
+            String accessToken = jwtService.generateToken(userId);
 
-            deleteAllUserTokens(user);
-            saveUserToken(user, newToken);
+            // TODO Revoke users or not
+            revokeAllUserTokens(user);
+            saveUserToken(user, accessToken);
 
-            var authResponse = new AuthenticationResponse(newToken, userDTO);
-            Set<ConstraintViolation<AuthenticationResponse>> violations = validator.validate(authResponse);
-            if (!violations.isEmpty()) {
-                throw new InternalValidationException(violations);
-            }
+            AuthenticationResponse authResponse = new AuthenticationResponse(accessToken, refreshToken, userDTO);
+            validateResponse(authResponse);
             new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
         }
     }

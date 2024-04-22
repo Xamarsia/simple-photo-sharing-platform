@@ -5,8 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record AuthenticationResponse(
-        @NotBlank(message = "Token is required.")
-        String token,
+        @NotBlank(message = "Access token is required.")
+        String accessToken,
+        @NotBlank(message = "Refresh token is required.")
+        String refreshToken,
         @NotNull(message = "UserDTO is required.")
-        UserDTO userDTO) {
+        UserDTO userDTO) {       
 }
