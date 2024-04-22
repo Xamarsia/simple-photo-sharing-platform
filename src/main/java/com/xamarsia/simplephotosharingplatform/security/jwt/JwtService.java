@@ -1,13 +1,13 @@
 package com.xamarsia.simplephotosharingplatform.security.jwt;
-
-import com.xamarsia.simplephotosharingplatform.security.AuthenticationConstants;
 import com.xamarsia.simplephotosharingplatform.security.token.Token;
 import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -17,10 +17,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 public class JwtService {
+
+    @Value("${application.security.jwt.secret-key}")
+    private String secretKey;
+
+    @Value("${application.security.jwt.expiration}")
+    private long jwtExpiration;
+
     private final TokenRepository tokenRepository;
 
     public JwtService(TokenRepository tokenRepository) {
@@ -44,8 +50,8 @@ public class JwtService {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userId)
-                .setIssuedAt(Date.from(Instant.now()))
-                .setExpiration(Date.from(Instant.now().plus(15, DAYS)))
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -83,6 +89,7 @@ public class JwtService {
     }
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(AuthenticationConstants.Validation.SECRET_KEY.getBytes());
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

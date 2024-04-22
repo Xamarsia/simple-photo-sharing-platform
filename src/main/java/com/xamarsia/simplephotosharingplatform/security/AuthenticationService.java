@@ -116,11 +116,11 @@ public class AuthenticationService {
     ) throws IOException {
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith(AuthenticationConstants.Validation.BEARER)) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
 
-        final String refreshToken = authHeader.substring(AuthenticationConstants.Validation.BEARER.length());
+        final String refreshToken = authHeader.substring("Bearer ".length());
         final String userId = jwtService.getSubject(refreshToken);
 
         User user = userService.getById(Long.parseLong(userId));
