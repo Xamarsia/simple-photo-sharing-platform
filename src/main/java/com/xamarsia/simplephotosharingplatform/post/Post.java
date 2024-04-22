@@ -16,7 +16,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private LocalDateTime createdDate = null;
+    public final LocalDateTime creationDateTime = LocalDateTime.now();
     
     private String description;
 

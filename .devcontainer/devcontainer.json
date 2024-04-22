@@ -9,9 +9,11 @@
             "settings": {},
             "extensions": [
                 "esbenp.prettier-vscode",
-                "vscjava.vscode-java-pack"
+                "vscjava.vscode-java-pack",
+                "eamodio.gitlens",
+                "inferrinizzard.prettier-sql-vscode"
             ]
         }
 	},
-	"postCreateCommand": "mvn package"
+	"postCreateCommand": "git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename} && mvn package"
 }

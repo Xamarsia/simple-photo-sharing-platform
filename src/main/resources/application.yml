@@ -40,3 +40,16 @@ aws:
     buckets:
       posts: "spsp-post-images"
       profiles: "spsp-profile-images"
+
+application:
+  security:
+    token-type: "Bearer "
+    cors:
+      allowed-origins: "http://localhost:3000"
+      allowed-methods: "*"
+      allowed-headers: "*,Authorization"
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: ${JWT_EXPIRATION}
+      refresh-token:
+        expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}

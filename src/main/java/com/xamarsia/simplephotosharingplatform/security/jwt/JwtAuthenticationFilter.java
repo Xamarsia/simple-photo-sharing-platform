@@ -1,12 +1,13 @@
 package com.xamarsia.simplephotosharingplatform.security.jwt;
 
 import com.xamarsia.simplephotosharingplatform.user.UserService;
-import com.xamarsia.simplephotosharingplatform.security.AuthenticationConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserService userService;
 
+    @Value("${application.security.token-type}")
+    private String tokenType;
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -31,14 +35,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader(AuthenticationConstants.Validation.AUTHORIZATION);
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (authHeader == null ||!authHeader.startsWith(AuthenticationConstants.Validation.BEARER)) {
+        if (authHeader == null ||!authHeader.startsWith(tokenType)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String jwt = authHeader.substring(AuthenticationConstants.Validation.BEARER.length());
+        final String jwt = authHeader.substring(tokenType.length());
         final String userId = jwtService.getSubject(jwt);
 
         if (userId != null &&

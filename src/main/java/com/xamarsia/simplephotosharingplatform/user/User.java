@@ -9,10 +9,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
 
 @Data
 @Builder
@@ -49,15 +49,15 @@ public class User implements UserDetails {
     @Builder.Default
     private Boolean isProfileImageExist = false;
 
-    @Enumerated(EnumType.STRING)
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Token> tokens;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Post> posts = new HashSet<>();
+    private Set<Post> posts;
 
 
     @ManyToMany
@@ -65,14 +65,14 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "followingId"),
             inverseJoinColumns = @JoinColumn(name = "followerId")
     )
-    private Set<User> followers = new HashSet<User>();
+    private Set<User> followers;
 
     @ManyToMany
     @JoinTable(name = "following",
             joinColumns = @JoinColumn(name = "followerId"),
             inverseJoinColumns = @JoinColumn(name = "followingId")
     )
-    private Set<User> followings = new HashSet<User>();
+    private Set<User> followings;
 
 
     @Override

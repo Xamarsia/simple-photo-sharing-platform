@@ -60,7 +60,6 @@ public class EmailVerificationService {
             boolean isCodeExpired = isCodeExpired(ApplicationConstants.Validation.FAILED_EMAIL_VERIFICATION_DELAY_TIME, code);
             if (isCodeExpired) {
                 code.setVerificationCode(generateCode());
-                code.setCreationDateTime(LocalDateTime.now());
                 code.setIsUsed(false);
             } else {
                 throw new TooManyRequestsException("[CreateNewVerificationCode]: Email verification code cannot be created for less than 30 seconds.");
@@ -69,7 +68,6 @@ public class EmailVerificationService {
         }
         EmailVerification code =
                 EmailVerification.builder()
-                        .creationDateTime(LocalDateTime.now())
                         .verificationCode(generateCode())
                         .email(email)
                         .isUsed(false)

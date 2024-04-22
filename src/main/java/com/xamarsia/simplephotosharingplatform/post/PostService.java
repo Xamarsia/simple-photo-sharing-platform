@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -59,7 +58,6 @@ public class PostService {
     public Post savePost(Authentication authentication, CreatePostRequest req) {
         User user = userService.getAuthenticatedUser(authentication);
         Post post = Post.builder()
-                .createdDate(LocalDateTime.now())
                 .description(req.getDescription())
                 .user(user)
                 .build();
@@ -89,7 +87,7 @@ public class PostService {
             uploadPostImage(post.getId(), req.getImage());
         }
 
-        post.setCreatedDate(LocalDateTime.now());
+        // post.setUpdatedDate(LocalDateTime.now());
         return repository.save(post);
     }
 
