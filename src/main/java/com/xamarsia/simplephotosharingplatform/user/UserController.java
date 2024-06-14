@@ -35,15 +35,23 @@ public class UserController {
 
     @GetMapping("/{username}")
     public ResponseEntity<UserDTO> getUserDTOByUsername(Authentication authentication,
-                                                        @PathVariable String username) {
+            @PathVariable String username) {
         User user = service.getUserByUsername(username);
         UserDTO userDTO = userDTOMapper.apply(authentication, user);
         return ResponseEntity.ok().body(userDTO);
     }
 
+    @GetMapping("/preview/{username}")
+    public ResponseEntity<UserPreviewDTO> getUserPreviewDTOByUsername(Authentication authentication,
+            @PathVariable String username) {
+        User user = service.getUserByUsername(username);
+        UserPreviewDTO userPreviewDTO = userPreviewDTOMapper.apply(authentication, user);
+        return ResponseEntity.ok().body(userPreviewDTO);
+    }
+
     @GetMapping("/{username}/followers")
     public List<UserPreviewDTO> getUserFollowers(Authentication authentication,
-                                                 @PathVariable String username) {
+            @PathVariable String username) {
         User user = service.getUserByUsername(username);
         return user.getFollowers().stream().map(follower -> userPreviewDTOMapper.apply(authentication, follower))
                 .collect(Collectors.toList());
@@ -51,33 +59,47 @@ public class UserController {
 
     @GetMapping("/{username}/followers/page")
     public Page<UserPreviewDTO> getUserFollowersPage(Authentication authentication,
-                                                     @PathVariable String username,
-                                                     @RequestParam Integer size,
-                                                     @RequestParam Integer page) {
+            @PathVariable String username,
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
         Page<User> followersPage = service.getUserFollowersPage(username, page, size);
-        List<UserPreviewDTO> followingsPreviewDTO = followersPage.stream().map(follower -> userPreviewDTOMapper.apply(authentication, follower)).collect(Collectors.toList());
+        List<UserPreviewDTO> followingsPreviewDTO = followersPage.stream()
+                .map(follower -> userPreviewDTOMapper.apply(authentication, follower)).collect(Collectors.toList());
         return new PageImpl<>(followingsPreviewDTO, followersPage.getPageable(), followersPage.getTotalElements());
     }
 
     @GetMapping("/{username}/followings/page")
     public Page<UserPreviewDTO> getUserFollowingsPage(Authentication authentication,
-                                                      @PathVariable String username,
-                                                      @RequestParam Integer size,
-                                                      @RequestParam Integer page) {
+            @PathVariable String username,
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
         Page<User> followingsPage = service.getUserFollowingsPage(username, page, size);
-        List<UserPreviewDTO> followingsPreviewDTO = followingsPage.stream().map(following -> userPreviewDTOMapper.apply(authentication, following)).collect(Collectors.toList());
+        List<UserPreviewDTO> followingsPreviewDTO = followingsPage.stream()
+                .map(following -> userPreviewDTOMapper.apply(authentication, following)).collect(Collectors.toList());
         return new PageImpl<>(followingsPreviewDTO, followingsPage.getPageable(), followingsPage.getTotalElements());
+    }
+
+    @GetMapping("/search/page")
+    public Page<UserPreviewDTO> searchUserBySubstring(Authentication authentication,
+            @RequestParam String substring,
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
+        Page<User> searchedPage = service.searchUserBySubstring(substring, page, size);
+
+        List<UserPreviewDTO> followingsPreviewDTO = searchedPage.stream()
+                .map(following -> userPreviewDTOMapper.apply(authentication, following)).collect(Collectors.toList());
+        return new PageImpl<>(followingsPreviewDTO, searchedPage.getPageable(), searchedPage.getTotalElements());
     }
 
     @GetMapping("/{followingUsername}/isUserInFollowing")
     public ResponseEntity<Boolean> isUserInFollowing(Authentication authentication,
-                                                     @PathVariable String followingUsername) {
+            @PathVariable String followingUsername) {
         return ResponseEntity.ok().body(service.isUserInFollowing(authentication, followingUsername));
     }
 
     @GetMapping("/{username}/following")
     public List<UserPreviewDTO> getUserFollowings(Authentication authentication,
-                                                  @PathVariable String username) {
+            @PathVariable String username) {
         User user = service.getUserByUsername(username);
         return user.getFollowings().stream().map(following -> userPreviewDTOMapper.apply(authentication, following))
                 .collect(Collectors.toList());
@@ -102,16 +124,16 @@ public class UserController {
     }
 
     @PutMapping("/{followerUsername}/follow")
-    public ResponseEntity<?> addUserFollower(Authentication authentication,
-                                             @PathVariable String followerUsername) {
+    public ResponseEntity<?> addFollower(Authentication authentication,
+            @PathVariable String followerUsername) {
         User user = service.follow(authentication, followerUsername);
         UserDTO userDTO = userDTOMapper.apply(authentication, user);
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @PutMapping("{followerUsername}/unfollow")
-    public ResponseEntity<?> removeUserFollower(Authentication authentication,
-                                                @PathVariable String followerUsername) {
+    @PutMapping("/{followerUsername}/unfollow")
+    public ResponseEntity<?> removeFollower(Authentication authentication,
+            @PathVariable String followerUsername) {
         User user = service.unfollow(authentication, followerUsername);
         UserDTO userDTO = userDTOMapper.apply(authentication, user);
         return ResponseEntity.ok().body(userDTO);
@@ -130,17 +152,17 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    ResponseEntity<?> updateUser(Authentication authentication, @RequestBody @Valid UserUpdateRequest newUserData) {
+    public ResponseEntity<?> updateUser(Authentication authentication, @RequestBody @Valid UserUpdateRequest newUserData) {
         User updatedUser = service.updateUser(authentication, newUserData);
-        UserDTO userDTO = userDTOMapper.apply(authentication, updatedUser);
+        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
         return ResponseEntity.ok().body(userDTO);
     }
 
     @PutMapping("/password/update")
-    ResponseEntity<?> updateUserPassword(Authentication authentication,
-                                         @RequestBody @Valid PasswordUpdateRequest newPasswordData) {
+    public ResponseEntity<?> updateUserPassword(Authentication authentication,
+            @RequestBody @Valid PasswordUpdateRequest newPasswordData) {
         User updatedUser = service.updateUserPassword(authentication, newPasswordData);
-        UserDTO userDTO = userDTOMapper.apply(authentication, updatedUser);
+        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
         return ResponseEntity.ok()
                 .body(userDTO);
     }
@@ -151,8 +173,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @PostMapping(value = "/profile/image",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProfileImage(
             Authentication authentication,
             @RequestParam("file") MultipartFile file) {
@@ -161,8 +182,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @GetMapping(value = "{username}/profile/image",
-            produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "{username}/profile/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getProfileImage(@PathVariable("username") String username) {
         return service.getProfileImage(username);
     }

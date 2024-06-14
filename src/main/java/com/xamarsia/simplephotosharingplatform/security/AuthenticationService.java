@@ -7,54 +7,55 @@ import com.xamarsia.simplephotosharingplatform.exception.exceptions.InternalVali
 import com.xamarsia.simplephotosharingplatform.user.*;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
-import com.xamarsia.simplephotosharingplatform.dto.auth.IsEmailAlreadyInUseRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.RegisterRequest;
 import com.xamarsia.simplephotosharingplatform.security.jwt.JwtService;
-import com.xamarsia.simplephotosharingplatform.security.token.Token;
-import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
-import com.xamarsia.simplephotosharingplatform.security.token.TokenType;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTOMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Set;
 
-
 @Service
 @Validated
 @AllArgsConstructor
 public class AuthenticationService {
-
     private final JwtService jwtService;
     private final UserService userService;
-    private final TokenRepository tokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserDTOMapper userDTOMapper;
-    private final UserPreviewDTOMapper userPreviewDTOMapper;
+
     private final EmailVerificationService emailVerificationService;
     private final Validator validator;
 
-    public Boolean isEmailAlreadyInUse(IsEmailAlreadyInUseRequest request) {
-        return userService.isEmailUsed(request.getEmail());
+    public Boolean isEmailAlreadyInUse(@NotBlank @PathVariable String email) {
+        return userService.isEmailUsed(email);
     }
 
-    public UserPreviewDTO register(RegisterRequest registerRequest) {
-//        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
-//                registerRequest.getEmailVerificationCode());
-//        if(!isCodeCorrect) {
-//            throw new RuntimeException("Register: Email verification failed");
-//        }
+    public Boolean IsUsernameAlreadyInUse(@NotBlank @PathVariable String username) {
+        return userService.isUsernameUsed(username);
+    }
+
+    public void sendVerificationCodeToEmail(String email) {
+        emailVerificationService.sendEmailVerificationCode(email);
+    }
+
+    public User register(RegisterRequest registerRequest) {
+        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
+                registerRequest.getEmailVerificationCode());
+        if (!isCodeCorrect) {
+            throw new RuntimeException("Register: Email verification failed");
+        }
 
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
@@ -69,7 +70,7 @@ public class AuthenticationService {
         if (file != null && !file.isEmpty()) {
             userService.uploadProfileImage(user, registerRequest.getImage());
         }
-        return userPreviewDTOMapper.apply(savedUser, State.CURRENT);
+        return savedUser;
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
@@ -81,7 +82,7 @@ public class AuthenticationService {
         }
 
         String jwtToken = jwtService.generateToken(user.getId().toString());
-        saveUserToken(user, jwtToken);
+        jwtService.saveUserToken(user, jwtToken);
 
         AuthenticationResponse response = new AuthenticationResponse(jwtToken, userDTO);
         Set<ConstraintViolation<AuthenticationResponse>> violations = validator.validate(response);
@@ -91,29 +92,13 @@ public class AuthenticationService {
         return response;
     }
 
-    private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.BEARER)
-                .build();
-        tokenRepository.save(token);
-    }
-
-    private void deleteAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllByUser_Id(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-
-        validUserTokens.forEach(storedToken -> {
-            tokenRepository.deleteById(storedToken.id);
-        });
+    private void deleteAllUserTokens(Long userId) {
+        jwtService.deleteAllUserTokens(userId);
     }
 
     public void refreshToken(
             HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
+            HttpServletResponse response) throws IOException {
 
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -129,8 +114,8 @@ public class AuthenticationService {
         if (jwtService.isTokenValid(refreshToken, userId)) {
             var newToken = jwtService.generateToken(userId);
 
-            deleteAllUserTokens(user);
-            saveUserToken(user, newToken);
+            deleteAllUserTokens(user.getId());
+            jwtService.saveUserToken(user, newToken);
 
             var authResponse = new AuthenticationResponse(newToken, userDTO);
             Set<ConstraintViolation<AuthenticationResponse>> violations = validator.validate(authResponse);

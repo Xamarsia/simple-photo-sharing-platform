@@ -28,7 +28,8 @@ public class PostService {
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
 
-    public PostService(PostRepository postRepository, UserService userService, S3Service s3Service, S3Buckets s3Buckets) {
+    public PostService(PostRepository postRepository, UserService userService, S3Service s3Service,
+            S3Buckets s3Buckets) {
         this.repository = postRepository;
         this.userService = userService;
         this.s3Service = s3Service;
@@ -48,8 +49,7 @@ public class PostService {
         try {
             s3Service.putObject(s3Buckets.getPostsImages(),
                     postId.toString(),
-                    file.getBytes()
-            );
+                    file.getBytes());
         } catch (IOException e) {
             throw new AWSException("[UploadPostImage]: " + e.getMessage());
         }
@@ -91,10 +91,6 @@ public class PostService {
         return repository.save(post);
     }
 
-    public boolean isPostWithIdExist(Long postId) {
-        return repository.existsPostById(postId);
-    }
-
     @Transactional(readOnly = true)
     public List<Post> findPostsByUserId(Long userId) {
         return repository.findAllByUserId(userId);
@@ -102,7 +98,8 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<Post> getPostsPageByUserId(Long userId, Integer pageNumber, Integer pageSize) {
-        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
+                Sort.by(Sort.Direction.DESC, "creationDateTime"));
         return repository.findPostsByUserId(userId, sortedByCreatedDate);
     }
 
@@ -110,10 +107,23 @@ public class PostService {
     public Page<Post> getUserFollowingsPostsPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
         User user = userService.getAuthenticatedUser(authentication);
 
-        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdDate"));
+        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
+                Sort.by(Sort.Direction.DESC, "creationDateTime"));
         Set<User> followings = user.getFollowings();
 
         return repository.findPostsByUserIsIn(followings, sortedByCreatedDate);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<Post> getPostsPageRandomly(Authentication authentication, Integer pageSize, Integer pageNumber) {
+        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize);
+        return repository.findPostsRandomly(sortedByCreatedDate);
+    }
+
+    @Transactional(readOnly = true)
+    public User getPostAuthorByUsername(String username) {
+        User user = userService.getUserByUsername(username);
+        return user;
     }
 
     @Transactional(readOnly = true)
@@ -128,7 +138,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public byte[] getPostImage(Long postId) {
-        //TODO: Check if postImage is empty or null
+        // TODO: Check if postImage is empty or null
         return s3Service.getObject(s3Buckets.getPostsImages(),
                 postId.toString());
     }

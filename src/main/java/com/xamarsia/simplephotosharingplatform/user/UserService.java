@@ -6,6 +6,7 @@ import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
+import com.xamarsia.simplephotosharingplatform.post.Post;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import org.springframework.data.domain.Page;
@@ -30,7 +31,8 @@ public class UserService {
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, S3Service s3Service, S3Buckets s3Buckets) {
+    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, S3Service s3Service,
+            S3Buckets s3Buckets) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.s3Service = s3Service;
@@ -39,7 +41,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getByEmail(String email) {
-        return repository.findUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByEmail]: User not found with email '%s'.", email)));
+        return repository.findUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("[GetUserByEmail]: User not found with email '%s'.", email)));
     }
 
     @Transactional(readOnly = true)
@@ -68,12 +71,14 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
-        return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByUsername]: User not found with username '%s'.", username)));
+        return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("[GetUserByUsername]: User not found with username '%s'.", username)));
     }
 
     @Transactional(readOnly = true)
     public User getById(Long customerId) {
-        return selectUserById(customerId).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByID]: User not found with id '%s'.", customerId)));
+        return selectUserById(customerId).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("[GetUserByID]: User not found with id '%s'.", customerId)));
     }
 
     public User getAuthenticatedUser(Authentication authentication) {
@@ -82,7 +87,8 @@ public class UserService {
         }
 
         String username = authentication.getName();
-        return findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[GetUserByUsername]: User not found with username '%s'.", username)));
+        return findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("[GetUserByUsername]: User not found with username '%s'.", username)));
     }
 
     @Transactional(readOnly = true)
@@ -97,6 +103,12 @@ public class UserService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         User user = getUserByUsername(username);
         return repository.findUsersByFollowers(user, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<User> searchUserBySubstring(String substring, Integer pageNumber, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        return repository.searchUserBySubstring(substring, pageable);
     }
 
     public boolean isEmailUsed(String email) {
@@ -147,9 +159,11 @@ public class UserService {
     public User follow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
-        User follower = repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[Follow]: Follower not found with username '%s'.", username)));
+        User follower = repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("[Follow]: Follower not found with username '%s'.", username)));
         if (Objects.equals(user.getUsername(), follower.getUsername())) {
-            throw new IllegalArgumentException(String.format("[Follow]: Invalid parameter. User and his follower can't have the same username '%s'.", username));
+            throw new IllegalArgumentException(String.format(
+                    "[Follow]: Invalid parameter. User and his follower can't have the same username '%s'.", username));
         }
         user.getFollowings().add(follower);
         saveUser(follower);
@@ -159,9 +173,12 @@ public class UserService {
     public User unfollow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
-        User follower = repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(String.format("[Unfollow]: Follower not found with username '%s'.", username)));
+        User follower = repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("[Unfollow]: Follower not found with username '%s'.", username)));
         if (Objects.equals(user.getUsername(), follower.getUsername())) {
-            throw new IllegalArgumentException(String.format("[Unfollow]: Invalid parameter. User and his follower can't have the same username '%s'.", username));
+            throw new IllegalArgumentException(String.format(
+                    "[Unfollow]: Invalid parameter. User and his follower can't have the same username '%s'.",
+                    username));
         }
         user.getFollowings().remove(follower);
         saveUser(follower);
@@ -184,11 +201,13 @@ public class UserService {
         String newEmail = newUserData.getEmail();
 
         if (!Objects.equals(user.getEmail(), newEmail) && repository.existsUserByEmail(newEmail)) {
-            throw new IllegalArgumentException(String.format("[UpdateUser]: User with email '%s' already exist.", newEmail));
+            throw new IllegalArgumentException(
+                    String.format("[UpdateUser]: User with email '%s' already exist.", newEmail));
         }
 
         if (!Objects.equals(user.getUsername(), newUsername) && repository.existsUserByUsername(newUsername)) {
-            throw new IllegalArgumentException(String.format("[UpdateUser]: User with username '%s' already exist.", newUsername));
+            throw new IllegalArgumentException(
+                    String.format("[UpdateUser]: User with username '%s' already exist.", newUsername));
         }
 
         user.setFullName(newUserData.getFullName());
@@ -198,7 +217,7 @@ public class UserService {
         return saveUser(user);
     }
 
-    public Optional<User> findUserByUsername(String username) {
+    private Optional<User> findUserByUsername(String username) {
         return repository.findUserByUsername(username);
     }
 
@@ -229,7 +248,7 @@ public class UserService {
     public byte[] getProfileImage(String username) {
         User user = getUserByUsername(username);
         String key = user.getIsProfileImageExist() ? user.getId().toString() : "default";
-        //TODO: Check if profileImage is empty or null
+        // TODO: Check if profileImage is empty or null
         return s3Service.getObject(s3Buckets.getProfilesImages(), key);
     }
 }

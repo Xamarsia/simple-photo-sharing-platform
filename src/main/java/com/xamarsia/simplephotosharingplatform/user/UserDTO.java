@@ -24,6 +24,8 @@ public record UserDTO(
 
         @NotBlank(message = "State is required.")
         @Enumerated(EnumType.STRING)
-        State state
+        State state,
+
+        Boolean isProfileImageExist
 ) {
 }

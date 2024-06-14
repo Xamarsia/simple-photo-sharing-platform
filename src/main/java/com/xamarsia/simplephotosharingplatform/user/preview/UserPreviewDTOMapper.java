@@ -6,7 +6,6 @@ import com.xamarsia.simplephotosharingplatform.user.State;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class UserPreviewDTOMapper {
     private final UserService service;
@@ -20,8 +19,8 @@ public class UserPreviewDTOMapper {
                 user.getId(),
                 user.getFullName(),
                 user.getUsername(),
-                userState
-        );
+                userState,
+                user.getIsProfileImageExist());
     }
 
     public UserPreviewDTO apply(Authentication authentication, User user) {
@@ -29,7 +28,7 @@ public class UserPreviewDTOMapper {
                 user.getId(),
                 user.getFullName(),
                 user.getUsername(),
-                service.getState(authentication, user)
-        );
+                service.getState(authentication, user),
+                user.getIsProfileImageExist());
     }
 }

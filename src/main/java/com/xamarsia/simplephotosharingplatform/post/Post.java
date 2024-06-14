@@ -17,7 +17,7 @@ public class Post {
     private Long id;
 
     public final LocalDateTime creationDateTime = LocalDateTime.now();
-    
+
     private String description;
 
     @ManyToOne

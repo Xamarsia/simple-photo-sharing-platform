@@ -24,8 +24,8 @@ public class UserDTOMapper {
                         .stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()),
-                userState
-        );
+                userState,
+                user.getIsProfileImageExist());
     }
 
     public UserDTO apply(Authentication authentication, User user) {
@@ -39,7 +39,7 @@ public class UserDTOMapper {
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toList()),
 
-                service.getState(authentication, user)
-        );
+                service.getState(authentication, user),
+                user.getIsProfileImageExist());
     }
 }
