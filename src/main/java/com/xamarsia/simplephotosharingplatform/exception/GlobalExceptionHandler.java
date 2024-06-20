@@ -11,7 +11,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 @ControllerAdvice
@@ -47,12 +46,17 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> onIllegalArgumentException(IllegalArgumentException exception, HttpServletRequest request){
+        ErrorResponse response = new ErrorResponse(ApplicationError.ILLEGAL_ARGUMENT_EXCEPTION.getValue(), exception.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<ErrorResponse> onApplicationException(ApplicationException exception, HttpServletRequest request) {
         ErrorResponse response = new ErrorResponse(exception.getErrorCode().getValue(), exception.getMessage());
-        ResponseStatus responseStatus = exception.getClass().getAnnotation(ResponseStatus.class);
 
-        return new ResponseEntity<>(response, responseStatus.code());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(Exception.class)

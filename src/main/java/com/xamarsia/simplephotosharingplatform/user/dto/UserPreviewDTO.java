@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.user.preview;
+package com.xamarsia.simplephotosharingplatform.user.dto;
 
 import com.xamarsia.simplephotosharingplatform.user.State;
 import jakarta.persistence.EnumType;

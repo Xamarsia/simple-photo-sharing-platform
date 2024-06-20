@@ -1,6 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
 
 import jakarta.validation.constraints.NotBlank;
 

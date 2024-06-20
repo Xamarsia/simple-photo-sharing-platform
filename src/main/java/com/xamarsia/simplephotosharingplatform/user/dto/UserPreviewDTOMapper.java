@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.user.preview;
+package com.xamarsia.simplephotosharingplatform.user.dto;
 
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserService;
@@ -28,7 +28,7 @@ public class UserPreviewDTOMapper {
                 user.getId(),
                 user.getFullName(),
                 user.getUsername(),
-                service.getState(authentication, user),
+                service.getState(authentication, user.getUsername()),
                 user.getIsProfileImageExist());
     }
 }

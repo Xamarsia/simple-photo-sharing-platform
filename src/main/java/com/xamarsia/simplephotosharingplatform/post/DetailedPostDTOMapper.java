@@ -4,8 +4,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.xamarsia.simplephotosharingplatform.user.User;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTOMapper;
 
 import lombok.RequiredArgsConstructor;
 

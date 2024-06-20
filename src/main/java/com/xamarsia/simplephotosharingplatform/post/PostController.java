@@ -5,7 +5,6 @@ import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
 import com.xamarsia.simplephotosharingplatform.dto.post.UpdatePostRequest;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.post.preview.PostPreviewDTOMapper;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 
 @RestController
 @RequestMapping("/post")
@@ -44,18 +42,17 @@ public class PostController {
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPost(Authentication authentication,
-                                        @ModelAttribute CreatePostRequest newPost) {
+            @ModelAttribute CreatePostRequest newPost) {
         Post savedPost = service.savePost(authentication, newPost);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
-    @PutMapping(value = "/{postId}/update",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{postId}/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePost(Authentication authentication,
-                                        @ModelAttribute UpdatePostRequest newPost,
-                                        @PathVariable Long postId) {
+            @ModelAttribute UpdatePostRequest newPost,
+            @PathVariable Long postId) {
         Post savedPost = service.updatePost(authentication, newPost, postId);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
 
@@ -64,7 +61,7 @@ public class PostController {
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(Authentication authentication,
-                                        @PathVariable Long postId) {
+            @PathVariable Long postId) {
         service.deletePostById(authentication, postId);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
@@ -81,8 +78,8 @@ public class PostController {
 
     @GetMapping("preview/{userId}/page")
     public Page<PostPreviewDTO> getPostsPreviewPageByUserId(@PathVariable Long userId,
-                                                            @RequestParam Integer size,
-                                                            @RequestParam Integer page) {
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
         Page<Post> postsPage = service.getPostsPageByUserId(userId, page, size);
         List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
 
@@ -91,8 +88,8 @@ public class PostController {
 
     @GetMapping("following/preview/page")
     public Page<PostPreviewDTO> getPostsPreviewByUserFollowing(Authentication authentication,
-                                                               @RequestParam Integer size,
-                                                               @RequestParam Integer page) {
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
         Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
         List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
         return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
@@ -100,19 +97,21 @@ public class PostController {
 
     @GetMapping("following/detailed/page")
     public Page<DetailedPostDTO> getDetailedPostsByUserFollowing(Authentication authentication,
-                                                               @RequestParam Integer size,
-                                                               @RequestParam Integer page) {
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
         Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
-        List<DetailedPostDTO> detailedPosts = postsPage.stream().map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
+        List<DetailedPostDTO> detailedPosts = postsPage.stream()
+                .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
         return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
     }
 
     @GetMapping("random/detailed/page")
     public Page<DetailedPostDTO> getDetailedPostsRandomly(Authentication authentication,
-                                                               @RequestParam Integer size,
-                                                               @RequestParam Integer page) {
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
         Page<Post> postsPage = service.getPostsPageRandomly(authentication, size, page);
-        List<DetailedPostDTO> detailedPosts = postsPage.stream().map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
+        List<DetailedPostDTO> detailedPosts = postsPage.stream()
+                .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
         return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
     }
 

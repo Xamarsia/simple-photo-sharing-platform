@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.InternalValidationException;
+// import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmailVerification;
 import com.xamarsia.simplephotosharingplatform.user.*;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserDTOMapper;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
 import com.xamarsia.simplephotosharingplatform.dto.auth.RegisterRequest;
@@ -51,11 +54,12 @@ public class AuthenticationService {
     }
 
     public User register(RegisterRequest registerRequest) {
-        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
-                registerRequest.getEmailVerificationCode());
-        if (!isCodeCorrect) {
-            throw new RuntimeException("Register: Email verification failed");
-        }
+        // boolean isCodeCorrect =
+        // emailVerificationService.isVerificationCodeCorrect(registerRequest.getEmail(),
+        // registerRequest.getEmailVerificationCode());
+        // if (!isCodeCorrect) {
+        // throw new InvalidEmailVerification("[Register]: Email verification failed.");
+        // }
 
         User user = User.builder()
                 .fullName(registerRequest.getFullName())

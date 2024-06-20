@@ -1,10 +1,15 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
+import com.xamarsia.simplephotosharingplatform.dto.EmailUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
+import com.xamarsia.simplephotosharingplatform.dto.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTOMapper;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -139,21 +144,26 @@ public class UserController {
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @GetMapping("/all")
-    public List<UserDTO> all(Authentication authentication) {
-        return service.selectAllUsers().stream().map(user -> userDTOMapper.apply(authentication, user))
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping("preview/all")
-    public List<UserPreviewDTO> getUsersPreview(Authentication authentication) {
-        return service.selectAllUsers().stream().map(user -> userPreviewDTOMapper.apply(authentication, user))
-                .collect(Collectors.toList());
-    }
-
     @PutMapping("/update")
-    public ResponseEntity<?> updateUser(Authentication authentication, @RequestBody @Valid UserUpdateRequest newUserData) {
+    public ResponseEntity<?> updateUser(Authentication authentication,
+            @RequestBody @Valid UserUpdateRequest newUserData) {
         User updatedUser = service.updateUser(authentication, newUserData);
+        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
+        return ResponseEntity.ok().body(userDTO);
+    }
+
+    @PutMapping("/email/update")
+    public ResponseEntity<?> updateUserEmail(Authentication authentication,
+            @RequestBody @Valid EmailUpdateRequest newEmailData) {
+        User updatedUser = service.updateUserEmail(authentication, newEmailData);
+        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
+        return ResponseEntity.ok().body(userDTO);
+    }
+
+    @PutMapping("/username/update")
+    public ResponseEntity<?> updateUserUsername(Authentication authentication,
+            @RequestBody @Valid UsernameUpdateRequest newUsername) {
+        User updatedUser = service.updateUserUsername(authentication, newUsername);
         UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
         return ResponseEntity.ok().body(userDTO);
     }
@@ -180,6 +190,13 @@ public class UserController {
         User user = service.getAuthenticatedUser(authentication);
         service.uploadProfileImage(user, file);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
+    }
+
+    @DeleteMapping(value = "/profile/image")
+    public ResponseEntity<UserDTO> deleteProfileImage(Authentication authentication) {
+        User user = service.deleteProfileImage(authentication);
+        UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
+        return ResponseEntity.ok().body(userDTO);
     }
 
     @GetMapping(value = "{username}/profile/image", produces = MediaType.IMAGE_JPEG_VALUE)

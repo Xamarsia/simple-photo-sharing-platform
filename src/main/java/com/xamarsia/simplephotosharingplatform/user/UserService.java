@@ -1,14 +1,9 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
-import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
-import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
-import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
-import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
-import com.xamarsia.simplephotosharingplatform.post.Post;
-import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
-import com.xamarsia.simplephotosharingplatform.s3.S3Service;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +15,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.*;
+import com.xamarsia.simplephotosharingplatform.dto.EmailUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.dto.UsernameUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
+import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmailVerification;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
+import com.xamarsia.simplephotosharingplatform.post.Post;
+import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
+import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 
 @Service
 public class UserService {
@@ -30,13 +36,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
+    private final EmailVerificationService emailVerificationService;
 
     public UserService(UserRepository repository, PasswordEncoder passwordEncoder, S3Service s3Service,
-            S3Buckets s3Buckets) {
+            S3Buckets s3Buckets, EmailVerificationService emailVerificationService) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.s3Service = s3Service;
         this.s3Buckets = s3Buckets;
+        this.emailVerificationService = emailVerificationService;
     }
 
     @Transactional(readOnly = true)
@@ -58,18 +66,6 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public State getState(Authentication authentication, User user) {
-        User currentUser = getAuthenticatedUser(authentication);
-        if (Objects.equals(currentUser.getUsername(), user.getUsername())) {
-            return State.CURRENT;
-        }
-        if (isUserInFollowing(currentUser, user.getUsername())) {
-            return State.FOLLOWED;
-        }
-        return State.UNFOLLOWED;
-    }
-
-    @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
                 String.format("[GetUserByUsername]: User not found with username '%s'.", username)));
@@ -77,10 +73,11 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getById(Long customerId) {
-        return selectUserById(customerId).orElseThrow(() -> new ResourceNotFoundException(
+        return repository.findById(customerId).orElseThrow(() -> new ResourceNotFoundException(
                 String.format("[GetUserByID]: User not found with id '%s'.", customerId)));
     }
 
+    @Transactional(readOnly = true)
     public User getAuthenticatedUser(Authentication authentication) {
         if (authentication instanceof AnonymousAuthenticationToken) {
             throw new UnauthorizedAccessException("[GetAuthenticatedUser]: User not authenticated.");
@@ -111,37 +108,43 @@ public class UserService {
         return repository.searchUserBySubstring(substring, pageable);
     }
 
+    @Transactional(readOnly = true)
     public boolean isEmailUsed(String email) {
         return repository.existsUserByEmail(email);
     }
 
+    @Transactional(readOnly = true)
     public boolean isUsernameUsed(String username) {
         return repository.existsUserByUsername(username);
     }
 
-    public boolean isUserWithIdExist(Long id) {
-        return repository.existsUserById(id);
-    }
-
-    public List<User> selectAllUsers() {
-        Page<User> page = repository.findAll(Pageable.ofSize(1000));
-        return page.getContent();
-    }
-
-    public Optional<User> selectUserById(Long id) {
-        return repository.findById(id);
-    }
-
-    public User saveUser(User user) {
+    public User saveUser(User user) throws IllegalArgumentException {
         return repository.save(user);
     }
 
     public void deleteUser(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
+
+        for (Post post : user.getPosts()) {
+            s3Service.deleteObject(s3Buckets.getPostsImages(), post.getId().toString());
+        }
+
         if (user.getIsProfileImageExist()) {
             s3Service.deleteObject(s3Buckets.getProfilesImages(), user.getId().toString());
         }
         repository.deleteById(user.getId());
+    }
+
+    public User deleteProfileImage(Authentication authentication) {
+        User user = getAuthenticatedUser(authentication);
+
+        if (!user.getIsProfileImageExist()) {
+            throw new IllegalArgumentException("[DeleteProfileImage]: Profile picture does not exist.");
+        }
+
+        s3Service.deleteObject(s3Buckets.getProfilesImages(), user.getId().toString());
+        user.setIsProfileImageExist(false);
+        return saveUser(user);
     }
 
     public User updateUserPassword(Authentication authentication, PasswordUpdateRequest passwordData) {
@@ -196,32 +199,58 @@ public class UserService {
 
     public User updateUser(Authentication authentication, UserUpdateRequest newUserData) {
         User user = getAuthenticatedUser(authentication);
-
-        String newUsername = newUserData.getUsername();
-        String newEmail = newUserData.getEmail();
-
-        if (!Objects.equals(user.getEmail(), newEmail) && repository.existsUserByEmail(newEmail)) {
-            throw new IllegalArgumentException(
-                    String.format("[UpdateUser]: User with email '%s' already exist.", newEmail));
-        }
-
-        if (!Objects.equals(user.getUsername(), newUsername) && repository.existsUserByUsername(newUsername)) {
-            throw new IllegalArgumentException(
-                    String.format("[UpdateUser]: User with username '%s' already exist.", newUsername));
-        }
-
         user.setFullName(newUserData.getFullName());
-        user.setUsername(newUserData.getUsername());
-        user.setEmail(newUserData.getEmail());
-
+        user.setDescription(newUserData.getDescription());
         return saveUser(user);
+    }
+
+    public User updateUserEmail(Authentication authentication, EmailUpdateRequest newEmailData) {
+        User user = getAuthenticatedUser(authentication);
+
+        String newEmail = newEmailData.getEmail();
+        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(newEmailData.getEmail(),
+                newEmailData.getEmailVerificationCode());
+
+        if (!isCodeCorrect) {
+            throw new InvalidEmailVerification("[UpdateUserEmail]: Email verification failed");
+        }
+
+        user.setEmail(newEmail);
+
+        try {
+            return saveUser(user);
+        } catch (Exception e) {
+            if (e.getMessage().contains("user_email_unique")) {
+                throw new ApplicationException(ApplicationError.UNIQUE_EMAIL_CONSTRAINT_FAILED,
+                        String.format("[UpdateUserEmail]: User with email '%s' already exist.", newEmail));
+            }
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
+                    "[UpdateUserEmail]: " + e.getMessage());
+        }
+    }
+
+    public User updateUserUsername(Authentication authentication, UsernameUpdateRequest newUsernameData) {
+        User user = getAuthenticatedUser(authentication);
+        String newUsername = newUsernameData.getUsername();
+        user.setUsername(newUsername);
+
+        try {
+            return saveUser(user);
+        } catch (Exception e) {
+            if (e.getMessage().contains("user_username_unique")) {
+                throw new ApplicationException(ApplicationError.UNIQUE_USERNAME_CONSTRAINT_FAILED,
+                        String.format("[UpdateUserUsername]: User with username '%s' already exist.", newUsername));
+            }
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
+                    "[UpdateUserUsername]: " + e.getMessage());
+        }
     }
 
     private Optional<User> findUserByUsername(String username) {
         return repository.findUserByUsername(username);
     }
 
-    public Optional<User> selectUserByEmail(String email) {
+    public Optional<User> findUserByEmail(String email) {
         return repository.findUserByEmail(email);
     }
 
