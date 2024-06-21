@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.dto;
+package com.xamarsia.simplephotosharingplatform.responses;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 

@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.dto.auth;
+package com.xamarsia.simplephotosharingplatform.requests.user;
 
 import com.xamarsia.simplephotosharingplatform.common.validator.Email.UniqueEmail;
 import com.xamarsia.simplephotosharingplatform.common.validator.Username.UniqueUsername;

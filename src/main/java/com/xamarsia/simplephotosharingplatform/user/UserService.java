@@ -14,10 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.xamarsia.simplephotosharingplatform.dto.EmailUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.dto.UsernameUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
 import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
@@ -25,6 +21,10 @@ import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmail
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
 import com.xamarsia.simplephotosharingplatform.post.Post;
+import com.xamarsia.simplephotosharingplatform.requests.user.EmailUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.PasswordUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 

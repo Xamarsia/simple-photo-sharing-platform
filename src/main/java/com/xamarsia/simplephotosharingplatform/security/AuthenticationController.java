@@ -1,7 +1,10 @@
 package com.xamarsia.simplephotosharingplatform.security;
 
-import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
-import com.xamarsia.simplephotosharingplatform.dto.auth.*;
+import com.xamarsia.simplephotosharingplatform.requests.AuthenticationRequest;
+import com.xamarsia.simplephotosharingplatform.requests.EmailVerificationRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
+import com.xamarsia.simplephotosharingplatform.responses.AuthenticationResponse;
+import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.user.State;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;

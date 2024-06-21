@@ -1,14 +1,14 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
-import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
-import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
-import com.xamarsia.simplephotosharingplatform.dto.post.UpdatePostRequest;
 import com.xamarsia.simplephotosharingplatform.post.dto.DetailedPostDTO;
 import com.xamarsia.simplephotosharingplatform.post.dto.PostDTO;
 import com.xamarsia.simplephotosharingplatform.post.dto.PostPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.post.dto.mappers.DetailedPostDTOMapper;
 import com.xamarsia.simplephotosharingplatform.post.dto.mappers.PostDTOMapper;
 import com.xamarsia.simplephotosharingplatform.post.dto.mappers.PostPreviewDTOMapper;
+import com.xamarsia.simplephotosharingplatform.requests.post.CreatePostRequest;
+import com.xamarsia.simplephotosharingplatform.requests.post.UpdatePostRequest;
+import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -44,7 +44,6 @@ public class PostController {
     public byte[] getPostImage(@PathVariable Long postId) {
         return service.getPostImage(postId);
     }
-
 
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createPost(Authentication authentication,

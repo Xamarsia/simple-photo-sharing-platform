@@ -4,14 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.InternalValidationException;
+import com.xamarsia.simplephotosharingplatform.requests.AuthenticationRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
+import com.xamarsia.simplephotosharingplatform.responses.AuthenticationResponse;
 // import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmailVerification;
 import com.xamarsia.simplephotosharingplatform.user.*;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
 import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserDTOMapper;
-import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
-import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
-import com.xamarsia.simplephotosharingplatform.dto.auth.RegisterRequest;
 import com.xamarsia.simplephotosharingplatform.security.jwt.JwtService;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;

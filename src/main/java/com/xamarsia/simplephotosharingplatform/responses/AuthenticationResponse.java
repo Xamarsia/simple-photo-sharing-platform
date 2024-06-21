@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.dto.auth;
+package com.xamarsia.simplephotosharingplatform.responses;
 
 import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
 

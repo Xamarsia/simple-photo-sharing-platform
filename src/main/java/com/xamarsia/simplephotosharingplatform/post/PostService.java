@@ -1,16 +1,17 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
-import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
-import com.xamarsia.simplephotosharingplatform.dto.post.UpdatePostRequest;
 import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.AWSException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.AccessDeniedException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
+import com.xamarsia.simplephotosharingplatform.requests.post.CreatePostRequest;
+import com.xamarsia.simplephotosharingplatform.requests.post.UpdatePostRequest;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserService;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

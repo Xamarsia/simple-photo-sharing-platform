@@ -1,10 +1,10 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
-import com.xamarsia.simplephotosharingplatform.dto.EmailUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
-import com.xamarsia.simplephotosharingplatform.dto.UsernameUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.EmailUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.PasswordUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.user.dto.ProfileDTO;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
