@@ -14,7 +14,6 @@ public class CustomerUserDetailsService implements UserDetailsService {
     private final UserService userService;
     @Override
     public UserDetails loadUserByUsername(String username) throws ResourceNotFoundException {
-        return userService.findUserByEmail(username).orElseThrow(() -> new ResourceNotFoundException(
-                String.format("[LoadUserByUsername]: User not found with username '%s'.", username)));
+        return userService.findUserByUsername(username);
     }
 }

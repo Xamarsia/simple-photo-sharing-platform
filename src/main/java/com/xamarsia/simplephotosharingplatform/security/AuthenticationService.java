@@ -7,7 +7,7 @@ import com.xamarsia.simplephotosharingplatform.exception.exceptions.InternalVali
 // import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmailVerification;
 import com.xamarsia.simplephotosharingplatform.user.*;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
-import com.xamarsia.simplephotosharingplatform.user.dto.UserDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserDTOMapper;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationRequest;
 import com.xamarsia.simplephotosharingplatform.dto.auth.AuthenticationResponse;
 import com.xamarsia.simplephotosharingplatform.dto.auth.RegisterRequest;
@@ -78,7 +78,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse login(AuthenticationRequest request) {
-        User user = userService.getByEmail(request.email());
+        User user = userService.findUserByEmail(request.email());
         UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
 
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {

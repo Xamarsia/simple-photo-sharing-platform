@@ -5,10 +5,12 @@ import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.dto.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.dto.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.user.dto.ProfileDTO;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
-import com.xamarsia.simplephotosharingplatform.user.dto.UserDTOMapper;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
-import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.mappers.ProfileDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserPreviewDTOMapper;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class UserController {
     private final UserService service;
     private final UserDTOMapper userDTOMapper;
     private final UserPreviewDTOMapper userPreviewDTOMapper;
+    private final ProfileDTOMapper profileDTOMapper;
 
     @GetMapping
     public ResponseEntity<UserDTO> getAuthenticatedUser(Authentication authentication) {
@@ -46,6 +49,14 @@ public class UserController {
         return ResponseEntity.ok().body(userDTO);
     }
 
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<ProfileDTO> getProfileDTOByUsername(Authentication authentication,
+            @PathVariable String username) {
+        User user = service.getUserByUsername(username);
+        ProfileDTO profileDTO = profileDTOMapper.apply(authentication, user);
+        return ResponseEntity.ok().body(profileDTO);
+    }
+
     @GetMapping("/preview/{username}")
     public ResponseEntity<UserPreviewDTO> getUserPreviewDTOByUsername(Authentication authentication,
             @PathVariable String username) {
@@ -54,12 +65,9 @@ public class UserController {
         return ResponseEntity.ok().body(userPreviewDTO);
     }
 
-    @GetMapping("/{username}/followers")
-    public List<UserPreviewDTO> getUserFollowers(Authentication authentication,
-            @PathVariable String username) {
-        User user = service.getUserByUsername(username);
-        return user.getFollowers().stream().map(follower -> userPreviewDTOMapper.apply(authentication, follower))
-                .collect(Collectors.toList());
+    @GetMapping(value = "{username}/profile/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    public byte[] getProfileImage(@PathVariable("username") String username) {
+        return service.getProfileImage(username);
     }
 
     @GetMapping("/{username}/followers/page")
@@ -108,24 +116,6 @@ public class UserController {
         User user = service.getUserByUsername(username);
         return user.getFollowings().stream().map(following -> userPreviewDTOMapper.apply(authentication, following))
                 .collect(Collectors.toList());
-    }
-
-    @GetMapping("/{username}/following/count")
-    public Integer getUserFollowingCount(@PathVariable String username) {
-        User user = service.getUserByUsername(username);
-        return user.getFollowings().size();
-    }
-
-    @GetMapping("/{username}/posts/count")
-    public Integer getUserPostsCount(@PathVariable String username) {
-        User user = service.getUserByUsername(username);
-        return user.getPosts().size();
-    }
-
-    @GetMapping("/{username}/followers/count")
-    public Integer getUserFollowersCount(@PathVariable String username) {
-        User user = service.getUserByUsername(username);
-        return user.getFollowers().size();
     }
 
     @PutMapping("/{followerUsername}/follow")
@@ -177,13 +167,7 @@ public class UserController {
                 .body(userDTO);
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteUser(Authentication authentication) {
-        service.deleteUser(authentication);
-        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
-    }
-
-    @PostMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadProfileImage(
             Authentication authentication,
             @RequestParam("file") MultipartFile file) {
@@ -199,8 +183,9 @@ public class UserController {
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @GetMapping(value = "{username}/profile/image", produces = MediaType.IMAGE_JPEG_VALUE)
-    public byte[] getProfileImage(@PathVariable("username") String username) {
-        return service.getProfileImage(username);
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(Authentication authentication) {
+        service.deleteUser(authentication);
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 }

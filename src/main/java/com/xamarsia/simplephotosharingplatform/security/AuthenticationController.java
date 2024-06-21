@@ -5,7 +5,7 @@ import com.xamarsia.simplephotosharingplatform.dto.auth.*;
 import com.xamarsia.simplephotosharingplatform.user.State;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
-import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTOMapper;
+import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserPreviewDTOMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

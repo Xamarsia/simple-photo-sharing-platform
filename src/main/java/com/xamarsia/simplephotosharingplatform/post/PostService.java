@@ -2,8 +2,10 @@ package com.xamarsia.simplephotosharingplatform.post;
 
 import com.xamarsia.simplephotosharingplatform.dto.post.CreatePostRequest;
 import com.xamarsia.simplephotosharingplatform.dto.post.UpdatePostRequest;
+import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.AWSException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.AccessDeniedException;
+import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -36,41 +39,18 @@ public class PostService {
         this.s3Buckets = s3Buckets;
     }
 
-    public void uploadPostImage(Long postId, MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("[UploadPostImage]: File is empty. Unable to save empty file");
-        }
-
-        String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
-        if (!(Objects.equals(extension, "jpg") || Objects.equals(extension, "jpeg "))) {
-            throw new IllegalArgumentException(String.format("[UploadPostImage]: Wrong file extension '%s' found. "
-                    + "Only .jpg and .jpeg files are allowed.", extension));
-        }
-        try {
-            s3Service.putObject(s3Buckets.getPostsImages(),
-                    postId.toString(),
-                    file.getBytes());
-        } catch (IOException e) {
-            throw new AWSException("[UploadPostImage]: " + e.getMessage());
-        }
-    }
-
-    public Post savePost(Authentication authentication, CreatePostRequest req) {
+    public Post createPost(Authentication authentication, CreatePostRequest req) {
         User user = userService.getAuthenticatedUser(authentication);
         Post post = Post.builder()
                 .description(req.getDescription())
                 .user(user)
                 .build();
-        post = repository.save(post);
+        post = savePost(post);
         uploadPostImage(post.getId(), req.getImage());
         return post;
     }
 
     public Post updatePost(Authentication authentication, UpdatePostRequest req, Long postId) {
-        if (req.isEmpty()) {
-            throw new IllegalArgumentException("[UpdatePost]: Invalid argument. UpdatePostRequest is empty.");
-        }
-
         Post post = getPostById(postId);
         boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
         if (!isUserPostOwner) {
@@ -82,13 +62,24 @@ public class PostService {
             post.setDescription(description);
         }
 
-        var image = req.getImage();
-        if (image != null) {
-            uploadPostImage(post.getId(), req.getImage());
+        post.setUpdateDateTime(LocalDateTime.now());
+        return savePost(post);
+    }
+
+    public void updatePostImage(Authentication authentication, MultipartFile file, Long postId) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("[UpdatePostImage]: File is empty. Unable to save empty file");
         }
 
-        // post.setUpdatedDate(LocalDateTime.now());
-        return repository.save(post);
+        Post post = getPostById(postId);
+        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        if (!isUserPostOwner) {
+            throw new AccessDeniedException("[UpdatePostImage]: Only post owner can update the post.");
+        }
+
+        uploadPostImage(postId, file);
+        post.setUpdateDateTime(LocalDateTime.now());
+        savePost(post);
     }
 
     @Transactional(readOnly = true)
@@ -152,6 +143,15 @@ public class PostService {
         return repository.findById(postId);
     }
 
+    public void deletePostById(Authentication authentication, Long postId) {
+        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, postId);
+        if (!isUserPostOwner) {
+            throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
+        }
+        s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
+        repository.deleteById(postId);
+    }
+
     private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Long postId) {
         User user = userService.getAuthenticatedUser(authentication);
         Post post = getPostById(postId);
@@ -163,12 +163,31 @@ public class PostService {
         return post.getUser() == user;
     }
 
-    public void deletePostById(Authentication authentication, Long postId) {
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, postId);
-        if (!isUserPostOwner) {
-            throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
+    private Post savePost(Post post) {
+        try {
+            return repository.save(post);
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
+                    "[SavePost]: " + e.getMessage());
         }
-        s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
-        repository.deleteById(postId);
+    }
+
+    private void uploadPostImage(Long postId, MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("[UploadPostImage]: File is empty. Unable to save empty file");
+        }
+
+        String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
+        if (!(Objects.equals(extension, "jpg") || Objects.equals(extension, "jpeg "))) {
+            throw new IllegalArgumentException(String.format("[UploadPostImage]: Wrong file extension '%s' found. "
+                    + "Only .jpg and .jpeg files are allowed.", extension));
+        }
+        try {
+            s3Service.putObject(s3Buckets.getPostsImages(),
+                    postId.toString(),
+                    file.getBytes());
+        } catch (IOException e) {
+            throw new AWSException("[UploadPostImage]: " + e.getMessage());
+        }
     }
 }

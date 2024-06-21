@@ -1,6 +1,8 @@
-package com.xamarsia.simplephotosharingplatform.post.preview;
+package com.xamarsia.simplephotosharingplatform.post.dto.mappers;
 
 import com.xamarsia.simplephotosharingplatform.post.Post;
+import com.xamarsia.simplephotosharingplatform.post.dto.PostPreviewDTO;
+
 import org.springframework.stereotype.Service;
 import java.util.function.Function;
 

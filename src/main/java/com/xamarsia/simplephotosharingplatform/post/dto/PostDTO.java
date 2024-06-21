@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.post;
+package com.xamarsia.simplephotosharingplatform.post.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -8,6 +8,8 @@ public record PostDTO(
 
         @NotBlank(message = "Created date is required.")
         String createdDate,
+        
+        String updateDateTime,
 
         String description,
 

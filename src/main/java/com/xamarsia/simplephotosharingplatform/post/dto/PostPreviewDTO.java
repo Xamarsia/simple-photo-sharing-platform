@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.post.preview;
+package com.xamarsia.simplephotosharingplatform.post.dto;
 
 import jakarta.validation.constraints.NotBlank;
 

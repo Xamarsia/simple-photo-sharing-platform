@@ -1,7 +1,8 @@
-package com.xamarsia.simplephotosharingplatform.user.dto;
+package com.xamarsia.simplephotosharingplatform.user.dto.mappers;
 
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserService;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.user.State;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
