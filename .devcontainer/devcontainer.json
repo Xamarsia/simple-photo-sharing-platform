@@ -1,10 +1,9 @@
 {
-	"name": "SPSP backend",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "api",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-    
-	"customizations": {
+    "name": "SPSP backend",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "api",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+    "customizations": {
         "vscode": {
             "settings": {},
             "extensions": [
@@ -14,6 +13,7 @@
                 "inferrinizzard.prettier-sql-vscode"
             ]
         }
-	},
-	"postCreateCommand": "git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename} && mvn package"
+    },
+    // need for git
+    "postCreateCommand": "git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename} && mvn package"
 }
