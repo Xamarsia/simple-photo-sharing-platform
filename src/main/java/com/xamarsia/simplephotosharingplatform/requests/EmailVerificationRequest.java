@@ -1,4 +1,4 @@
-package com.xamarsia.simplephotosharingplatform.dto.auth;
+package com.xamarsia.simplephotosharingplatform.requests;
 
 import com.xamarsia.simplephotosharingplatform.common.validator.Email.UniqueEmail;
 import jakarta.validation.constraints.NotBlank;

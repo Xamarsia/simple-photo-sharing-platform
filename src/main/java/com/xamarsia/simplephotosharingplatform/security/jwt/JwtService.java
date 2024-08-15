@@ -1,6 +1,10 @@
 package com.xamarsia.simplephotosharingplatform.security.jwt;
+
 import com.xamarsia.simplephotosharingplatform.security.token.Token;
 import com.xamarsia.simplephotosharingplatform.security.token.TokenRepository;
+import com.xamarsia.simplephotosharingplatform.security.token.TokenType;
+import com.xamarsia.simplephotosharingplatform.user.User;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -15,8 +19,6 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
-
 
 @Service
 public class JwtService {
@@ -35,11 +37,6 @@ public class JwtService {
 
     public String getSubject(String token) {
         return extractAllClaims(token).getSubject();
-    }
-
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
     }
 
     public String generateToken(String userId) {
@@ -67,7 +64,6 @@ public class JwtService {
         return (storedToken != null);
     }
 
-
     private boolean isTokenExpired(String token) {
         Date today = Date.from(Instant.now());
         return extractAllClaims(token).getExpiration().before(today);
@@ -91,5 +87,24 @@ public class JwtService {
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public void deleteAllUserTokens(Long userId) {
+        var validUserTokens = tokenRepository.findAllByUser_Id(userId);
+        if (validUserTokens.isEmpty())
+            return;
+
+        validUserTokens.forEach(storedToken -> {
+            tokenRepository.deleteById(storedToken.id);
+        });
+    }
+
+    public void saveUserToken(User user, String jwtToken) {
+        var token = Token.builder()
+                .user(user)
+                .token(jwtToken)
+                .tokenType(TokenType.BEARER)
+                .build();
+        tokenRepository.save(token);
     }
 }

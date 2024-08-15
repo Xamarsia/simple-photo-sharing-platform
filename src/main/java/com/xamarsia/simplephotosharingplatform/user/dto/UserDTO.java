@@ -1,12 +1,14 @@
-package com.xamarsia.simplephotosharingplatform.user.preview;
+package com.xamarsia.simplephotosharingplatform.user.dto;
 
-import com.xamarsia.simplephotosharingplatform.user.State;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.List;
 
-public record UserPreviewDTO (
+import com.xamarsia.simplephotosharingplatform.user.State;
+
+public record UserDTO(
         @NotBlank(message = "Id is required.")
         Long id,
 
@@ -16,7 +18,18 @@ public record UserPreviewDTO (
         @NotBlank(message = "Username is required.")
         String username,
 
+        @NotBlank(message = "Email is required.")
+        String email,
+        
+        String description,
+
+        @NotBlank(message = "Roles is required.")
+        List<String> roles,
+
         @NotBlank(message = "State is required.")
         @Enumerated(EnumType.STRING)
-        State state) {
+        State state,
+
+        Boolean isProfileImageExist
+) {
 }

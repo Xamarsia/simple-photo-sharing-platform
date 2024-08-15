@@ -1,8 +1,9 @@
-package com.xamarsia.simplephotosharingplatform.dto.auth;
+package com.xamarsia.simplephotosharingplatform.requests.user;
 
 import com.xamarsia.simplephotosharingplatform.common.validator.Email.UniqueEmail;
 import com.xamarsia.simplephotosharingplatform.common.validator.Username.UniqueUsername;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +29,6 @@ public class RegisterRequest {
 
     private MultipartFile image;
 
-//    @NotBlank(message = "Email verification code is required.")
-//    Integer emailVerificationCode;
+   @NotNull(message = "Email verification code is required.")
+   private Integer emailVerificationCode;
 }

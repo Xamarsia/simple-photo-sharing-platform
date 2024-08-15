@@ -1,9 +1,10 @@
-package com.xamarsia.simplephotosharingplatform.dto.post;
+package com.xamarsia.simplephotosharingplatform.requests.post;
 
 import lombok.Getter;
 import lombok.Setter;
-import jakarta.validation.constraints.NotNull;
+
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.validation.constraints.NotNull;
 
 @Getter
 @Setter

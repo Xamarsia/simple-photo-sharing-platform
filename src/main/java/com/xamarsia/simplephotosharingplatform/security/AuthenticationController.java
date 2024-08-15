@@ -1,12 +1,19 @@
 package com.xamarsia.simplephotosharingplatform.security;
 
-import com.xamarsia.simplephotosharingplatform.dto.EmptyJsonResponse;
-import com.xamarsia.simplephotosharingplatform.dto.auth.*;
-import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
-import com.xamarsia.simplephotosharingplatform.user.preview.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.requests.AuthenticationRequest;
+import com.xamarsia.simplephotosharingplatform.requests.EmailVerificationRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
+import com.xamarsia.simplephotosharingplatform.responses.AuthenticationResponse;
+import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
+import com.xamarsia.simplephotosharingplatform.user.State;
+import com.xamarsia.simplephotosharingplatform.user.User;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserPreviewDTOMapper;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -17,24 +24,29 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
-
 @Validated
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authService;
-    private final EmailVerificationService emailVerificationService;
+    private final UserPreviewDTOMapper userPreviewDTOMapper;
 
-    @GetMapping("/isEmailAlreadyInUse")
-    public Boolean isEmailAlreadyInUse(@Valid @RequestBody IsEmailAlreadyInUseRequest request) {
-        return authService.isEmailAlreadyInUse(request);
+    @GetMapping("/isEmailAlreadyInUse/{email}")
+    public Boolean isEmailAlreadyInUse(@NotBlank @PathVariable String email) {
+        return authService.isEmailAlreadyInUse(email);
     }
 
-    @PostMapping(value ="/register",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @GetMapping("/IsUsernameAlreadyInUse/{username}")
+    public Boolean IsUsernameAlreadyInUse(@NotBlank @PathVariable String username) {
+        return authService.IsUsernameAlreadyInUse(username);
+    }
+
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> register(@Valid @ModelAttribute RegisterRequest request) {
-        UserPreviewDTO userPreviewDto = authService.register(request);
+        User user = authService.register(request);
+        UserPreviewDTO userPreviewDto = userPreviewDTOMapper.apply(user, State.CURRENT);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(userPreviewDto);
     }
 
@@ -46,15 +58,14 @@ public class AuthenticationController {
 
     @PostMapping("/sendVerificationCode")
     public ResponseEntity<?> sendVerificationCodeToEmail(@Valid @RequestBody EmailVerificationRequest request) {
-        emailVerificationService.sendEmailVerificationCode(request.email());
+        authService.sendVerificationCodeToEmail(request.email());
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
     @PostMapping("/refresh-token")
     public void refreshToken(
             HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
+            HttpServletResponse response) throws IOException {
         authService.refreshToken(request, response);
     }
 }

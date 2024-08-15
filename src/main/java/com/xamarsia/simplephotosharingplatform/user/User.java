@@ -13,21 +13,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(
-        name = "_user",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "user_email_unique",
-                        columnNames = "email"
-                ),
-        }
-)
+@Table(name = "_user", uniqueConstraints = {
+        @UniqueConstraint(name = "user_email_unique", columnNames = "email"),
+        @UniqueConstraint(name = "user_username_unique", columnNames = "username")
+})
 public class User implements UserDetails {
 
     @Id
@@ -46,6 +40,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    private String description;
+
     @Builder.Default
     private Boolean isProfileImageExist = false;
 
@@ -59,27 +55,18 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Post> posts;
 
-
     @ManyToMany
-    @JoinTable(name = "following",
-            joinColumns = @JoinColumn(name = "followingId"),
-            inverseJoinColumns = @JoinColumn(name = "followerId")
-    )
+    @JoinTable(name = "following", joinColumns = @JoinColumn(name = "followingId"), inverseJoinColumns = @JoinColumn(name = "followerId"))
     private Set<User> followers;
 
     @ManyToMany
-    @JoinTable(name = "following",
-            joinColumns = @JoinColumn(name = "followerId"),
-            inverseJoinColumns = @JoinColumn(name = "followingId")
-    )
+    @JoinTable(name = "following", joinColumns = @JoinColumn(name = "followerId"), inverseJoinColumns = @JoinColumn(name = "followingId"))
     private Set<User> followings;
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
     }
-
 
     @Override
     public boolean isAccountNonExpired() {
@@ -103,8 +90,10 @@ public class User implements UserDetails {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         User user = (User) o;
         return Objects.equals(id, user.id)
                 && Objects.equals(fullName, user.fullName)
