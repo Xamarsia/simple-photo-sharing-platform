@@ -1,17 +1,11 @@
 package com.xamarsia.simplephotosharingplatform.security;
 
-import com.xamarsia.simplephotosharingplatform.requests.AuthenticationRequest;
-import com.xamarsia.simplephotosharingplatform.requests.EmailVerificationRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
-import com.xamarsia.simplephotosharingplatform.responses.AuthenticationResponse;
-import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
 import com.xamarsia.simplephotosharingplatform.user.State;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
 import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserPreviewDTOMapper;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +15,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 @Validated
 @RestController
@@ -48,24 +40,5 @@ public class AuthenticationController {
         UserPreviewDTO userPreviewDto = userPreviewDTOMapper.apply(user, State.CURRENT);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userPreviewDto);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody AuthenticationRequest request) {
-        AuthenticationResponse response = authService.login(request);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @PostMapping("/sendVerificationCode")
-    public ResponseEntity<?> sendVerificationCodeToEmail(@Valid @RequestBody EmailVerificationRequest request) {
-        authService.sendVerificationCodeToEmail(request.email());
-        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
-    }
-
-    @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-        authService.refreshToken(request, response);
     }
 }

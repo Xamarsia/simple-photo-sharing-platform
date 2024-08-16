@@ -7,22 +7,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
 import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
-import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmailVerification;
+
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
 import com.xamarsia.simplephotosharingplatform.post.Post;
-import com.xamarsia.simplephotosharingplatform.requests.user.EmailUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.requests.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UserUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
@@ -31,18 +26,14 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 @Service
 public class UserService {
     private final UserRepository repository;
-    private final PasswordEncoder passwordEncoder;
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
-    private final EmailVerificationService emailVerificationService;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, S3Service s3Service,
-            S3Buckets s3Buckets, EmailVerificationService emailVerificationService) {
+    public UserService(UserRepository repository, S3Service s3Service,
+            S3Buckets s3Buckets) {
         this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
         this.s3Service = s3Service;
         this.s3Buckets = s3Buckets;
-        this.emailVerificationService = emailVerificationService;
     }
 
     @Transactional(readOnly = true)
@@ -170,37 +161,10 @@ public class UserService {
         return saveUser(user);
     }
 
-    public User updateUserEmail(Authentication authentication, EmailUpdateRequest newEmailData) {
-        User user = getAuthenticatedUser(authentication);
-
-        String newEmail = newEmailData.getEmail();
-        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(newEmailData.getEmail(),
-                newEmailData.getEmailVerificationCode());
-
-        if (!isCodeCorrect) {
-            throw new InvalidEmailVerification("[UpdateUserEmail]: Email verification failed");
-        }
-
-        user.setEmail(newEmail);
-        return saveUser(user);
-    }
-
     public User updateUserUsername(Authentication authentication, UsernameUpdateRequest newUsernameData) {
         User user = getAuthenticatedUser(authentication);
         String newUsername = newUsernameData.getUsername();
         user.setUsername(newUsername);
-        return saveUser(user);
-    }
-
-    public User updateUserPassword(Authentication authentication, PasswordUpdateRequest passwordData) {
-        User user = getAuthenticatedUser(authentication);
-        String oldPassword = passwordData.getOldPassword();
-        String newPassword = passwordData.getNewPassword();
-
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new BadCredentialsException("[UpdateUserPassword]: Wrong confirmation password.");
-        }
-        user.setPassword(passwordEncoder.encode(newPassword));
         return saveUser(user);
     }
 

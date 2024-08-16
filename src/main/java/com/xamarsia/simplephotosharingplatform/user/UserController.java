@@ -1,7 +1,5 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
-import com.xamarsia.simplephotosharingplatform.requests.user.EmailUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.requests.user.PasswordUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UserUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
@@ -142,29 +140,12 @@ public class UserController {
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @PutMapping("/email/update")
-    public ResponseEntity<?> updateUserEmail(Authentication authentication,
-            @RequestBody @Valid EmailUpdateRequest newEmailData) {
-        User updatedUser = service.updateUserEmail(authentication, newEmailData);
-        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
-        return ResponseEntity.ok().body(userDTO);
-    }
-
     @PutMapping("/username/update")
     public ResponseEntity<?> updateUserUsername(Authentication authentication,
             @RequestBody @Valid UsernameUpdateRequest newUsername) {
         User updatedUser = service.updateUserUsername(authentication, newUsername);
         UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
         return ResponseEntity.ok().body(userDTO);
-    }
-
-    @PutMapping("/password/update")
-    public ResponseEntity<?> updateUserPassword(Authentication authentication,
-            @RequestBody @Valid PasswordUpdateRequest newPasswordData) {
-        User updatedUser = service.updateUserPassword(authentication, newPasswordData);
-        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
-        return ResponseEntity.ok()
-                .body(userDTO);
     }
 
     @PutMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

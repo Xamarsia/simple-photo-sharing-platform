@@ -10,7 +10,8 @@
                 "esbenp.prettier-vscode",
                 "vscjava.vscode-java-pack",
                 "eamodio.gitlens",
-                "inferrinizzard.prettier-sql-vscode"
+                "inferrinizzard.prettier-sql-vscode",
+                "redhat.vscode-xml"
             ]
         }
     },

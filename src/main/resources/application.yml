@@ -12,21 +12,6 @@ spring:
     #      ddl-auto: update
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-  mail:
-    properties:
-      mail:
-        smtp:
-          starttls:
-            required: true
-            enable: true
-          auth: true
-          timeout: 5000
-        transport:
-          protocol: smtp
-    username: ${VERIFICATION_MAIL_USERNAME}
-    host: ${VERIFICATION_MAIL_HOST}
-    port: ${MAIL_PORT}
-    password: ${VERIFICATION_MAIL_PASSWORD}
   servlet:
     multipart:
       max-file-size: 10MB
@@ -48,8 +33,3 @@ application:
       allowed-origins: "http://localhost:3000"
       allowed-methods: "*"
       allowed-headers: "*,Authorization"
-    jwt:
-      secret-key: ${JWT_SECRET_KEY}
-      expiration: ${JWT_EXPIRATION}
-      refresh-token:
-        expiration: ${JWT_REFRESH_TOKEN_EXPIRATION}
