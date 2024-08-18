@@ -1,5 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
+import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UserUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
@@ -11,6 +12,7 @@ import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserDTOMapper;
 import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserPreviewDTOMapper;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -37,6 +39,19 @@ public class UserController {
     public ResponseEntity<UserDTO> getAuthenticatedUser(Authentication authentication) {
         UserDTO userDTO = userDTOMapper.apply(authentication, service.getAuthenticatedUser(authentication));
         return ResponseEntity.ok().body(userDTO);
+    }
+
+    @GetMapping("/IsUsernameAlreadyInUse/{username}")
+    public Boolean IsUsernameAlreadyInUse(@NotBlank @PathVariable String username) {
+        return service.isUsernameUsed(username);
+    }
+
+    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> register(Authentication authentication, @Valid @ModelAttribute RegisterRequest request) {
+        User user = service.register(authentication, request);
+        UserPreviewDTO userPreviewDto = userPreviewDTOMapper.apply(user, State.CURRENT);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(userPreviewDto);
     }
 
     @GetMapping("/{username}")
