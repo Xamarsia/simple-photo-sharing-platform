@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @Getter
 public class UsernameUpdateRequest {
-    @NotBlank(message = "Email is required.")
+    @NotBlank(message = "Username is required.")
     @UniqueUsername(message = "A user with username '${validatedValue}' already exists.")
     private String username;
 }

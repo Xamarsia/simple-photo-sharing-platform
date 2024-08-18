@@ -39,13 +39,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> onBadCredentialsException(BadCredentialsException exception, HttpServletRequest request) {
-        ErrorResponse response = new ErrorResponse(ApplicationError.BAD_CREDENTIALS.getValue(), exception.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-    }
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> onIllegalArgumentException(IllegalArgumentException exception, HttpServletRequest request){
         ErrorResponse response = new ErrorResponse(ApplicationError.ILLEGAL_ARGUMENT_EXCEPTION.getValue(), exception.getMessage());

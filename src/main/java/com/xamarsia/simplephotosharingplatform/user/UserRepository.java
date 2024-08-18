@@ -9,15 +9,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findUserByEmail(String email);
 
-    Optional<User> findUserByUsername(String email);
+    Optional<User> findUserByUsername(String username);
 
     Page<User> findUsersByFollowers(User follower, Pageable pageable);
 
     Page<User> findUsersByFollowings(User followings, Pageable pageable);
-
-    boolean existsUserByEmail(String email);
 
     boolean existsUserByUsername(String username);
 

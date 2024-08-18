@@ -5,24 +5,23 @@ import org.springframework.stereotype.Service;
 
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.dto.ProfileDTO;
-import com.xamarsia.simplephotosharingplatform.user.dto.UserPreviewDTO;
+import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileDTOMapper {
-    private final UserPreviewDTOMapper userPreviewDTOMapper;
+    private final UserDTOMapper userDTOMapper;
 
     public ProfileDTO apply(Authentication authentication, User user) {
 
-        UserPreviewDTO userPreviewDTO = userPreviewDTOMapper.apply(authentication, user);
+        UserDTO userDTO = userDTOMapper.apply(authentication, user);
 
         return new ProfileDTO(
                 user.getFollowings().size(),
                 user.getFollowers().size(),
                 user.getPosts().size(),
-                user.getDescription(),
-                userPreviewDTO);
+                userDTO);
     }
 }

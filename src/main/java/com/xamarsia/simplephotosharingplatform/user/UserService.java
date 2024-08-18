@@ -18,7 +18,7 @@ import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationE
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
 import com.xamarsia.simplephotosharingplatform.post.Post;
 import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
-import com.xamarsia.simplephotosharingplatform.requests.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.UserInfoUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
@@ -77,8 +77,6 @@ public class UserService {
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
                 .username(registerRequest.getUsername())
-                .email(registerRequest.getEmail())
-                .password(registerRequest.getPassword())
                 .auth(Arrays.asList(auth))
                 .build();
 
@@ -116,11 +114,6 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isEmailUsed(String email) {
-        return repository.existsUserByEmail(email);
-    }
-
-    @Transactional(readOnly = true)
     public boolean isUsernameUsed(String username) {
         return repository.existsUserByUsername(username);
     }
@@ -131,12 +124,6 @@ public class UserService {
         String key = user.getIsProfileImageExist() ? user.getId().toString() : "default";
         // TODO: Check if profileImage is empty or null
         return s3Service.getObject(s3Buckets.getProfilesImages(), key);
-    }
-
-    @Transactional(readOnly = true)
-    public User findUserByEmail(String email) {
-        return repository.findUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException(
-                String.format("[FindUserByEmail]: User not found with email '%s'.", email)));
     }
 
     public User findUserByUsername(String username) {
@@ -180,7 +167,7 @@ public class UserService {
         return currentUser.getFollowings().stream().map(User::getUsername).anyMatch(username::equals);
     }
 
-    public User updateUser(Authentication authentication, UserUpdateRequest newUserData) {
+    public User updateUser(Authentication authentication, UserInfoUpdateRequest newUserData) {
         User user = getAuthenticatedUser(authentication);
         user.setFullName(newUserData.getFullName());
         user.setDescription(newUserData.getDescription());
@@ -220,11 +207,6 @@ public class UserService {
             if (e.getMessage().contains("user_username_unique")) {
                 throw new ApplicationException(ApplicationError.UNIQUE_USERNAME_CONSTRAINT_FAILED,
                         String.format("[SaveUser]: User with username '%s' already exist.", user.getUsername()));
-            }
-
-            if (e.getMessage().contains("user_email_unique")) {
-                throw new ApplicationException(ApplicationError.UNIQUE_EMAIL_CONSTRAINT_FAILED,
-                        String.format("[SaveUser]: User with email '%s' already exist.", user.getEmail()));
             }
 
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
