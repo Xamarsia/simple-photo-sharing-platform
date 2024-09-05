@@ -12,7 +12,7 @@ import java.util.Set;
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllByUserId(Long userId);
 
-    Page<Post> findPostsByUserId(Long userId, Pageable pageable);
+    Page<Post> findPostsByUserUsername(String username, Pageable pageable);
 
     Integer countAllByUserId(Long userId);
 

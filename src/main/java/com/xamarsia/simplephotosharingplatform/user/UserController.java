@@ -165,4 +165,16 @@ public class UserController {
         service.deleteUser(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
+
+    @GetMapping("/{username}/following/count")
+    public Integer getUserFollowingCount(@PathVariable String username) {
+        User user = service.getUserByUsername(username);
+        return user.getFollowings().size();
+    }
+
+    @GetMapping("/{username}/followers/count")
+    public Integer getUserFollowersCount(@PathVariable String username) {
+        User user = service.getUserByUsername(username);
+        return user.getFollowers().size();
+    }
 }

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
+
 @Service
 public class PostService {
     private final PostRepository repository;
@@ -84,15 +85,15 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<Post> findPostsByUserId(Long userId) {
-        return repository.findAllByUserId(userId);
+    public Page<Post> getPostsPageByUsername(String username, Integer pageNumber, Integer pageSize) {
+        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
+                Sort.by(Sort.Direction.DESC, "creationDateTime"));
+        return repository.findPostsByUserUsername(username, sortedByCreatedDate);
     }
 
     @Transactional(readOnly = true)
-    public Page<Post> getPostsPageByUserId(Long userId, Integer pageNumber, Integer pageSize) {
-        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
-                Sort.by(Sort.Direction.DESC, "creationDateTime"));
-        return repository.findPostsByUserId(userId, sortedByCreatedDate);
+    public List<Post> getAll() {
+        return repository.findAll();
     }
 
     @Transactional(readOnly = true)

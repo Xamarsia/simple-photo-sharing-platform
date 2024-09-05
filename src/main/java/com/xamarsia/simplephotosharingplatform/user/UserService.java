@@ -16,7 +16,6 @@ import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
 
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
-import com.xamarsia.simplephotosharingplatform.post.Post;
 import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UserInfoUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
@@ -214,17 +213,23 @@ public class UserService {
         }
     }
 
+    public void deleteUser(User user) {
+        try {
+            repository.deleteById(user.getId());
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
+                    "[DeleteUser]: " + e.getMessage());
+        }
+    }
+
     public void deleteUser(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
-
-        for (Post post : user.getPosts()) {
-            s3Service.deleteObject(s3Buckets.getPostsImages(), post.getId().toString());
-        }
 
         if (user.getIsProfileImageExist()) {
             s3Service.deleteObject(s3Buckets.getProfilesImages(), user.getId().toString());
         }
-        repository.deleteById(user.getId());
+
+        deleteUser(user);
     }
 
     public User deleteProfileImage(Authentication authentication) {

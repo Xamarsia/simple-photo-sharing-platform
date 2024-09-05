@@ -1,6 +1,5 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
-import com.xamarsia.simplephotosharingplatform.post.Post;
 import com.xamarsia.simplephotosharingplatform.security.authentication.Auth;
 
 import jakarta.persistence.*;
@@ -11,6 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
 
 @Data
 @Builder
@@ -40,19 +40,22 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = CascadeType.ALL)
     private List<Auth> auth;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Post> posts;
+    @ManyToMany
+    @JoinTable(name = "following",
+            joinColumns = @JoinColumn(name = "followingId"),
+            inverseJoinColumns = @JoinColumn(name = "followerId")
+    )
+    private Set<User> followers = new HashSet<User>();
 
     @ManyToMany
-    @JoinTable(name = "following", joinColumns = @JoinColumn(name = "followingId"), inverseJoinColumns = @JoinColumn(name = "followerId"))
-    private Set<User> followers;
-
-    @ManyToMany
-    @JoinTable(name = "following", joinColumns = @JoinColumn(name = "followerId"), inverseJoinColumns = @JoinColumn(name = "followingId"))
-    private Set<User> followings;
+    @JoinTable(name = "following",
+            joinColumns = @JoinColumn(name = "followerId"),
+            inverseJoinColumns = @JoinColumn(name = "followingId")
+    )
+    private Set<User> followings = new HashSet<User>();
 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

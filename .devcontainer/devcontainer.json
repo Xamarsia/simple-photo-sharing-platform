@@ -11,7 +11,9 @@
                 "vscjava.vscode-java-pack",
                 "eamodio.gitlens",
                 "inferrinizzard.prettier-sql-vscode",
-                "redhat.vscode-xml"
+                "redhat.vscode-xml",
+                "ckolkman.vscode-postgres",
+                "vmware.vscode-spring-boot"
             ]
         }
     },
