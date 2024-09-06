@@ -6,43 +6,39 @@ import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.xamarsia.simplephotosharingplatform.email.EmailVerificationService;
 import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
-import com.xamarsia.simplephotosharingplatform.exception.exceptions.InvalidEmailVerification;
+
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
-import com.xamarsia.simplephotosharingplatform.exception.exceptions.UnauthorizedAccessException;
-import com.xamarsia.simplephotosharingplatform.post.Post;
-import com.xamarsia.simplephotosharingplatform.requests.user.EmailUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.requests.user.PasswordUpdateRequest;
-import com.xamarsia.simplephotosharingplatform.requests.user.UserUpdateRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
+import com.xamarsia.simplephotosharingplatform.requests.user.UserInfoUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UsernameUpdateRequest;
 import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
+import com.xamarsia.simplephotosharingplatform.security.authentication.Auth;
+import com.xamarsia.simplephotosharingplatform.security.authentication.AuthService;
+import com.xamarsia.simplephotosharingplatform.user.following.FollowingService;
 
 @Service
 public class UserService {
     private final UserRepository repository;
-    private final PasswordEncoder passwordEncoder;
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
-    private final EmailVerificationService emailVerificationService;
+    private final AuthService authService;
+    private final FollowingService followingService;
 
-    public UserService(UserRepository repository, PasswordEncoder passwordEncoder, S3Service s3Service,
-            S3Buckets s3Buckets, EmailVerificationService emailVerificationService) {
+    public UserService(UserRepository repository, S3Service s3Service,
+            S3Buckets s3Buckets, AuthService authService, FollowingService followingService) {
         this.repository = repository;
-        this.passwordEncoder = passwordEncoder;
         this.s3Service = s3Service;
         this.s3Buckets = s3Buckets;
-        this.emailVerificationService = emailVerificationService;
+        this.authService = authService;
+        this.followingService = followingService;
     }
 
     @Transactional(readOnly = true)
@@ -70,37 +66,51 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getAuthenticatedUser(Authentication authentication) {
-        if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new UnauthorizedAccessException("[GetAuthenticatedUser]: User not authenticated.");
+        User user = authService.getAuthentication(authentication).getUser();
+        if (user == null) {
+            throw new ResourceNotFoundException("[getAuthenticatedUser]: User not found.");
+        }
+        return user;
+    }
+
+    public User register(Authentication authentication, RegisterRequest registerRequest) {
+        Auth auth = authService.getAuthentication(authentication);
+        User user = User.builder()
+                .fullName(registerRequest.getFullName())
+                .username(registerRequest.getUsername())
+                .build();
+
+        User savedUser = saveUser(user);
+
+        auth.setUser(savedUser);
+        authService.saveAuthentication(auth);
+
+        MultipartFile file = registerRequest.getImage();
+        if (file != null && !file.isEmpty()) {
+            uploadProfileImage(user, registerRequest.getImage());
         }
 
-        String username = authentication.getName();
-        return findUserByUsername(username);
+        return savedUser;
     }
 
     @Transactional(readOnly = true)
     public Page<User> getUserFollowersPage(String username, Integer pageNumber, Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         User user = getUserByUsername(username);
-        return repository.findUsersByFollowings(user, pageable);
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+        return repository.findFollowersByUserId(user.getId(), pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<User> getUserFollowingsPage(String username, Integer pageNumber, Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         User user = getUserByUsername(username);
-        return repository.findUsersByFollowers(user, pageable);
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+        return repository.findFollowingsByUserId(user.getId(), pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<User> searchUserBySubstring(String substring, Integer pageNumber, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return repository.searchUserBySubstring(substring, pageable);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean isEmailUsed(String email) {
-        return repository.existsUserByEmail(email);
     }
 
     @Transactional(readOnly = true)
@@ -116,18 +126,12 @@ public class UserService {
         return s3Service.getObject(s3Buckets.getProfilesImages(), key);
     }
 
-    @Transactional(readOnly = true)
-    public User findUserByEmail(String email) {
-        return repository.findUserByEmail(email).orElseThrow(() -> new ResourceNotFoundException(
-                String.format("[FindUserByEmail]: User not found with email '%s'.", email)));
-    }
-
     public User findUserByUsername(String username) {
         return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
                 String.format("[FindUserByUsername]: Follower not found with username '%s'.", username)));
     }
 
-    public User follow(Authentication authentication, String username) {
+    public void follow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
@@ -135,12 +139,12 @@ public class UserService {
             throw new IllegalArgumentException(String.format(
                     "[Follow]: Invalid parameter. User and his follower can't have the same username '%s'.", username));
         }
-        user.getFollowings().add(follower);
-        saveUser(follower);
-        return saveUser(user);
+
+        followingService.follow(user, follower);
+        return;
     }
 
-    public User unfollow(Authentication authentication, String username) {
+    public void unfollow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
@@ -149,39 +153,27 @@ public class UserService {
                     "[Unfollow]: Invalid parameter. User and his follower can't have the same username '%s'.",
                     username));
         }
-        user.getFollowings().remove(follower);
-        saveUser(follower);
-        return saveUser(user);
+
+        followingService.ufollow(user.getId(), follower.getId());
+        return;
     }
 
+    @Transactional(readOnly = true)
     public Boolean isUserInFollowing(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
         return isUserInFollowing(user, username);
     }
 
+    @Transactional(readOnly = true)
     public Boolean isUserInFollowing(User currentUser, String username) {
-        return currentUser.getFollowings().stream().map(User::getUsername).anyMatch(username::equals);
+        User follower = findUserByUsername(username);
+        return followingService.isUserInFollowing(currentUser.getId(), follower.getId());
     }
 
-    public User updateUser(Authentication authentication, UserUpdateRequest newUserData) {
+    public User updateUser(Authentication authentication, UserInfoUpdateRequest newUserData) {
         User user = getAuthenticatedUser(authentication);
         user.setFullName(newUserData.getFullName());
         user.setDescription(newUserData.getDescription());
-        return saveUser(user);
-    }
-
-    public User updateUserEmail(Authentication authentication, EmailUpdateRequest newEmailData) {
-        User user = getAuthenticatedUser(authentication);
-
-        String newEmail = newEmailData.getEmail();
-        boolean isCodeCorrect = emailVerificationService.isVerificationCodeCorrect(newEmailData.getEmail(),
-                newEmailData.getEmailVerificationCode());
-
-        if (!isCodeCorrect) {
-            throw new InvalidEmailVerification("[UpdateUserEmail]: Email verification failed");
-        }
-
-        user.setEmail(newEmail);
         return saveUser(user);
     }
 
@@ -189,18 +181,6 @@ public class UserService {
         User user = getAuthenticatedUser(authentication);
         String newUsername = newUsernameData.getUsername();
         user.setUsername(newUsername);
-        return saveUser(user);
-    }
-
-    public User updateUserPassword(Authentication authentication, PasswordUpdateRequest passwordData) {
-        User user = getAuthenticatedUser(authentication);
-        String oldPassword = passwordData.getOldPassword();
-        String newPassword = passwordData.getNewPassword();
-
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new BadCredentialsException("[UpdateUserPassword]: Wrong confirmation password.");
-        }
-        user.setPassword(passwordEncoder.encode(newPassword));
         return saveUser(user);
     }
 
@@ -232,27 +212,28 @@ public class UserService {
                         String.format("[SaveUser]: User with username '%s' already exist.", user.getUsername()));
             }
 
-            if (e.getMessage().contains("user_email_unique")) {
-                throw new ApplicationException(ApplicationError.UNIQUE_EMAIL_CONSTRAINT_FAILED,
-                        String.format("[SaveUser]: User with email '%s' already exist.", user.getEmail()));
-            }
-
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
                     "[SaveUser]: " + e.getMessage());
+        }
+    }
+
+    public void deleteUser(User user) {
+        try {
+            repository.deleteById(user.getId());
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
+                    "[DeleteUser]: " + e.getMessage());
         }
     }
 
     public void deleteUser(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
-        for (Post post : user.getPosts()) {
-            s3Service.deleteObject(s3Buckets.getPostsImages(), post.getId().toString());
-        }
-
         if (user.getIsProfileImageExist()) {
             s3Service.deleteObject(s3Buckets.getProfilesImages(), user.getId().toString());
         }
-        repository.deleteById(user.getId());
+
+        deleteUser(user);
     }
 
     public User deleteProfileImage(Authentication authentication) {

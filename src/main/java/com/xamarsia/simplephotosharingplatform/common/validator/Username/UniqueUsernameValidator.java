@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
-
 @AllArgsConstructor
 @Component
 public class UniqueUsernameValidator implements ConstraintValidator<UniqueUsername, String> {

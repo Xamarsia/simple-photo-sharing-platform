@@ -6,7 +6,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,7 +17,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> onConstraintValidsationException(ConstraintViolationException exception, HttpServletRequest request) {
         StringBuilder errors = new StringBuilder("Constraint violation failed: ");
-        for (ConstraintViolation violation : exception.getConstraintViolations()) {
+        for (ConstraintViolation<?> violation : exception.getConstraintViolations()) {
             String error = String.format("%s ", violation.getMessage());
             errors.append(error);
         }
@@ -37,13 +36,6 @@ public class GlobalExceptionHandler {
 
         ErrorResponse error = new ErrorResponse(ApplicationError.VALIDATION_FAILED.getValue(), errors.toString());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ErrorResponse> onBadCredentialsException(BadCredentialsException exception, HttpServletRequest request) {
-        ErrorResponse response = new ErrorResponse(ApplicationError.BAD_CREDENTIALS.getValue(), exception.getMessage());
-
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

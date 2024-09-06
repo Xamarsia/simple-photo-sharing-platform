@@ -32,6 +32,13 @@ public class PostController {
     private final PostPreviewDTOMapper postPreviewMapper;
     private final DetailedPostDTOMapper detailedPostMapper;
 
+    @GetMapping("/{postId}/detailed")
+    public ResponseEntity<DetailedPostDTO> getDetailedPostById(Authentication authentication,@PathVariable Long postId) {
+        Post post = service.getPostById(postId);
+        DetailedPostDTO postDTO = detailedPostMapper.apply(authentication,post);
+        return ResponseEntity.ok().body(postDTO);
+    }
+
     @GetMapping("/{postId}")
     public ResponseEntity<PostDTO> getPostById(@PathVariable Long postId) {
         Post post = service.getPostById(postId);
@@ -40,7 +47,14 @@ public class PostController {
         return ResponseEntity.ok().body(postDTO);
     }
 
-    @GetMapping("/{postId}/image")
+    @GetMapping("/all")
+    public ResponseEntity<List<PostDTO>> getAll() {
+        List<Post> post = service.getAll();
+        List<PostDTO> postsPreview = post.stream().map(postDTOMapper).collect(Collectors.toList());
+        return ResponseEntity.ok().body(postsPreview);
+    }
+
+    @GetMapping(value ="/{postId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getPostImage(@PathVariable Long postId) {
         return service.getPostImage(postId);
     }
@@ -54,7 +68,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
-    @PutMapping(value = "/{postId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{postId}/update/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePostImage(Authentication authentication,
             @RequestParam("file") MultipartFile file,
             @PathVariable Long postId) {
@@ -72,36 +86,36 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
-    @GetMapping("preview/{userId}/page")
-    public Page<PostPreviewDTO> getPostsPreviewPageByUserId(@PathVariable Long userId,
+    @GetMapping("/preview/{username}")
+    public Page<PostPreviewDTO> getPostsPreviewPageByUsername(@PathVariable String username,
             @RequestParam Integer size,
             @RequestParam Integer page) {
-        Page<Post> postsPage = service.getPostsPageByUserId(userId, page, size);
+        Page<Post> postsPage = service.getPostsPageByUsername(username, page, size);
         List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
 
         return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
     }
 
-    @GetMapping("following/preview/page")
-    public Page<PostPreviewDTO> getPostsPreviewByUserFollowing(Authentication authentication,
-            @RequestParam Integer size,
-            @RequestParam Integer page) {
-        Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
-        List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
-        return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
-    }
+    // @GetMapping("/following/preview/page")
+    // public Page<PostPreviewDTO> getPostsPreviewByUserFollowing(Authentication authentication,
+    //         @RequestParam Integer size,
+    //         @RequestParam Integer page) {
+    //     Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
+    //     List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
+    //     return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
+    // }
 
-    @GetMapping("following/detailed/page")
-    public Page<DetailedPostDTO> getDetailedPostsByUserFollowing(Authentication authentication,
-            @RequestParam Integer size,
-            @RequestParam Integer page) {
-        Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
-        List<DetailedPostDTO> detailedPosts = postsPage.stream()
-                .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
-        return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
-    }
+    // @GetMapping("/following/detailed/page")
+    // public Page<DetailedPostDTO> getDetailedPostsByUserFollowing(Authentication authentication,
+    //         @RequestParam Integer size,
+    //         @RequestParam Integer page) {
+    //     Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
+    //     List<DetailedPostDTO> detailedPosts = postsPage.stream()
+    //             .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
+    //     return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
+    // }
 
-    @GetMapping("random/detailed/page")
+    @GetMapping("/random/detailed/page")
     public Page<DetailedPostDTO> getDetailedPostsRandomly(Authentication authentication,
             @RequestParam Integer size,
             @RequestParam Integer page) {
