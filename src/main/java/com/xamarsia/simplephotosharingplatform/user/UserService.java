@@ -1,7 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.user;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
@@ -24,7 +23,6 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.security.authentication.Auth;
 import com.xamarsia.simplephotosharingplatform.security.authentication.AuthService;
 import com.xamarsia.simplephotosharingplatform.user.following.FollowingService;
-
 
 @Service
 public class UserService {
@@ -80,7 +78,6 @@ public class UserService {
         User user = User.builder()
                 .fullName(registerRequest.getFullName())
                 .username(registerRequest.getUsername())
-                .auth(Arrays.asList(auth))
                 .build();
 
         User savedUser = saveUser(user);

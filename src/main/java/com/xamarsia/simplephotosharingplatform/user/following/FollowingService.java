@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class FollowingService {
-
     private final FollowingRepository repository;
 
     public Following follow(User follower, User following) {
