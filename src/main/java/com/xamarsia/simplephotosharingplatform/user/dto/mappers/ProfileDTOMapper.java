@@ -7,6 +7,7 @@ import com.xamarsia.simplephotosharingplatform.post.PostService;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.dto.ProfileDTO;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
+import com.xamarsia.simplephotosharingplatform.user.following.FollowingService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,14 +16,15 @@ import lombok.RequiredArgsConstructor;
 public class ProfileDTOMapper {
     private final UserDTOMapper userDTOMapper;
     private final PostService service;
+    private final FollowingService followingService;
 
     public ProfileDTO apply(Authentication authentication, User user) {
 
         UserDTO userDTO = userDTOMapper.apply(authentication, user);
 
         return new ProfileDTO(
-                user.getFollowings().size(),
-                user.getFollowers().size(),
+                followingService.getFollowingsCountByUserId(user.getId()),
+                followingService.getFollowersCountByUserId(user.getId()),
                 service.getPostsCountByUserId(user.getId()),
                 userDTO);
     }

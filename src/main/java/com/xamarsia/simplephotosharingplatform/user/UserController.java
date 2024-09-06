@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.web.multipart.MultipartFile;
 
+
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -115,17 +116,15 @@ public class UserController {
     @PutMapping("/{followerUsername}/follow")
     public ResponseEntity<?> addFollower(Authentication authentication,
             @PathVariable String followerUsername) {
-        User user = service.follow(authentication, followerUsername);
-        UserDTO userDTO = userDTOMapper.apply(authentication, user);
-        return ResponseEntity.ok().body(userDTO);
+        service.follow(authentication, followerUsername);
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
     @PutMapping("/{followerUsername}/unfollow")
     public ResponseEntity<?> removeFollower(Authentication authentication,
             @PathVariable String followerUsername) {
-        User user = service.unfollow(authentication, followerUsername);
-        UserDTO userDTO = userDTOMapper.apply(authentication, user);
-        return ResponseEntity.ok().body(userDTO);
+        service.unfollow(authentication, followerUsername);
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
     @PutMapping("/update")
@@ -164,17 +163,5 @@ public class UserController {
     public ResponseEntity<?> deleteUser(Authentication authentication) {
         service.deleteUser(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
-    }
-
-    @GetMapping("/{username}/following/count")
-    public Integer getUserFollowingCount(@PathVariable String username) {
-        User user = service.getUserByUsername(username);
-        return user.getFollowings().size();
-    }
-
-    @GetMapping("/{username}/followers/count")
-    public Integer getUserFollowersCount(@PathVariable String username) {
-        User user = service.getUserByUsername(username);
-        return user.getFollowers().size();
     }
 }

@@ -96,24 +96,24 @@ public class PostController {
         return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
     }
 
-    @GetMapping("/following/preview/page")
-    public Page<PostPreviewDTO> getPostsPreviewByUserFollowing(Authentication authentication,
-            @RequestParam Integer size,
-            @RequestParam Integer page) {
-        Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
-        List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
-        return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
-    }
+    // @GetMapping("/following/preview/page")
+    // public Page<PostPreviewDTO> getPostsPreviewByUserFollowing(Authentication authentication,
+    //         @RequestParam Integer size,
+    //         @RequestParam Integer page) {
+    //     Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
+    //     List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
+    //     return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
+    // }
 
-    @GetMapping("/following/detailed/page")
-    public Page<DetailedPostDTO> getDetailedPostsByUserFollowing(Authentication authentication,
-            @RequestParam Integer size,
-            @RequestParam Integer page) {
-        Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
-        List<DetailedPostDTO> detailedPosts = postsPage.stream()
-                .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
-        return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
-    }
+    // @GetMapping("/following/detailed/page")
+    // public Page<DetailedPostDTO> getDetailedPostsByUserFollowing(Authentication authentication,
+    //         @RequestParam Integer size,
+    //         @RequestParam Integer page) {
+    //     Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
+    //     List<DetailedPostDTO> detailedPosts = postsPage.stream()
+    //             .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
+    //     return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
+    // }
 
     @GetMapping("/random/detailed/page")
     public Page<DetailedPostDTO> getDetailedPostsRandomly(Authentication authentication,

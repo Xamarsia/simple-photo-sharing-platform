@@ -96,16 +96,16 @@ public class PostService {
         return repository.findAll();
     }
 
-    @Transactional(readOnly = true)
-    public Page<Post> getUserFollowingsPostsPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
-        User user = userService.getAuthenticatedUser(authentication);
+    // @Transactional(readOnly = true)
+    // public Page<Post> getUserFollowingsPostsPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
+    //     User user = userService.getAuthenticatedUser(authentication);
 
-        Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
-                Sort.by(Sort.Direction.DESC, "creationDateTime"));
-        Set<User> followings = user.getFollowings();
+    //     Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
+    //             Sort.by(Sort.Direction.DESC, "creationDateTime"));
+    //     Set<User> followings = user.getFollowings();
 
-        return repository.findPostsByUserIsIn(followings, sortedByCreatedDate);
-    }
+    //     return repository.findPostsByUserIsIn(followings, sortedByCreatedDate);
+    // }
 
     @Transactional(readOnly = true)
     public Page<Post> getPostsPageRandomly(Authentication authentication, Integer pageSize, Integer pageNumber) {

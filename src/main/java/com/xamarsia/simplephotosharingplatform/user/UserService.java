@@ -23,6 +23,8 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.security.authentication.Auth;
 import com.xamarsia.simplephotosharingplatform.security.authentication.AuthService;
+import com.xamarsia.simplephotosharingplatform.user.following.FollowingService;
+
 
 @Service
 public class UserService {
@@ -30,13 +32,15 @@ public class UserService {
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
     private final AuthService authService;
+    private final FollowingService followingService;
 
     public UserService(UserRepository repository, S3Service s3Service,
-            S3Buckets s3Buckets, AuthService authService) {
+            S3Buckets s3Buckets, AuthService authService, FollowingService followingService) {
         this.repository = repository;
         this.s3Service = s3Service;
         this.s3Buckets = s3Buckets;
         this.authService = authService;
+        this.followingService = followingService;
     }
 
     @Transactional(readOnly = true)
@@ -94,16 +98,16 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<User> getUserFollowersPage(String username, Integer pageNumber, Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         User user = getUserByUsername(username);
-        return repository.findUsersByFollowings(user, pageable);
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+        return repository.findFollowersByUserId(user.getId(), pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<User> getUserFollowingsPage(String username, Integer pageNumber, Integer pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         User user = getUserByUsername(username);
-        return repository.findUsersByFollowers(user, pageable);
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+        return repository.findFollowingsByUserId(user.getId(), pageable);
     }
 
     @Transactional(readOnly = true)
@@ -130,7 +134,7 @@ public class UserService {
                 String.format("[FindUserByUsername]: Follower not found with username '%s'.", username)));
     }
 
-    public User follow(Authentication authentication, String username) {
+    public void follow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
@@ -138,12 +142,12 @@ public class UserService {
             throw new IllegalArgumentException(String.format(
                     "[Follow]: Invalid parameter. User and his follower can't have the same username '%s'.", username));
         }
-        user.getFollowings().add(follower);
-        saveUser(follower);
-        return saveUser(user);
+
+        followingService.follow(user, follower);
+        return;
     }
 
-    public User unfollow(Authentication authentication, String username) {
+    public void unfollow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
@@ -152,18 +156,21 @@ public class UserService {
                     "[Unfollow]: Invalid parameter. User and his follower can't have the same username '%s'.",
                     username));
         }
-        user.getFollowings().remove(follower);
-        saveUser(follower);
-        return saveUser(user);
+
+        followingService.ufollow(user.getId(), follower.getId());
+        return;
     }
 
+    @Transactional(readOnly = true)
     public Boolean isUserInFollowing(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
         return isUserInFollowing(user, username);
     }
 
+    @Transactional(readOnly = true)
     public Boolean isUserInFollowing(User currentUser, String username) {
-        return currentUser.getFollowings().stream().map(User::getUsername).anyMatch(username::equals);
+        User follower = findUserByUsername(username);
+        return followingService.isUserInFollowing(currentUser.getId(), follower.getId());
     }
 
     public User updateUser(Authentication authentication, UserInfoUpdateRequest newUserData) {
