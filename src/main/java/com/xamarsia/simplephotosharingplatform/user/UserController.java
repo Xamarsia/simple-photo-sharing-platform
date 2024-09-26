@@ -44,6 +44,12 @@ public class UserController {
         return ResponseEntity.ok().body(isUsernameUsed);
     }
 
+    @GetMapping("/isRegistered")
+    public ResponseEntity<Boolean> register(Authentication authentication ) {
+        Boolean isRegistered = service.isRegistered(authentication);
+        return ResponseEntity.ok().body(isRegistered);
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(Authentication authentication, 
     @RequestBody @Valid RegisterRequest request) {

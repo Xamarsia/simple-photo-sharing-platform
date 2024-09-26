@@ -119,6 +119,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public boolean isRegistered(Authentication authentication) {
+        User user = authService.getAuthentication(authentication).getUser();
+        return user != null;
+    }
+
+    @Transactional(readOnly = true)
     public byte[] getProfileImage(String username) {
         User user = getUserByUsername(username);
         String key = user.getIsProfileImageExist() ? user.getId().toString() : "default";

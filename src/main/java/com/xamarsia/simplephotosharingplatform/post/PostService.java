@@ -148,7 +148,8 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public LikeState getPostLikedState(User user, Post post) {
+    public LikeState getPostLikedState(Authentication authentication, Post post) {
+        User user = userService.getAuthenticatedUser(authentication);
         Set<User> likes = post.getLikes();
         Boolean isPostLiked = likes.contains(user);
         return isPostLiked ? LikeState.LIKED : LikeState.UNLIKED;

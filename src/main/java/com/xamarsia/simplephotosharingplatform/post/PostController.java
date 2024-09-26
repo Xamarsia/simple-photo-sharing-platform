@@ -83,7 +83,7 @@ public class PostController {
         Post savedPost = service.updatePost(authentication, newPost, postId);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(postDTO);
     }
 
     @PutMapping("/{postId}/like")
@@ -92,7 +92,7 @@ public class PostController {
         Post savedPost = service.like(authentication, postId);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(postDTO);
     }
 
     @PutMapping("/{postId}/unlike")
@@ -101,9 +101,9 @@ public class PostController {
         Post savedPost = service.unlike(authentication, postId);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(postDTO);
     }
-    
+
     @GetMapping("/preview/{username}")
     public Page<PostPreviewDTO> getPostsPreviewPageByUsername(@PathVariable String username,
             @RequestParam Integer size,
