@@ -10,7 +10,6 @@ import com.xamarsia.simplephotosharingplatform.user.dto.mappers.ProfileDTOMapper
 import com.xamarsia.simplephotosharingplatform.user.dto.mappers.UserDTOMapper;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
@@ -39,13 +38,15 @@ public class UserController {
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @GetMapping("/IsUsernameAlreadyInUse/{username}")
-    public Boolean IsUsernameAlreadyInUse(@NotBlank @PathVariable String username) {
-        return service.isUsernameUsed(username);
+    @GetMapping("/isUsernameAlreadyInUse/{username}")
+    public ResponseEntity<Boolean> isUsernameAlreadyInUse(@PathVariable String username) {
+        Boolean isUsernameUsed = service.isUsernameUsed(username);
+        return ResponseEntity.ok().body(isUsernameUsed);
     }
 
-    @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> register(Authentication authentication, @Valid @ModelAttribute RegisterRequest request) {
+    @PostMapping("/register")
+    public ResponseEntity<?> register(Authentication authentication, 
+    @RequestBody @Valid RegisterRequest request) {
         User user = service.register(authentication, request);
         UserDTO userDto = userDTOMapper.apply(user, State.CURRENT);
 
@@ -90,6 +91,18 @@ public class UserController {
             @RequestParam Integer size,
             @RequestParam Integer page) {
         Page<User> followingsPage = service.getUserFollowingsPage(username, page, size);
+        List<UserDTO> followingsDTO = followingsPage.stream()
+                .map(following -> userDTOMapper.apply(authentication, following)).collect(Collectors.toList());
+        return new PageImpl<>(followingsDTO, followingsPage.getPageable(), followingsPage.getTotalElements());
+    }
+
+
+    @GetMapping("/{postId}/likers")
+    public Page<UserDTO> getPostLikersPage(Authentication authentication,
+            @PathVariable Long postId,
+            @RequestParam Integer size,
+            @RequestParam Integer page) {
+        Page<User> followingsPage = service.getPostLikersPage(postId, page, size);
         List<UserDTO> followingsDTO = followingsPage.stream()
                 .map(following -> userDTOMapper.apply(authentication, following)).collect(Collectors.toList());
         return new PageImpl<>(followingsDTO, followingsPage.getPageable(), followingsPage.getTotalElements());

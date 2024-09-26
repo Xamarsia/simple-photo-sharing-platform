@@ -86,6 +86,24 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
+    @PutMapping("/{postId}/like")
+    public ResponseEntity<?> like(Authentication authentication,
+            @PathVariable Long postId) {
+        Post savedPost = service.like(authentication, postId);
+        PostDTO postDTO = postDTOMapper.apply(savedPost);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
+    }
+
+    @PutMapping("/{postId}/unlike")
+    public ResponseEntity<?> unlike(Authentication authentication,
+            @PathVariable Long postId) {
+        Post savedPost = service.unlike(authentication, postId);
+        PostDTO postDTO = postDTOMapper.apply(savedPost);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
+    }
+    
     @GetMapping("/preview/{username}")
     public Page<PostPreviewDTO> getPostsPreviewPageByUsername(@PathVariable String username,
             @RequestParam Integer size,
@@ -96,26 +114,7 @@ public class PostController {
         return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
     }
 
-    // @GetMapping("/following/preview/page")
-    // public Page<PostPreviewDTO> getPostsPreviewByUserFollowing(Authentication authentication,
-    //         @RequestParam Integer size,
-    //         @RequestParam Integer page) {
-    //     Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
-    //     List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
-    //     return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
-    // }
-
-    // @GetMapping("/following/detailed/page")
-    // public Page<DetailedPostDTO> getDetailedPostsByUserFollowing(Authentication authentication,
-    //         @RequestParam Integer size,
-    //         @RequestParam Integer page) {
-    //     Page<Post> postsPage = service.getUserFollowingsPostsPage(authentication, size, page);
-    //     List<DetailedPostDTO> detailedPosts = postsPage.stream()
-    //             .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
-    //     return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
-    // }
-
-    @GetMapping("/random/detailed/page")
+    @GetMapping("/random/detailed")
     public Page<DetailedPostDTO> getDetailedPostsRandomly(Authentication authentication,
             @RequestParam Integer size,
             @RequestParam Integer page) {
@@ -128,6 +127,11 @@ public class PostController {
     @GetMapping("/{userId}/count")
     public Integer getPostsCountByUserId(@PathVariable Long userId) {
         return service.getPostsCountByUserId(userId);
+    }
+
+    @GetMapping("/{postId}/likes/count")
+    public Integer getPostLikesCount(@PathVariable Long postId) {
+        return service.getPostLikesCount(postId);
     }
 
     @DeleteMapping("/{postId}")

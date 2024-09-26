@@ -4,7 +4,6 @@ import com.xamarsia.simplephotosharingplatform.common.validator.Username.UniqueU
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
@@ -14,6 +13,4 @@ public class RegisterRequest {
     private String username;
 
     private String fullName;
-
-    private MultipartFile image;
 }
