@@ -30,6 +30,7 @@ public class DetailedPostDTOMapper {
 
         return new DetailedPostDTO(
                 postDTO,
-                userDTO);
+                userDTO,
+                service.getPostLikedState(authentication, post));
     }
 }

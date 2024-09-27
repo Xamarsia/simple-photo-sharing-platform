@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
 @Service
 public class PostService {
     private final PostRepository repository;
@@ -68,6 +67,35 @@ public class PostService {
         return savePost(post);
     }
 
+    public Post like(Authentication authentication, Long postId) {
+        Post post = getPostById(postId);
+        User user = userService.getAuthenticatedUser(authentication);
+
+        Set<User> likes = post.getLikes();
+        if (likes.contains(user)) {
+            throw new IllegalArgumentException(
+                    "[Like]: The user has already marked this post as liked. It is not possible to like the same post twice");
+        }
+
+        likes.add(user);
+        post.setLikes(likes);
+        return savePost(post);
+    }
+
+    public Post unlike(Authentication authentication, Long postId) {
+        Post post = getPostById(postId);
+        User user = userService.getAuthenticatedUser(authentication);
+
+        Set<User> likes = post.getLikes();
+        if (!likes.contains(user)) {
+            throw new IllegalArgumentException("[Unlike]: Post not liked");
+        }
+
+        likes.remove(user);
+        post.setLikes(likes);
+        return savePost(post);
+    }
+
     public void updatePostImage(Authentication authentication, MultipartFile file, Long postId) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("[UpdatePostImage]: File is empty. Unable to save empty file");
@@ -96,17 +124,6 @@ public class PostService {
         return repository.findAll();
     }
 
-    // @Transactional(readOnly = true)
-    // public Page<Post> getUserFollowingsPostsPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
-    //     User user = userService.getAuthenticatedUser(authentication);
-
-    //     Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
-    //             Sort.by(Sort.Direction.DESC, "creationDateTime"));
-    //     Set<User> followings = user.getFollowings();
-
-    //     return repository.findPostsByUserIsIn(followings, sortedByCreatedDate);
-    // }
-
     @Transactional(readOnly = true)
     public Page<Post> getPostsPageRandomly(Authentication authentication, Integer pageSize, Integer pageNumber) {
         Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize);
@@ -122,6 +139,20 @@ public class PostService {
     @Transactional(readOnly = true)
     public Integer getPostsCountByUserId(Long userId) {
         return repository.countAllByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Integer getPostLikesCount(Long postId) {
+        Post post = getPostById(postId);
+        return post.getLikes().size();
+    }
+
+    @Transactional(readOnly = true)
+    public LikeState getPostLikedState(Authentication authentication, Post post) {
+        User user = userService.getAuthenticatedUser(authentication);
+        Set<User> likes = post.getLikes();
+        Boolean isPostLiked = likes.contains(user);
+        return isPostLiked ? LikeState.LIKED : LikeState.UNLIKED;
     }
 
     public Post getPostById(Long postId) {

@@ -84,12 +84,6 @@ public class UserService {
 
         auth.setUser(savedUser);
         authService.saveAuthentication(auth);
-
-        MultipartFile file = registerRequest.getImage();
-        if (file != null && !file.isEmpty()) {
-            uploadProfileImage(user, registerRequest.getImage());
-        }
-
         return savedUser;
     }
 
@@ -98,6 +92,12 @@ public class UserService {
         User user = getUserByUsername(username);
         PageRequest pageable = PageRequest.of(pageNumber, pageSize);
         return repository.findFollowersByUserId(user.getId(), pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<User> getPostLikersPage(Long postId, Integer pageNumber, Integer pageSize) {
+        PageRequest pageable = PageRequest.of(pageNumber, pageSize);
+        return repository.findPostLikersByPostId(postId, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -116,6 +116,12 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean isUsernameUsed(String username) {
         return repository.existsUserByUsername(username);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isRegistered(Authentication authentication) {
+        User user = authService.getAuthentication(authentication).getUser();
+        return user != null;
     }
 
     @Transactional(readOnly = true)

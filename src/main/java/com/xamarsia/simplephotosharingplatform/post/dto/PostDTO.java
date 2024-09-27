@@ -14,5 +14,8 @@ public record PostDTO(
         String description,
 
         @NotBlank(message = "Username is required.")
-        String username) {
+        String username,
+        
+        Integer likes
+        ) {
 }

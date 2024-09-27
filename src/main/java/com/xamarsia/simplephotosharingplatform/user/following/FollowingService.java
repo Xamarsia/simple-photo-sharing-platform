@@ -34,12 +34,12 @@ public class FollowingService {
 
     @Transactional(readOnly = true)
     public Integer getFollowingsCountByUserId(Long userId) {
-        return repository.countAllByFollowingId(userId);
+        return repository.countAllByFollowerId(userId);
     }
 
     @Transactional(readOnly = true)
     public Integer getFollowersCountByUserId(Long userId) {
-        return repository.countAllByFollowerId(userId);
+        return repository.countAllByFollowingId(userId);
     }
 
     @Transactional(readOnly = true)
