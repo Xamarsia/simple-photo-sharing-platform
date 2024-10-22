@@ -32,6 +32,11 @@ public class AuthService {
         return getAuthenticationById(id);
     }
 
+    public Boolean isAuthenticationUsed(Authentication authentication) {
+        Auth auth = getAuthentication(authentication);
+        return auth.getUser() != null;
+    }
+
     public Auth saveAuthentication(Authentication authentication) {
         if (authentication instanceof AnonymousAuthenticationToken) {
             throw new UnauthorizedAccessException("[SaveAuthentication]: User not authenticated.");
