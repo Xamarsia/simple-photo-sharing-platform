@@ -22,9 +22,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @GetMapping
-    public ResponseEntity<?> getAuthentication(Authentication authentication) {
-        return ResponseEntity.ok().body(authService.getAuthentication(authentication));
-
+    @GetMapping("/isUsed")
+    public ResponseEntity<?> isAuthenticationUsed(Authentication authentication) {
+        Boolean isAuthUsed = authService.isAuthenticationUsed(authentication);
+        return ResponseEntity.ok().body(isAuthUsed);
     }
 }
