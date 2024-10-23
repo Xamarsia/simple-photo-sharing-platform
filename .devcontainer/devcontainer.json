@@ -1,7 +1,7 @@
 {
     "name": "SPSP backend",
     "dockerComposeFile": "docker-compose.yml",
-    "service": "api",
+    "service": "server-api",
     "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     "customizations": {
         "vscode": {
@@ -18,5 +18,5 @@
         }
     },
     // need for git
-    "postCreateCommand": "git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename} && mvn package"
+    "postCreateCommand": "git config --global --add safe.directory /workspaces/${localWorkspaceFolderBasename}"
 }

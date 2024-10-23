@@ -1,18 +1,12 @@
 services:
   server-api:
     container_name: server-api
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: simple-photo-sharing-platform-api
+    image: xamarsia/spsp-server:0.0.1
     env_file:
-      - ../.env
-      - ../.aws-credentials
+      - ./.env
+      - ./.aws-credentials
     ports:
       - 8080:8080
-    volumes:
-      - ../..:/workspaces:cached
-    command: sleep infinity
     networks:
       - external_network
       - db_network
@@ -22,10 +16,9 @@ services:
     image: postgres:latest
     ports:
       - 5432:5432
-    # restart: always
-    restart: unless-stopped
+    restart: always
     env_file:
-      - ../.env
+      - ./.env
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
