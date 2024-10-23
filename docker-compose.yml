@@ -1,0 +1,34 @@
+services:
+  server-api:
+    container_name: server-api
+    image: xamarsia/spsp-server:0.0.1
+    env_file:
+      - ./.env
+      - ./.aws-credentials
+    ports:
+      - 8080:8080
+    networks:
+      - external_network
+      - db_network
+
+  psql-db:
+    container_name: psql-db
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - db_network
+
+volumes:
+  db-data:
+
+networks:
+  external_network:
+    name: microservice_network
+    external: true
+  db_network:
