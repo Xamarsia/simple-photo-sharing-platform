@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findUserByUsername(String username);
@@ -26,6 +25,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "select u.* from _user u join following f on u.id = f.follower_id WHERE f.following_id = ?1", countQuery = "SELECT count(*) FROM following", nativeQuery = true)
     Page<User> findFollowersByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query(value = "select u.* from _user u  WHERE u.post_likes = ?1", countQuery = "SELECT count(*) FROM _user", nativeQuery = true)
+    @Query(value = "select u.* from _user u join _like l on u.id = l.user_id WHERE l.post_id = ?1", countQuery = "SELECT count(*) FROM _like", nativeQuery = true)
     Page<User> findPostLikersByPostId(@Param("postId") Long postId, Pageable pageable);
 }
