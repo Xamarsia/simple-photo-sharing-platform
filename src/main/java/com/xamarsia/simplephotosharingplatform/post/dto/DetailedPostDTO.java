@@ -1,6 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.post.dto;
 
-import com.xamarsia.simplephotosharingplatform.post.LikeState;
+import com.xamarsia.simplephotosharingplatform.post.like.LikeState;
 import com.xamarsia.simplephotosharingplatform.user.dto.UserDTO;
 
 import jakarta.persistence.EnumType;
