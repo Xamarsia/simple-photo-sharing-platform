@@ -17,9 +17,8 @@ import lombok.*;
         @UniqueConstraint(name = "follower_following_unique", columnNames = { "follower_id", "following_id" })
 })
 public class Following {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @EmbeddedId
+    private FollowingPK id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)

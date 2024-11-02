@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
-import com.xamarsia.simplephotosharingplatform.post.LikeState;
 import com.xamarsia.simplephotosharingplatform.post.Post;
 import com.xamarsia.simplephotosharingplatform.post.PostService;
 import com.xamarsia.simplephotosharingplatform.user.User;
