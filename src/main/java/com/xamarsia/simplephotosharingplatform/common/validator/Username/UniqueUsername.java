@@ -16,18 +16,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = UniqueUsernameValidator.class)
 public @interface UniqueUsername {
 
-    /**
-     * Error message.
-     */
     String message() default "A user with this username already exists!";
 
-    /**
-     * Group attribute.
-     */
     Class<?>[] groups() default {};
 
-    /**
-     * Payload attribute.
-     */
     Class<? extends Payload>[] payload() default {};
 }

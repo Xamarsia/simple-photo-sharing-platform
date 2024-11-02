@@ -33,9 +33,10 @@ public class PostController {
     private final DetailedPostDTOMapper detailedPostMapper;
 
     @GetMapping("/{postId}/detailed")
-    public ResponseEntity<DetailedPostDTO> getDetailedPostById(Authentication authentication,@PathVariable Long postId) {
+    public ResponseEntity<DetailedPostDTO> getDetailedPostById(Authentication authentication,
+            @PathVariable Long postId) {
         Post post = service.getPostById(postId);
-        DetailedPostDTO postDTO = detailedPostMapper.apply(authentication,post);
+        DetailedPostDTO postDTO = detailedPostMapper.apply(authentication, post);
         return ResponseEntity.ok().body(postDTO);
     }
 
@@ -54,7 +55,7 @@ public class PostController {
         return ResponseEntity.ok().body(postsPreview);
     }
 
-    @GetMapping(value ="/{postId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/{postId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getPostImage(@PathVariable Long postId) {
         return service.getPostImage(postId);
     }
@@ -86,24 +87,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(postDTO);
     }
 
-    @PutMapping("/{postId}/like")
-    public ResponseEntity<?> like(Authentication authentication,
-            @PathVariable Long postId) {
-        Post savedPost = service.like(authentication, postId);
-        PostDTO postDTO = postDTOMapper.apply(savedPost);
-
-        return ResponseEntity.status(HttpStatus.OK).body(postDTO);
-    }
-
-    @PutMapping("/{postId}/unlike")
-    public ResponseEntity<?> unlike(Authentication authentication,
-            @PathVariable Long postId) {
-        Post savedPost = service.unlike(authentication, postId);
-        PostDTO postDTO = postDTOMapper.apply(savedPost);
-
-        return ResponseEntity.status(HttpStatus.OK).body(postDTO);
-    }
-
     @GetMapping("/preview/{username}")
     public Page<PostPreviewDTO> getPostsPreviewPageByUsername(@PathVariable String username,
             @RequestParam Integer size,
@@ -127,11 +110,6 @@ public class PostController {
     @GetMapping("/{userId}/count")
     public Integer getPostsCountByUserId(@PathVariable Long userId) {
         return service.getPostsCountByUserId(userId);
-    }
-
-    @GetMapping("/{postId}/likes/count")
-    public Integer getPostLikesCount(@PathVariable Long postId) {
-        return service.getPostLikesCount(postId);
     }
 
     @DeleteMapping("/{postId}")
