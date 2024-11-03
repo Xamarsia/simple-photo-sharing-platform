@@ -11,11 +11,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
-@Validated
 @AllArgsConstructor
 public class AuthService {
     private final AuthRepository repository;
@@ -30,11 +29,6 @@ public class AuthService {
         }
         String id = authentication.getName();
         return getAuthenticationById(id);
-    }
-
-    public Boolean isAuthenticationUsed(Authentication authentication) {
-        Auth auth = getAuthentication(authentication);
-        return auth.getUser() != null;
     }
 
     public Auth saveAuthentication(Authentication authentication) {
@@ -66,6 +60,12 @@ public class AuthService {
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
                     "[SaveAuthentication]: " + e.getMessage());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean isAuthenticationUsed(Authentication authentication) {
+        Auth auth = getAuthentication(authentication);
+        return auth.getUser() != null;
     }
 
     private Auth getAuthenticationById(String id) {

@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping("/isRegistered")
-    public ResponseEntity<Boolean> register(Authentication authentication ) {
+    public ResponseEntity<Boolean> isRegistered(Authentication authentication ) {
         Boolean isRegistered = service.isRegistered(authentication);
         return ResponseEntity.ok().body(isRegistered);
     }
@@ -57,14 +57,6 @@ public class UserController {
         UserDTO userDto = userDTOMapper.apply(user, State.CURRENT);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
-    }
-
-    @GetMapping("/{username}")
-    public ResponseEntity<UserDTO> getUserDTOByUsername(Authentication authentication,
-            @PathVariable String username) {
-        User user = service.getUserByUsername(username);
-        UserDTO userDTO = userDTOMapper.apply(authentication, user);
-        return ResponseEntity.ok().body(userDTO);
     }
 
     @GetMapping("/profile/{username}")
@@ -124,12 +116,6 @@ public class UserController {
         List<UserDTO> followingsDTO = searchedPage.stream()
                 .map(following -> userDTOMapper.apply(authentication, following)).collect(Collectors.toList());
         return new PageImpl<>(followingsDTO, searchedPage.getPageable(), searchedPage.getTotalElements());
-    }
-
-    @GetMapping("/{followingUsername}/isUserInFollowing")
-    public ResponseEntity<Boolean> isUserInFollowing(Authentication authentication,
-            @PathVariable String followingUsername) {
-        return ResponseEntity.ok().body(service.isUserInFollowing(authentication, followingUsername));
     }
 
     @PutMapping("/{followerUsername}/follow")

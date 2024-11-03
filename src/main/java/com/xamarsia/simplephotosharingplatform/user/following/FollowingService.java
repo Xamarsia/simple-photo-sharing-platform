@@ -15,7 +15,6 @@ public class FollowingService {
     private final FollowingRepository repository;
 
     public Following follow(User follower, User following) {
-
         FollowingPK followingPK = new FollowingPK(follower.getId(), following.getId());
         boolean isUserInFollowing = isUserInFollowing(followingPK);
 
@@ -54,13 +53,7 @@ public class FollowingService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserInFollowing(Long followingId, Long followerId) {
-        FollowingPK followingPK = new FollowingPK(followingId, followerId);
-        return isUserInFollowing(followingPK);
-    }
-
-    @Transactional(readOnly = true)
-    private boolean isUserInFollowing(FollowingPK followingPK) {
+    public boolean isUserInFollowing(FollowingPK followingPK) {
         return repository.existsById(followingPK);
     }
 

@@ -12,6 +12,8 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserService;
 
+import lombok.AllArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,19 +28,12 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class PostService {
     private final PostRepository repository;
     private final UserService userService;
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
-
-    public PostService(PostRepository postRepository, UserService userService, S3Service s3Service,
-            S3Buckets s3Buckets) {
-        this.repository = postRepository;
-        this.userService = userService;
-        this.s3Service = s3Service;
-        this.s3Buckets = s3Buckets;
-    }
 
     public Post createPost(Authentication authentication, CreatePostRequest req) {
         User user = userService.getAuthenticatedUser(authentication);
@@ -54,6 +49,7 @@ public class PostService {
     public Post updatePost(Authentication authentication, UpdatePostRequest req, Long postId) {
         Post post = getPostById(postId);
         boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+
         if (!isUserPostOwner) {
             throw new AccessDeniedException("[UpdatePost]: Only post owner can update the post.");
         }
@@ -83,16 +79,26 @@ public class PostService {
         savePost(post);
     }
 
+    public void deletePostById(Authentication authentication, Long postId) {
+        Post post = getPostById(postId);
+        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        if (!isUserPostOwner) {
+            throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
+        }
+        s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
+        repository.deleteById(postId);
+    }
+
+    public Post getPostById(Long postId) {
+        return repository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("[GetPostById]: Post not found with id " + postId));
+    }
+
     @Transactional(readOnly = true)
     public Page<Post> getPostsPageByUsername(String username, Integer pageNumber, Integer pageSize) {
         Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize,
                 Sort.by(Sort.Direction.DESC, "creationDateTime"));
         return repository.findPostsByUserUsername(username, sortedByCreatedDate);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Post> getAll() {
-        return repository.findAll();
     }
 
     @Transactional(readOnly = true)
@@ -112,11 +118,6 @@ public class PostService {
         return repository.countAllByUserId(userId);
     }
 
-    public Post getPostById(Long postId) {
-        return selectPostById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("[GetPostById]: Post not found with id " + postId));
-    }
-
     @Transactional(readOnly = true)
     public byte[] getPostImage(Long postId) {
         // TODO: Check if postImage is empty or null
@@ -124,30 +125,7 @@ public class PostService {
                 postId.toString());
     }
 
-    public List<Post> selectAllPosts() {
-        Page<Post> page = repository.findAll(Pageable.ofSize(1000));
-        return page.getContent();
-    }
-
-    public Optional<Post> selectPostById(Long postId) {
-        return repository.findById(postId);
-    }
-
-    public void deletePostById(Authentication authentication, Long postId) {
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, postId);
-        if (!isUserPostOwner) {
-            throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
-        }
-        s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
-        repository.deleteById(postId);
-    }
-
-    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Long postId) {
-        User user = userService.getAuthenticatedUser(authentication);
-        Post post = getPostById(postId);
-        return post.getUser() == user;
-    }
-
+    @Transactional(readOnly = true)
     private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Post post) {
         User user = userService.getAuthenticatedUser(authentication);
         return post.getUser() == user;

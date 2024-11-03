@@ -48,13 +48,6 @@ public class PostController {
         return ResponseEntity.ok().body(postDTO);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<PostDTO>> getAll() {
-        List<Post> post = service.getAll();
-        List<PostDTO> postsPreview = post.stream().map(postDTOMapper).collect(Collectors.toList());
-        return ResponseEntity.ok().body(postsPreview);
-    }
-
     @GetMapping(value = "/{postId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getPostImage(@PathVariable Long postId) {
         return service.getPostImage(postId);
@@ -105,11 +98,6 @@ public class PostController {
         List<DetailedPostDTO> detailedPosts = postsPage.stream()
                 .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
         return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
-    }
-
-    @GetMapping("/{userId}/count")
-    public Integer getPostsCountByUserId(@PathVariable Long userId) {
-        return service.getPostsCountByUserId(userId);
     }
 
     @DeleteMapping("/{postId}")

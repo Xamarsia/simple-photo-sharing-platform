@@ -14,8 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsUserByUsername(String username);
 
-    boolean existsUserById(Long id);
-
     @Query(value = "Select * from _user u WHERE (lower(u.username) LIKE lower(CONCAT('%',:substring,'%')) OR lower(u.full_name) LIKE lower(CONCAT('%',:substring,'%')))", countQuery = "SELECT count(*) FROM _user", nativeQuery = true)
     Page<User> searchUserBySubstring(@Param("substring") String substring, Pageable pageable);
 

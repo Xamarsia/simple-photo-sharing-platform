@@ -22,9 +22,13 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.security.authentication.Auth;
 import com.xamarsia.simplephotosharingplatform.security.authentication.AuthService;
+import com.xamarsia.simplephotosharingplatform.user.following.FollowingPK;
 import com.xamarsia.simplephotosharingplatform.user.following.FollowingService;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class UserService {
     private final UserRepository repository;
     private final S3Service s3Service;
@@ -32,22 +36,18 @@ public class UserService {
     private final AuthService authService;
     private final FollowingService followingService;
 
-    public UserService(UserRepository repository, S3Service s3Service,
-            S3Buckets s3Buckets, AuthService authService, FollowingService followingService) {
-        this.repository = repository;
-        this.s3Service = s3Service;
-        this.s3Buckets = s3Buckets;
-        this.authService = authService;
-        this.followingService = followingService;
-    }
-
     @Transactional(readOnly = true)
     public State getState(Authentication authentication, String username) {
         User currentUser = getAuthenticatedUser(authentication);
+
         if (Objects.equals(currentUser.getUsername(), username)) {
             return State.CURRENT;
         }
-        if (isUserInFollowing(currentUser, username)) {
+
+        User follower = findUserByUsername(username);
+        FollowingPK followingPK = new FollowingPK(currentUser.getId(), follower.getId());
+
+        if (followingService.isUserInFollowing(followingPK)) {
             return State.FOLLOWED;
         }
         return State.UNFOLLOWED;
@@ -56,12 +56,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return findUserByUsername(username);
-    }
-
-    @Transactional(readOnly = true)
-    public User getById(Long customerId) {
-        return repository.findById(customerId).orElseThrow(() -> new ResourceNotFoundException(
-                String.format("[GetUserByID]: User not found with id '%s'.", customerId)));
     }
 
     @Transactional(readOnly = true)
@@ -134,7 +128,7 @@ public class UserService {
 
     public User findUserByUsername(String username) {
         return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
-                String.format("[FindUserByUsername]: Follower not found with username '%s'.", username)));
+                String.format("[FindUserByUsername]: User not found with username '%s'.", username)));
     }
 
     public void follow(Authentication authentication, String username) {
@@ -162,18 +156,6 @@ public class UserService {
 
         followingService.ufollow(user.getId(), follower.getId());
         return;
-    }
-
-    @Transactional(readOnly = true)
-    public Boolean isUserInFollowing(Authentication authentication, String username) {
-        User user = getAuthenticatedUser(authentication);
-        return isUserInFollowing(user, username);
-    }
-
-    @Transactional(readOnly = true)
-    public Boolean isUserInFollowing(User currentUser, String username) {
-        User follower = findUserByUsername(username);
-        return followingService.isUserInFollowing(currentUser.getId(), follower.getId());
     }
 
     public User updateUser(Authentication authentication, UserInfoUpdateRequest newUserData) {
@@ -223,15 +205,6 @@ public class UserService {
         }
     }
 
-    public void deleteUser(User user) {
-        try {
-            repository.deleteById(user.getId());
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
-                    "[DeleteUser]: " + e.getMessage());
-        }
-    }
-
     public void deleteUser(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
@@ -252,5 +225,14 @@ public class UserService {
         s3Service.deleteObject(s3Buckets.getProfilesImages(), user.getId().toString());
         user.setIsProfileImageExist(false);
         return saveUser(user);
+    }
+
+    private void deleteUser(User user) {
+        try {
+            repository.deleteById(user.getId());
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
+                    "[DeleteUser]: " + e.getMessage());
+        }
     }
 }
