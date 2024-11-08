@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> onConstraintValidsationException(ConstraintViolationException exception, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> onConstraintValidsationException(ConstraintViolationException exception, HttpServletRequest request) { //onConstraintValidationException
         StringBuilder errors = new StringBuilder("Constraint violation failed: ");
         for (ConstraintViolation<?> violation : exception.getConstraintViolations()) {
             String error = String.format("%s ", violation.getMessage());

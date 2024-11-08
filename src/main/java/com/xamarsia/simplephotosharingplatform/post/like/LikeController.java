@@ -27,7 +27,7 @@ public class LikeController {
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> unlike(Authentication authentication,
+    public ResponseEntity<?> unlike(Authentication authentication, //deleteLike
             @PathVariable Long postId) {
         service.unlike(authentication, postId);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());

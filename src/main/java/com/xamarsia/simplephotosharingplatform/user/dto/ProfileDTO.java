@@ -9,7 +9,7 @@ public record ProfileDTO(
         @NotBlank(message = "Followers count is required.") 
         Integer followersCount,
 
-        @NotBlank(message = "Posts count is requiraued.") 
+        @NotBlank(message = "Posts count is requiraued.")  // requiraued =)
         Integer postsCount,
 
         @NotBlank(message = "User preview DTO is required.") 

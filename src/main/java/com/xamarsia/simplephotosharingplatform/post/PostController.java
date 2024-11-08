@@ -62,7 +62,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
-    @PutMapping(value = "/{postId}/update/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{postId}/update/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //postId/updateImage
     public ResponseEntity<?> updatePostImage(Authentication authentication,
             @RequestParam("file") MultipartFile file,
             @PathVariable Long postId) {
@@ -70,7 +70,7 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @PutMapping("/{postId}/update")
+    @PutMapping("/{postId}/update") //postId/updatePostInfo
     public ResponseEntity<?> updatePost(Authentication authentication,
             @RequestBody UpdatePostRequest newPost,
             @PathVariable Long postId) {
@@ -81,7 +81,7 @@ public class PostController {
     }
 
     @GetMapping("/preview/{username}")
-    public Page<PostPreviewDTO> getPostsPreviewPageByUsername(@PathVariable String username,
+    public Page<PostPreviewDTO> getPostsPreviewPageByUsername(@PathVariable String username, //verify in use ???
             @RequestParam Integer size,
             @RequestParam Integer page) {
         Page<Post> postsPage = service.getPostsPageByUsername(username, page, size);
@@ -90,8 +90,8 @@ public class PostController {
         return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
     }
 
-    @GetMapping("/random/detailed")
-    public Page<DetailedPostDTO> getDetailedPostsRandomly(Authentication authentication,
+    @GetMapping("/random/detailed") //??? newsFeed
+    public Page<DetailedPostDTO> getDetailedPostsRandomly(Authentication authentication, //getNewsFeedPage
             @RequestParam Integer size,
             @RequestParam Integer page) {
         Page<Post> postsPage = service.getPostsPageRandomly(authentication, size, page);

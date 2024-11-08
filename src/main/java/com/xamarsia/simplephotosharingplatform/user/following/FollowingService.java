@@ -22,7 +22,7 @@ public class FollowingService {
             throw new IllegalArgumentException("[Follow]: Invalid parameter. User already followed.");
         }
 
-        Following newfollowing = Following.builder()
+        Following newfollowing = Following.builder() //newFollowing
                 .id(followingPK)
                 .follower(follower)
                 .following(following)
@@ -31,7 +31,7 @@ public class FollowingService {
         return saveFollowing(newfollowing);
     }
 
-    public void ufollow(Long followingId, Long followerId) {
+    public void ufollow(Long followingId, Long followerId) { //deleteFollowing
         FollowingPK followingPK = new FollowingPK(followingId, followerId);
         boolean isUserInFollowing = isUserInFollowing(followingPK);
 
@@ -53,7 +53,7 @@ public class FollowingService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserInFollowing(FollowingPK followingPK) {
+    public boolean isUserInFollowing(FollowingPK followingPK) { // maybe isUserFollowedBy
         return repository.existsById(followingPK);
     }
 

@@ -16,14 +16,14 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping
-    public ResponseEntity<?> saveAuthentication(Authentication authentication) {
+    @PostMapping // add / endpoint
+    public ResponseEntity<?> saveAuthentication(Authentication authentication) { //createAuth
         authService.saveAuthentication(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @GetMapping("/isUsed")
-    public ResponseEntity<?> isAuthenticationUsed(Authentication authentication) {
+    @GetMapping("/isUsed") 
+    public ResponseEntity<?> isAuthenticationUsed(Authentication authentication) { //isAuthUsed
         Boolean isAuthUsed = authService.isAuthenticationUsed(authentication);
         return ResponseEntity.ok().body(isAuthUsed);
     }

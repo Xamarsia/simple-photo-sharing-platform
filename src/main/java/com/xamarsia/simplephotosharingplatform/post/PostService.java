@@ -126,7 +126,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Post post) {
+    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Post post) { //IsCurrentUserOwner
         User user = userService.getAuthenticatedUser(authentication);
         return post.getUser() == user;
     }

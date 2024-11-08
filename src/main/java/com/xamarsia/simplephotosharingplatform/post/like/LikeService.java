@@ -41,7 +41,7 @@ public class LikeService {
         return saveLike(like);
     }
 
-    public void unlike(Authentication authentication, Long postId) throws IllegalArgumentException {
+    public void unlike(Authentication authentication, Long postId) throws IllegalArgumentException { //deleteLike
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 

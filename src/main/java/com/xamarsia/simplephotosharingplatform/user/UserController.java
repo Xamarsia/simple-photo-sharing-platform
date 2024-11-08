@@ -32,13 +32,13 @@ public class UserController {
     private final UserDTOMapper userDTOMapper;
     private final ProfileDTOMapper profileDTOMapper;
 
-    @GetMapping
+    @GetMapping // add / endpoint
     public ResponseEntity<UserDTO> getAuthenticatedUser(Authentication authentication) {
         UserDTO userDTO = userDTOMapper.apply(authentication, service.getAuthenticatedUser(authentication));
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @GetMapping("/isUsernameAlreadyInUse/{username}")
+    @GetMapping("/isUsernameAlreadyInUse/{username}") // isUsernameUsed
     public ResponseEntity<Boolean> isUsernameAlreadyInUse(@PathVariable String username) {
         Boolean isUsernameUsed = service.isUsernameUsed(username);
         return ResponseEntity.ok().body(isUsernameUsed);
@@ -59,7 +59,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
-    @GetMapping("/profile/{username}")
+    @GetMapping("/profile/{username}") //username/profile
     public ResponseEntity<ProfileDTO> getProfileDTOByUsername(Authentication authentication,
             @PathVariable String username) {
         User user = service.getUserByUsername(username);
@@ -67,7 +67,7 @@ public class UserController {
         return ResponseEntity.ok().body(profileDTO);
     }
 
-    @GetMapping(value = "{username}/profile/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "{username}/profile/image", produces = MediaType.IMAGE_JPEG_VALUE) //{username}/image
     public byte[] getProfileImage(@PathVariable("username") String username) {
         return service.getProfileImage(username);
     }
@@ -95,8 +95,8 @@ public class UserController {
     }
 
 
-    @GetMapping("/{postId}/likers")
-    public Page<UserDTO> getPostLikersPage(Authentication authentication,
+    @GetMapping("/{postId}/likers") //liked
+    public Page<UserDTO> getPostLikersPage(Authentication authentication, //getUsersLikedPostPage
             @PathVariable Long postId,
             @RequestParam Integer size,
             @RequestParam Integer page) {
@@ -106,8 +106,8 @@ public class UserController {
         return new PageImpl<>(followingsDTO, followingsPage.getPageable(), followingsPage.getTotalElements());
     }
 
-    @GetMapping("/search")
-    public Page<UserDTO> searchUserBySubstring(Authentication authentication,
+    @GetMapping("/search") 
+    public Page<UserDTO> searchUserBySubstring(Authentication authentication, // searchUser
             @RequestParam String substring,
             @RequestParam Integer size,
             @RequestParam Integer page) {
@@ -118,21 +118,21 @@ public class UserController {
         return new PageImpl<>(followingsDTO, searchedPage.getPageable(), searchedPage.getTotalElements());
     }
 
-    @PutMapping("/{followerUsername}/follow")
+    @PutMapping("/{followerUsername}/follow") //follow/followerUsername
     public ResponseEntity<?> addFollower(Authentication authentication,
             @PathVariable String followerUsername) {
         service.follow(authentication, followerUsername);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @PutMapping("/{followerUsername}/unfollow")
+    @PutMapping("/{followerUsername}/unfollow") /// deleteFollowing/{followerUsername}
     public ResponseEntity<?> removeFollower(Authentication authentication,
             @PathVariable String followerUsername) {
         service.unfollow(authentication, followerUsername);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @PutMapping("/update")
+    @PutMapping("/update") // updateUserInfo
     public ResponseEntity<?> updateUser(Authentication authentication,
             @RequestBody @Valid UserInfoUpdateRequest newUserData) {
         User updatedUser = service.updateUser(authentication, newUserData);
@@ -140,7 +140,7 @@ public class UserController {
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @PutMapping("/username/update")
+    @PutMapping("/username/update") //updateUsername
     public ResponseEntity<?> updateUserUsername(Authentication authentication,
             @RequestBody @Valid UsernameUpdateRequest newUsername) {
         User updatedUser = service.updateUserUsername(authentication, newUsername);
@@ -148,7 +148,7 @@ public class UserController {
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @PutMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) //image
     public ResponseEntity<?> uploadProfileImage(
             Authentication authentication,
             @RequestParam("file") MultipartFile file) {
@@ -157,14 +157,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
     }
 
-    @DeleteMapping(value = "/profile/image")
+    @DeleteMapping(value = "/profile/image") //image
     public ResponseEntity<UserDTO> deleteProfileImage(Authentication authentication) {
         User user = service.deleteProfileImage(authentication);
         UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
         return ResponseEntity.ok().body(userDTO);
     }
 
-    @DeleteMapping
+    @DeleteMapping // add / endpoint
     public ResponseEntity<?> deleteUser(Authentication authentication) {
         service.deleteUser(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());

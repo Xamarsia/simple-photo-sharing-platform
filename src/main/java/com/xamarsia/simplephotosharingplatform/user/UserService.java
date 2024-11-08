@@ -89,7 +89,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<User> getPostLikersPage(Long postId, Integer pageNumber, Integer pageSize) {
+    public Page<User> getPostLikersPage(Long postId, Integer pageNumber, Integer pageSize) { // getUsersLikedPostPage
         PageRequest pageable = PageRequest.of(pageNumber, pageSize);
         return repository.findPostLikersByPostId(postId, pageable);
     }
@@ -102,7 +102,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<User> searchUserBySubstring(String substring, Integer pageNumber, Integer pageSize) {
+    public Page<User> searchUserBySubstring(String substring, Integer pageNumber, Integer pageSize) { //searchUser substring <- request
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         return repository.searchUserBySubstring(substring, pageable);
     }
@@ -126,7 +126,7 @@ public class UserService {
         return s3Service.getObject(s3Buckets.getProfilesImages(), key);
     }
 
-    public User findUserByUsername(String username) {
+    public User findUserByUsername(String username) { // public???
         return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
                 String.format("[FindUserByUsername]: User not found with username '%s'.", username)));
     }
@@ -144,7 +144,7 @@ public class UserService {
         return;
     }
 
-    public void unfollow(Authentication authentication, String username) {
+    public void unfollow(Authentication authentication, String username) { //deleteFollowing
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
