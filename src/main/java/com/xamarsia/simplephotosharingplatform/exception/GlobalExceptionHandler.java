@@ -11,23 +11,25 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> onConstraintValidsationException(ConstraintViolationException exception, HttpServletRequest request) { //onConstraintValidationException
+    public ResponseEntity<ErrorResponse> onConstraintValidationException(ConstraintViolationException exception,
+            HttpServletRequest request) {
         StringBuilder errors = new StringBuilder("Constraint violation failed: ");
         for (ConstraintViolation<?> violation : exception.getConstraintViolations()) {
             String error = String.format("%s ", violation.getMessage());
             errors.append(error);
         }
 
-        ErrorResponse error = new ErrorResponse(ApplicationError.CONSTRAINT_VIOLATION_FAILED.getValue(), errors.toString());
+        ErrorResponse error = new ErrorResponse(ApplicationError.CONSTRAINT_VIOLATION_FAILED.getValue(),
+                errors.toString());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> onMethodArgumentNotValidException(MethodArgumentNotValidException exception, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> onMethodArgumentNotValidException(MethodArgumentNotValidException exception,
+            HttpServletRequest request) {
         StringBuilder errors = new StringBuilder("Validation failed: ");
         for (FieldError fieldError : exception.getBindingResult().getFieldErrors()) {
             String error = String.format("[%s]: %s ", fieldError.getField(), fieldError.getDefaultMessage());
@@ -39,13 +41,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> onIllegalArgumentException(IllegalArgumentException exception, HttpServletRequest request){
-        ErrorResponse response = new ErrorResponse(ApplicationError.ILLEGAL_ARGUMENT_EXCEPTION.getValue(), exception.getMessage());
+    public ResponseEntity<ErrorResponse> onIllegalArgumentException(IllegalArgumentException exception,
+            HttpServletRequest request) {
+        ErrorResponse response = new ErrorResponse(ApplicationError.ILLEGAL_ARGUMENT_EXCEPTION.getValue(),
+                exception.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ApplicationException.class)
-    public ResponseEntity<ErrorResponse> onApplicationException(ApplicationException exception, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> onApplicationException(ApplicationException exception,
+            HttpServletRequest request) {
         ErrorResponse response = new ErrorResponse(exception.getErrorCode().getValue(), exception.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -53,7 +58,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> onException(Exception exception, HttpServletRequest request) {
-        ErrorResponse response = new ErrorResponse(ApplicationError.INTERNAL_SERVER_ERROR.getValue(), exception.getMessage());
+        ErrorResponse response = new ErrorResponse(ApplicationError.INTERNAL_SERVER_ERROR.getValue(),
+                exception.getMessage());
 
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }

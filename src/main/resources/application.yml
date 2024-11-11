@@ -40,4 +40,4 @@ application:
       allowed-methods: "*"
       allowed-headers: "*,Authorization"
     authentication-filter:
-      excludedUrl: "/auth/**,/user/isUsernameAlreadyInUse/**"
+      excludedUrl: "/auth/**,/user/isUsernameUsed/**"

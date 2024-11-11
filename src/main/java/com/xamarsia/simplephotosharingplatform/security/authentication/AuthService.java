@@ -31,9 +31,9 @@ public class AuthService {
         return getAuthenticationById(id);
     }
 
-    public Auth saveAuthentication(Authentication authentication) {
+    public Auth createAuth(Authentication authentication) {
         if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new UnauthorizedAccessException("[SaveAuthentication]: User not authenticated.");
+            throw new UnauthorizedAccessException("[CreateAuth]: User not authenticated.");
         }
 
         String id = authentication.getName();
@@ -41,7 +41,7 @@ public class AuthService {
             Auth auth = getAuthenticationById(id);
             if (auth.user != null) {
                 throw new ApplicationException(ApplicationError.UNIQUE_AUTHENTICATION_CONSTRAINT_FAILED,
-                        String.format("[SaveAuthentication]: Authentication with id '%s' already exist.", id));
+                        String.format("[CreateAuth]: Authentication with id '%s' already exist.", id));
             }
             return auth;
         }
@@ -50,20 +50,20 @@ public class AuthService {
                 .id(id)
                 .build();
 
-        return saveAuthentication(auth);
+        return createAuth(auth);
     }
 
-    public Auth saveAuthentication(Auth authentication) {
+    public Auth createAuth(Auth authentication) {
         try {
             return repository.save(authentication);
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
-                    "[SaveAuthentication]: " + e.getMessage());
+                    "[CreateAuth]: " + e.getMessage());
         }
     }
 
     @Transactional(readOnly = true)
-    public Boolean isAuthenticationUsed(Authentication authentication) {
+    public Boolean isAuthUsed(Authentication authentication) {
         Auth auth = getAuthentication(authentication);
         return auth.getUser() != null;
     }

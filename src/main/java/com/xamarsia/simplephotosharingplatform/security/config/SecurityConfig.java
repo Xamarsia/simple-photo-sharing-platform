@@ -31,7 +31,7 @@ public class SecurityConfig {
                         .configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/user/isUsernameAlreadyInUse/**").permitAll()
+                        .requestMatchers("/user/isUsernameUsed/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .addFilterAfter(authenticationFilter, BasicAuthenticationFilter.class)

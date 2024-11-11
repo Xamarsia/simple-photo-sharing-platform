@@ -1,13 +1,13 @@
 package com.xamarsia.simplephotosharingplatform.security.authentication;
 
-import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import com.xamarsia.simplephotosharingplatform.common.EmptyJson;
 
 @Validated
 @RestController
@@ -16,15 +16,15 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final AuthService authService;
 
-    @PostMapping // add / endpoint
-    public ResponseEntity<?> saveAuthentication(Authentication authentication) { //createAuth
-        authService.saveAuthentication(authentication);
-        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
+    @PostMapping("")
+    public ResponseEntity<?> createAuth(Authentication authentication) {
+        authService.createAuth(authentication);
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJson());
     }
 
-    @GetMapping("/isUsed") 
-    public ResponseEntity<?> isAuthenticationUsed(Authentication authentication) { //isAuthUsed
-        Boolean isAuthUsed = authService.isAuthenticationUsed(authentication);
+    @GetMapping("/isUsed")
+    public ResponseEntity<?> isAuthUsed(Authentication authentication) {
+        Boolean isAuthUsed = authService.isAuthUsed(authentication);
         return ResponseEntity.ok().body(isAuthUsed);
     }
 }

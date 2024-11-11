@@ -41,7 +41,7 @@ public class LikeService {
         return saveLike(like);
     }
 
-    public void unlike(Authentication authentication, Long postId) throws IllegalArgumentException { //deleteLike
+    public void deleteLike(Authentication authentication, Long postId) throws IllegalArgumentException {
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 
@@ -49,19 +49,19 @@ public class LikeService {
         boolean isPostLiked = isPostLiked(likePK);
 
         if (!isPostLiked) {
-            throw new IllegalArgumentException("[Unlike]: Post not liked");
+            throw new IllegalArgumentException("[DeleteLike]: Post not liked");
         }
 
         deleteLikeById(likePK);
     }
 
     @Transactional(readOnly = true)
-    public LikeState getPostLikedState(Authentication authentication, Post post) {
+    public LikeState isPostLiked(Authentication authentication, Post post) {
         User user = userService.getAuthenticatedUser(authentication);
         LikePK likePK = new LikePK(user.getId(), post.getId());
         boolean isPostLiked = isPostLiked(likePK);
 
-        return isPostLiked ? LikeState.LIKED : LikeState.UNLIKED;
+        return isPostLiked ? LikeState.LIKE : LikeState.NONE;
     }
 
     @Transactional(readOnly = true)

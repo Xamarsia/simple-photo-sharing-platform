@@ -46,9 +46,9 @@ public class PostService {
         return post;
     }
 
-    public Post updatePost(Authentication authentication, UpdatePostRequest req, Long postId) {
+    public Post updatePostInfo(Authentication authentication, UpdatePostRequest req, Long postId) {
         Post post = getPostById(postId);
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        boolean isUserPostOwner = isCurrentUserOwner(authentication, post);
 
         if (!isUserPostOwner) {
             throw new AccessDeniedException("[UpdatePost]: Only post owner can update the post.");
@@ -69,7 +69,7 @@ public class PostService {
         }
 
         Post post = getPostById(postId);
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        boolean isUserPostOwner = isCurrentUserOwner(authentication, post);
         if (!isUserPostOwner) {
             throw new AccessDeniedException("[UpdatePostImage]: Only post owner can update the post.");
         }
@@ -81,7 +81,7 @@ public class PostService {
 
     public void deletePostById(Authentication authentication, Long postId) {
         Post post = getPostById(postId);
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        boolean isUserPostOwner = isCurrentUserOwner(authentication, post);
         if (!isUserPostOwner) {
             throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
         }
@@ -102,7 +102,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Post> getPostsPageRandomly(Authentication authentication, Integer pageSize, Integer pageNumber) {
+    public Page<Post> getNewsFeedPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
         Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize);
         return repository.findPostsRandomly(sortedByCreatedDate);
     }
@@ -126,7 +126,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Post post) { //IsCurrentUserOwner
+    private boolean isCurrentUserOwner(Authentication authentication, Post post) {
         User user = userService.getAuthenticatedUser(authentication);
         return post.getUser() == user;
     }

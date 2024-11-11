@@ -16,27 +16,27 @@ public class FollowingService {
 
     public Following follow(User follower, User following) {
         FollowingPK followingPK = new FollowingPK(follower.getId(), following.getId());
-        boolean isUserInFollowing = isUserInFollowing(followingPK);
+        boolean isUserFollowedBy = isUserFollowedBy(followingPK);
 
-        if (isUserInFollowing) {
+        if (isUserFollowedBy) {
             throw new IllegalArgumentException("[Follow]: Invalid parameter. User already followed.");
         }
 
-        Following newfollowing = Following.builder() //newFollowing
+        Following newFollowing = Following.builder()
                 .id(followingPK)
                 .follower(follower)
                 .following(following)
                 .build();
 
-        return saveFollowing(newfollowing);
+        return saveFollowing(newFollowing);
     }
 
-    public void ufollow(Long followingId, Long followerId) { //deleteFollowing
+    public void deleteFollowing(Long followingId, Long followerId) {
         FollowingPK followingPK = new FollowingPK(followingId, followerId);
-        boolean isUserInFollowing = isUserInFollowing(followingPK);
+        boolean isUserFollowedBy = isUserFollowedBy(followingPK);
 
-        if (!isUserInFollowing) {
-            throw new IllegalArgumentException("[Ufollow]: User is not followed");
+        if (!isUserFollowedBy) {
+            throw new IllegalArgumentException("[DeleteFollowing]: User is not followed");
         }
 
         deleteFollowingById(followingPK);
@@ -53,7 +53,7 @@ public class FollowingService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserInFollowing(FollowingPK followingPK) { // maybe isUserFollowedBy
+    public boolean isUserFollowedBy(FollowingPK followingPK) {
         return repository.existsById(followingPK);
     }
 
