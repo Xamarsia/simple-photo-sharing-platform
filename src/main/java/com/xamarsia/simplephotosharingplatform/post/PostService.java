@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Service
@@ -59,7 +59,7 @@ public class PostService {
             post.setDescription(description);
         }
 
-        post.setUpdateDateTime(LocalDateTime.now());
+        post.setUpdateDateTime(OffsetDateTime.now());
         return savePost(post);
     }
 
@@ -75,7 +75,7 @@ public class PostService {
         }
 
         uploadPostImage(postId, file);
-        post.setUpdateDateTime(LocalDateTime.now());
+        post.setUpdateDateTime(OffsetDateTime.now());
         savePost(post);
     }
 

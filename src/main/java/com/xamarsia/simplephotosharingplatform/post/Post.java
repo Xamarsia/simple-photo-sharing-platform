@@ -4,7 +4,7 @@ import com.xamarsia.simplephotosharingplatform.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -20,9 +20,9 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private final LocalDateTime creationDateTime = LocalDateTime.now();
+    private final OffsetDateTime creationDateTime = OffsetDateTime.now();
 
-    private LocalDateTime updateDateTime;
+    private OffsetDateTime updateDateTime;
 
     private String description;
 
