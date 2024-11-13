@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.user.following;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -27,4 +28,21 @@ public class FollowingPK implements Serializable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "following_id", nullable = false)
     private User following;
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (!(obj instanceof FollowingPK)) {
+            return false;
+        }
+        FollowingPK other = (FollowingPK) obj;
+        return (this.follower.equals(other.follower)) && this.following.equals(other.following);
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(follower, following);
+    }
 }

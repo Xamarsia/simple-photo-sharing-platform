@@ -17,7 +17,7 @@ import org.hibernate.annotations.OnDeleteAction;
 @Table(name = "post")
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private final OffsetDateTime creationDateTime = OffsetDateTime.now();
