@@ -45,7 +45,7 @@ public class UserService {
         }
 
         User follower = findUserByUsername(username);
-        FollowingPK followingPK = new FollowingPK(currentUser.getId(), follower.getId());
+        FollowingPK followingPK = new FollowingPK(currentUser, follower);
 
         if (followingService.isUserFollowedBy(followingPK)) {
             return State.FOLLOW;
@@ -149,7 +149,7 @@ public class UserService {
                     username));
         }
 
-        followingService.deleteFollowing(user.getId(), follower.getId());
+        followingService.deleteFollowing(user, follower);
         return;
     }
 

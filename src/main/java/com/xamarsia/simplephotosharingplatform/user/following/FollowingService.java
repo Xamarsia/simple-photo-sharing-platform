@@ -15,7 +15,7 @@ public class FollowingService {
     private final FollowingRepository repository;
 
     public Following follow(User follower, User following) {
-        FollowingPK followingPK = new FollowingPK(follower.getId(), following.getId());
+        FollowingPK followingPK = new FollowingPK(follower, following);
         boolean isUserFollowedBy = isUserFollowedBy(followingPK);
 
         if (isUserFollowedBy) {
@@ -24,15 +24,13 @@ public class FollowingService {
 
         Following newFollowing = Following.builder()
                 .id(followingPK)
-                .follower(follower)
-                .following(following)
                 .build();
 
         return saveFollowing(newFollowing);
     }
 
-    public void deleteFollowing(Long followingId, Long followerId) {
-        FollowingPK followingPK = new FollowingPK(followingId, followerId);
+    public void deleteFollowing(User follower, User following) {
+        FollowingPK followingPK = new FollowingPK(follower, following);
         boolean isUserFollowedBy = isUserFollowedBy(followingPK);
 
         if (!isUserFollowedBy) {
@@ -44,12 +42,12 @@ public class FollowingService {
 
     @Transactional(readOnly = true)
     public Integer getFollowingsCountByUserId(Long userId) {
-        return repository.countAllByFollowerId(userId);
+        return repository.countAllByIdFollowerId(userId);
     }
 
     @Transactional(readOnly = true)
     public Integer getFollowersCountByUserId(Long userId) {
-        return repository.countAllByFollowingId(userId);
+        return repository.countAllByIdFollowingId(userId);
     }
 
     @Transactional(readOnly = true)

@@ -24,7 +24,7 @@ public class LikeService {
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 
-        LikePK likePK = new LikePK(user.getId(), post.getId());
+        LikePK likePK = new LikePK(user, post);
         boolean isPostLiked = isPostLiked(likePK);
 
         if (isPostLiked) {
@@ -34,8 +34,6 @@ public class LikeService {
 
         Like like = Like.builder()
                 .id(likePK)
-                .user(user)
-                .post(post)
                 .build();
 
         return saveLike(like);
@@ -45,7 +43,7 @@ public class LikeService {
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 
-        LikePK likePK = new LikePK(user.getId(), post.getId());
+        LikePK likePK = new LikePK(user, post);
         boolean isPostLiked = isPostLiked(likePK);
 
         if (!isPostLiked) {
@@ -58,7 +56,7 @@ public class LikeService {
     @Transactional(readOnly = true)
     public LikeState isPostLiked(Authentication authentication, Post post) {
         User user = userService.getAuthenticatedUser(authentication);
-        LikePK likePK = new LikePK(user.getId(), post.getId());
+        LikePK likePK = new LikePK(user, post);
         boolean isPostLiked = isPostLiked(likePK);
 
         return isPostLiked ? LikeState.LIKE : LikeState.NONE;
@@ -66,7 +64,7 @@ public class LikeService {
 
     @Transactional(readOnly = true)
     public Integer getPostLikesCount(Long postId) {
-        return repository.countAllByPostId(postId);
+        return repository.countAllByIdPostId(postId);
     }
 
     @Transactional(readOnly = true)
