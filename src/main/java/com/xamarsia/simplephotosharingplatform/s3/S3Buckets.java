@@ -13,12 +13,10 @@ public class S3Buckets {
     private String profiles;
 
     public String getPostsImages() {
-        System.out.println("Posts: " + posts);
         return posts;
     }
 
     public String getProfilesImages() {
-        System.out.println("Profiles: " + profiles);
         return profiles;
     }
 }

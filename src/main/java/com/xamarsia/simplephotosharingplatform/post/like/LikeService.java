@@ -24,7 +24,7 @@ public class LikeService {
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 
-        LikePK likePK = new LikePK(user.getId(), post.getId());
+        LikePK likePK = new LikePK(user, post);
         boolean isPostLiked = isPostLiked(likePK);
 
         if (isPostLiked) {
@@ -34,39 +34,37 @@ public class LikeService {
 
         Like like = Like.builder()
                 .id(likePK)
-                .user(user)
-                .post(post)
                 .build();
 
         return saveLike(like);
     }
 
-    public void unlike(Authentication authentication, Long postId) throws IllegalArgumentException {
+    public void deleteLike(Authentication authentication, Long postId) throws IllegalArgumentException {
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 
-        LikePK likePK = new LikePK(user.getId(), post.getId());
+        LikePK likePK = new LikePK(user, post);
         boolean isPostLiked = isPostLiked(likePK);
 
         if (!isPostLiked) {
-            throw new IllegalArgumentException("[Unlike]: Post not liked");
+            throw new IllegalArgumentException("[DeleteLike]: Post not liked");
         }
 
         deleteLikeById(likePK);
     }
 
     @Transactional(readOnly = true)
-    public LikeState getPostLikedState(Authentication authentication, Post post) {
+    public LikeState isPostLiked(Authentication authentication, Post post) {
         User user = userService.getAuthenticatedUser(authentication);
-        LikePK likePK = new LikePK(user.getId(), post.getId());
+        LikePK likePK = new LikePK(user, post);
         boolean isPostLiked = isPostLiked(likePK);
 
-        return isPostLiked ? LikeState.LIKED : LikeState.UNLIKED;
+        return isPostLiked ? LikeState.LIKE : LikeState.NONE;
     }
 
     @Transactional(readOnly = true)
     public Integer getPostLikesCount(Long postId) {
-        return repository.countAllByPostId(postId);
+        return repository.countAllByIdPostId(postId);
     }
 
     @Transactional(readOnly = true)

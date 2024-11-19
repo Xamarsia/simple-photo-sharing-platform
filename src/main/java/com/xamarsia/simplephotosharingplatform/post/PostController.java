@@ -1,5 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.post;
 
+import com.xamarsia.simplephotosharingplatform.common.EmptyJson;
 import com.xamarsia.simplephotosharingplatform.post.dto.DetailedPostDTO;
 import com.xamarsia.simplephotosharingplatform.post.dto.PostDTO;
 import com.xamarsia.simplephotosharingplatform.post.dto.PostPreviewDTO;
@@ -8,7 +9,6 @@ import com.xamarsia.simplephotosharingplatform.post.dto.mappers.PostDTOMapper;
 import com.xamarsia.simplephotosharingplatform.post.dto.mappers.PostPreviewDTOMapper;
 import com.xamarsia.simplephotosharingplatform.requests.post.CreatePostRequest;
 import com.xamarsia.simplephotosharingplatform.requests.post.UpdatePostRequest;
-import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,13 +48,6 @@ public class PostController {
         return ResponseEntity.ok().body(postDTO);
     }
 
-    @GetMapping("/all")
-    public ResponseEntity<List<PostDTO>> getAll() {
-        List<Post> post = service.getAll();
-        List<PostDTO> postsPreview = post.stream().map(postDTOMapper).collect(Collectors.toList());
-        return ResponseEntity.ok().body(postsPreview);
-    }
-
     @GetMapping(value = "/{postId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getPostImage(@PathVariable Long postId) {
         return service.getPostImage(postId);
@@ -65,25 +58,23 @@ public class PostController {
             @ModelAttribute CreatePostRequest newPost) {
         Post savedPost = service.createPost(authentication, newPost);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(postDTO);
     }
 
-    @PutMapping(value = "/{postId}/update/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{postId}/updateImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updatePostImage(Authentication authentication,
             @RequestParam("file") MultipartFile file,
             @PathVariable Long postId) {
         service.updatePostImage(authentication, file, postId);
-        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJson());
     }
 
-    @PutMapping("/{postId}/update")
-    public ResponseEntity<?> updatePost(Authentication authentication,
+    @PutMapping("/{postId}/updatePostInfo")
+    public ResponseEntity<?> updatePostInfo(Authentication authentication,
             @RequestBody UpdatePostRequest newPost,
             @PathVariable Long postId) {
-        Post savedPost = service.updatePost(authentication, newPost, postId);
+        Post savedPost = service.updatePostInfo(authentication, newPost, postId);
         PostDTO postDTO = postDTOMapper.apply(savedPost);
-
         return ResponseEntity.status(HttpStatus.OK).body(postDTO);
     }
 
@@ -93,29 +84,23 @@ public class PostController {
             @RequestParam Integer page) {
         Page<Post> postsPage = service.getPostsPageByUsername(username, page, size);
         List<PostPreviewDTO> postsPreview = postsPage.stream().map(postPreviewMapper).collect(Collectors.toList());
-
         return new PageImpl<>(postsPreview, postsPage.getPageable(), postsPage.getTotalElements());
     }
 
-    @GetMapping("/random/detailed")
-    public Page<DetailedPostDTO> getDetailedPostsRandomly(Authentication authentication,
+    @GetMapping("/newsFeed")
+    public Page<DetailedPostDTO> getNewsFeedPage(Authentication authentication,
             @RequestParam Integer size,
             @RequestParam Integer page) {
-        Page<Post> postsPage = service.getPostsPageRandomly(authentication, size, page);
+        Page<Post> postsPage = service.getNewsFeedPage(authentication, size, page);
         List<DetailedPostDTO> detailedPosts = postsPage.stream()
                 .map(post -> detailedPostMapper.apply(authentication, post)).collect(Collectors.toList());
         return new PageImpl<>(detailedPosts, postsPage.getPageable(), postsPage.getTotalElements());
-    }
-
-    @GetMapping("/{userId}/count")
-    public Integer getPostsCountByUserId(@PathVariable Long userId) {
-        return service.getPostsCountByUserId(userId);
     }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(Authentication authentication,
             @PathVariable Long postId) {
         service.deletePostById(authentication, postId);
-        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJson());
     }
 }

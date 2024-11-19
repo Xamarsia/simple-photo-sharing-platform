@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface FollowingRepository extends JpaRepository<Following, FollowingPK> {
 
-    Integer countAllByFollowingId(Long userId);
+    Integer countAllByIdFollowingId(Long userId);
 
-    Integer countAllByFollowerId(Long userId);
+    Integer countAllByIdFollowerId(Long userId);
 }

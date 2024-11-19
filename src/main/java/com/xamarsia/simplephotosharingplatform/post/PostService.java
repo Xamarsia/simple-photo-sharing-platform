@@ -12,6 +12,8 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.user.User;
 import com.xamarsia.simplephotosharingplatform.user.UserService;
 
+import lombok.AllArgsConstructor;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,23 +24,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Service
+@AllArgsConstructor
 public class PostService {
     private final PostRepository repository;
     private final UserService userService;
     private final S3Service s3Service;
     private final S3Buckets s3Buckets;
-
-    public PostService(PostRepository postRepository, UserService userService, S3Service s3Service,
-            S3Buckets s3Buckets) {
-        this.repository = postRepository;
-        this.userService = userService;
-        this.s3Service = s3Service;
-        this.s3Buckets = s3Buckets;
-    }
 
     public Post createPost(Authentication authentication, CreatePostRequest req) {
         User user = userService.getAuthenticatedUser(authentication);
@@ -51,9 +46,10 @@ public class PostService {
         return post;
     }
 
-    public Post updatePost(Authentication authentication, UpdatePostRequest req, Long postId) {
+    public Post updatePostInfo(Authentication authentication, UpdatePostRequest req, Long postId) {
         Post post = getPostById(postId);
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        boolean isUserPostOwner = isCurrentUserOwner(authentication, post);
+
         if (!isUserPostOwner) {
             throw new AccessDeniedException("[UpdatePost]: Only post owner can update the post.");
         }
@@ -63,7 +59,7 @@ public class PostService {
             post.setDescription(description);
         }
 
-        post.setUpdateDateTime(LocalDateTime.now());
+        post.setUpdateDateTime(OffsetDateTime.now());
         return savePost(post);
     }
 
@@ -73,14 +69,29 @@ public class PostService {
         }
 
         Post post = getPostById(postId);
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, post);
+        boolean isUserPostOwner = isCurrentUserOwner(authentication, post);
         if (!isUserPostOwner) {
             throw new AccessDeniedException("[UpdatePostImage]: Only post owner can update the post.");
         }
 
         uploadPostImage(postId, file);
-        post.setUpdateDateTime(LocalDateTime.now());
+        post.setUpdateDateTime(OffsetDateTime.now());
         savePost(post);
+    }
+
+    public void deletePostById(Authentication authentication, Long postId) {
+        Post post = getPostById(postId);
+        boolean isUserPostOwner = isCurrentUserOwner(authentication, post);
+        if (!isUserPostOwner) {
+            throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
+        }
+        s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
+        repository.deleteById(postId);
+    }
+
+    public Post getPostById(Long postId) {
+        return repository.findById(postId)
+                .orElseThrow(() -> new ResourceNotFoundException("[GetPostById]: Post not found with id " + postId));
     }
 
     @Transactional(readOnly = true)
@@ -91,12 +102,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<Post> getAll() {
-        return repository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public Page<Post> getPostsPageRandomly(Authentication authentication, Integer pageSize, Integer pageNumber) {
+    public Page<Post> getNewsFeedPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
         Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize);
         return repository.findPostsRandomly(sortedByCreatedDate);
     }
@@ -112,11 +118,6 @@ public class PostService {
         return repository.countAllByUserId(userId);
     }
 
-    public Post getPostById(Long postId) {
-        return selectPostById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("[GetPostById]: Post not found with id " + postId));
-    }
-
     @Transactional(readOnly = true)
     public byte[] getPostImage(Long postId) {
         // TODO: Check if postImage is empty or null
@@ -124,31 +125,8 @@ public class PostService {
                 postId.toString());
     }
 
-    public List<Post> selectAllPosts() {
-        Page<Post> page = repository.findAll(Pageable.ofSize(1000));
-        return page.getContent();
-    }
-
-    public Optional<Post> selectPostById(Long postId) {
-        return repository.findById(postId);
-    }
-
-    public void deletePostById(Authentication authentication, Long postId) {
-        boolean isUserPostOwner = isAuthenticatedUserIsPostOwner(authentication, postId);
-        if (!isUserPostOwner) {
-            throw new AccessDeniedException("[DeletePostById]: Only post owner can delete the post");
-        }
-        s3Service.deleteObject(s3Buckets.getPostsImages(), postId.toString());
-        repository.deleteById(postId);
-    }
-
-    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Long postId) {
-        User user = userService.getAuthenticatedUser(authentication);
-        Post post = getPostById(postId);
-        return post.getUser() == user;
-    }
-
-    private boolean isAuthenticatedUserIsPostOwner(Authentication authentication, Post post) {
+    @Transactional(readOnly = true)
+    private boolean isCurrentUserOwner(Authentication authentication, Post post) {
         User user = userService.getAuthenticatedUser(authentication);
         return post.getUser() == user;
     }

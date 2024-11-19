@@ -22,9 +22,13 @@ import com.xamarsia.simplephotosharingplatform.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.s3.S3Service;
 import com.xamarsia.simplephotosharingplatform.security.authentication.Auth;
 import com.xamarsia.simplephotosharingplatform.security.authentication.AuthService;
+import com.xamarsia.simplephotosharingplatform.user.following.FollowingPK;
 import com.xamarsia.simplephotosharingplatform.user.following.FollowingService;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class UserService {
     private final UserRepository repository;
     private final S3Service s3Service;
@@ -32,36 +36,26 @@ public class UserService {
     private final AuthService authService;
     private final FollowingService followingService;
 
-    public UserService(UserRepository repository, S3Service s3Service,
-            S3Buckets s3Buckets, AuthService authService, FollowingService followingService) {
-        this.repository = repository;
-        this.s3Service = s3Service;
-        this.s3Buckets = s3Buckets;
-        this.authService = authService;
-        this.followingService = followingService;
-    }
-
     @Transactional(readOnly = true)
     public State getState(Authentication authentication, String username) {
         User currentUser = getAuthenticatedUser(authentication);
+
         if (Objects.equals(currentUser.getUsername(), username)) {
             return State.CURRENT;
         }
-        if (isUserInFollowing(currentUser, username)) {
-            return State.FOLLOWED;
+
+        User follower = findUserByUsername(username);
+        FollowingPK followingPK = new FollowingPK(currentUser, follower);
+
+        if (followingService.isUserFollowedBy(followingPK)) {
+            return State.FOLLOW;
         }
-        return State.UNFOLLOWED;
+        return State.NONE;
     }
 
     @Transactional(readOnly = true)
     public User getUserByUsername(String username) {
         return findUserByUsername(username);
-    }
-
-    @Transactional(readOnly = true)
-    public User getById(Long customerId) {
-        return repository.findById(customerId).orElseThrow(() -> new ResourceNotFoundException(
-                String.format("[GetUserByID]: User not found with id '%s'.", customerId)));
     }
 
     @Transactional(readOnly = true)
@@ -83,7 +77,7 @@ public class UserService {
         User savedUser = saveUser(user);
 
         auth.setUser(savedUser);
-        authService.saveAuthentication(auth);
+        authService.createAuth(auth);
         return savedUser;
     }
 
@@ -95,9 +89,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<User> getPostLikersPage(Long postId, Integer pageNumber, Integer pageSize) {
+    public Page<User> getUsersLikedPostPage(Long postId, Integer pageNumber, Integer pageSize) {
         PageRequest pageable = PageRequest.of(pageNumber, pageSize);
-        return repository.findPostLikersByPostId(postId, pageable);
+        return repository.findUsersLikedPostPage(postId, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -108,9 +102,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<User> searchUserBySubstring(String substring, Integer pageNumber, Integer pageSize) {
+    public Page<User> searchUser(String request, Integer pageNumber, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        return repository.searchUserBySubstring(substring, pageable);
+        return repository.searchUser(request, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -132,11 +126,6 @@ public class UserService {
         return s3Service.getObject(s3Buckets.getProfilesImages(), key);
     }
 
-    public User findUserByUsername(String username) {
-        return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
-                String.format("[FindUserByUsername]: Follower not found with username '%s'.", username)));
-    }
-
     public void follow(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
@@ -150,40 +139,28 @@ public class UserService {
         return;
     }
 
-    public void unfollow(Authentication authentication, String username) {
+    public void deleteFollowing(Authentication authentication, String username) {
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
         if (Objects.equals(user.getUsername(), follower.getUsername())) {
             throw new IllegalArgumentException(String.format(
-                    "[Unfollow]: Invalid parameter. User and his follower can't have the same username '%s'.",
+                    "[DeleteFollowing]: Invalid parameter. User and his follower can't have the same username '%s'.",
                     username));
         }
 
-        followingService.ufollow(user.getId(), follower.getId());
+        followingService.deleteFollowing(user, follower);
         return;
     }
 
-    @Transactional(readOnly = true)
-    public Boolean isUserInFollowing(Authentication authentication, String username) {
-        User user = getAuthenticatedUser(authentication);
-        return isUserInFollowing(user, username);
-    }
-
-    @Transactional(readOnly = true)
-    public Boolean isUserInFollowing(User currentUser, String username) {
-        User follower = findUserByUsername(username);
-        return followingService.isUserInFollowing(currentUser.getId(), follower.getId());
-    }
-
-    public User updateUser(Authentication authentication, UserInfoUpdateRequest newUserData) {
+    public User updateUserInfo(Authentication authentication, UserInfoUpdateRequest newUserData) {
         User user = getAuthenticatedUser(authentication);
         user.setFullName(newUserData.getFullName());
         user.setDescription(newUserData.getDescription());
         return saveUser(user);
     }
 
-    public User updateUserUsername(Authentication authentication, UsernameUpdateRequest newUsernameData) {
+    public User updateUsername(Authentication authentication, UsernameUpdateRequest newUsernameData) {
         User user = getAuthenticatedUser(authentication);
         String newUsername = newUsernameData.getUsername();
         user.setUsername(newUsername);
@@ -223,15 +200,6 @@ public class UserService {
         }
     }
 
-    public void deleteUser(User user) {
-        try {
-            repository.deleteById(user.getId());
-        } catch (Exception e) {
-            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
-                    "[DeleteUser]: " + e.getMessage());
-        }
-    }
-
     public void deleteUser(Authentication authentication) {
         User user = getAuthenticatedUser(authentication);
 
@@ -252,5 +220,19 @@ public class UserService {
         s3Service.deleteObject(s3Buckets.getProfilesImages(), user.getId().toString());
         user.setIsProfileImageExist(false);
         return saveUser(user);
+    }
+
+    private User findUserByUsername(String username) {
+        return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
+                String.format("[FindUserByUsername]: User not found with username '%s'.", username)));
+    }
+
+    private void deleteUser(User user) {
+        try {
+            repository.deleteById(user.getId());
+        } catch (Exception e) {
+            throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
+                    "[DeleteUser]: " + e.getMessage());
+        }
     }
 }

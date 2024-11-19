@@ -11,11 +11,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
-@Validated
 @AllArgsConstructor
 public class AuthService {
     private final AuthRepository repository;
@@ -32,14 +31,9 @@ public class AuthService {
         return getAuthenticationById(id);
     }
 
-    public Boolean isAuthenticationUsed(Authentication authentication) {
-        Auth auth = getAuthentication(authentication);
-        return auth.getUser() != null;
-    }
-
-    public Auth saveAuthentication(Authentication authentication) {
+    public Auth createAuth(Authentication authentication) {
         if (authentication instanceof AnonymousAuthenticationToken) {
-            throw new UnauthorizedAccessException("[SaveAuthentication]: User not authenticated.");
+            throw new UnauthorizedAccessException("[CreateAuth]: User not authenticated.");
         }
 
         String id = authentication.getName();
@@ -47,7 +41,7 @@ public class AuthService {
             Auth auth = getAuthenticationById(id);
             if (auth.user != null) {
                 throw new ApplicationException(ApplicationError.UNIQUE_AUTHENTICATION_CONSTRAINT_FAILED,
-                        String.format("[SaveAuthentication]: Authentication with id '%s' already exist.", id));
+                        String.format("[CreateAuth]: Authentication with id '%s' already exist.", id));
             }
             return auth;
         }
@@ -56,16 +50,22 @@ public class AuthService {
                 .id(id)
                 .build();
 
-        return saveAuthentication(auth);
+        return createAuth(auth);
     }
 
-    public Auth saveAuthentication(Auth authentication) {
+    public Auth createAuth(Auth authentication) {
         try {
             return repository.save(authentication);
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
-                    "[SaveAuthentication]: " + e.getMessage());
+                    "[CreateAuth]: " + e.getMessage());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean isAuthUsed(Authentication authentication) {
+        Auth auth = getAuthentication(authentication);
+        return auth.getUser() != null;
     }
 
     private Auth getAuthenticationById(String id) {

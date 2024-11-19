@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.xamarsia.simplephotosharingplatform.responses.EmptyJsonResponse;
+import com.xamarsia.simplephotosharingplatform.common.EmptyJson;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,13 +23,13 @@ public class LikeController {
     public ResponseEntity<?> like(Authentication authentication,
             @PathVariable Long postId) {
         service.like(authentication, postId);
-        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJson());
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> unlike(Authentication authentication,
+    public ResponseEntity<?> deleteLike(Authentication authentication, 
             @PathVariable Long postId) {
-        service.unlike(authentication, postId);
-        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJsonResponse());
+        service.deleteLike(authentication, postId);
+        return ResponseEntity.status(HttpStatus.OK).body(new EmptyJson());
     }
 }

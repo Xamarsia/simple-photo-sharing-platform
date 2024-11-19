@@ -15,29 +15,26 @@ public class FollowingService {
     private final FollowingRepository repository;
 
     public Following follow(User follower, User following) {
+        FollowingPK followingPK = new FollowingPK(follower, following);
+        boolean isUserFollowedBy = isUserFollowedBy(followingPK);
 
-        FollowingPK followingPK = new FollowingPK(follower.getId(), following.getId());
-        boolean isUserInFollowing = isUserInFollowing(followingPK);
-
-        if (isUserInFollowing) {
+        if (isUserFollowedBy) {
             throw new IllegalArgumentException("[Follow]: Invalid parameter. User already followed.");
         }
 
-        Following newfollowing = Following.builder()
+        Following newFollowing = Following.builder()
                 .id(followingPK)
-                .follower(follower)
-                .following(following)
                 .build();
 
-        return saveFollowing(newfollowing);
+        return saveFollowing(newFollowing);
     }
 
-    public void ufollow(Long followingId, Long followerId) {
-        FollowingPK followingPK = new FollowingPK(followingId, followerId);
-        boolean isUserInFollowing = isUserInFollowing(followingPK);
+    public void deleteFollowing(User follower, User following) {
+        FollowingPK followingPK = new FollowingPK(follower, following);
+        boolean isUserFollowedBy = isUserFollowedBy(followingPK);
 
-        if (!isUserInFollowing) {
-            throw new IllegalArgumentException("[Ufollow]: User is not followed");
+        if (!isUserFollowedBy) {
+            throw new IllegalArgumentException("[DeleteFollowing]: User is not followed");
         }
 
         deleteFollowingById(followingPK);
@@ -45,22 +42,16 @@ public class FollowingService {
 
     @Transactional(readOnly = true)
     public Integer getFollowingsCountByUserId(Long userId) {
-        return repository.countAllByFollowerId(userId);
+        return repository.countAllByIdFollowerId(userId);
     }
 
     @Transactional(readOnly = true)
     public Integer getFollowersCountByUserId(Long userId) {
-        return repository.countAllByFollowingId(userId);
+        return repository.countAllByIdFollowingId(userId);
     }
 
     @Transactional(readOnly = true)
-    public boolean isUserInFollowing(Long followingId, Long followerId) {
-        FollowingPK followingPK = new FollowingPK(followingId, followerId);
-        return isUserInFollowing(followingPK);
-    }
-
-    @Transactional(readOnly = true)
-    private boolean isUserInFollowing(FollowingPK followingPK) {
+    public boolean isUserFollowedBy(FollowingPK followingPK) {
         return repository.existsById(followingPK);
     }
 

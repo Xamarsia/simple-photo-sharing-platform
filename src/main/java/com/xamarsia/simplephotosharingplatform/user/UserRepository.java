@@ -14,10 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsUserByUsername(String username);
 
-    boolean existsUserById(Long id);
-
-    @Query(value = "Select * from _user u WHERE (lower(u.username) LIKE lower(CONCAT('%',:substring,'%')) OR lower(u.full_name) LIKE lower(CONCAT('%',:substring,'%')))", countQuery = "SELECT count(*) FROM _user", nativeQuery = true)
-    Page<User> searchUserBySubstring(@Param("substring") String substring, Pageable pageable);
+    @Query(value = "Select * from _user u WHERE (lower(u.username) LIKE lower(CONCAT('%',:request,'%')) OR lower(u.full_name) LIKE lower(CONCAT('%',:request,'%')))", countQuery = "SELECT count(*) FROM _user", nativeQuery = true)
+    Page<User> searchUser(@Param("request") String request, Pageable pageable);
 
     @Query(value = "select u.* from _user u join following f on u.id = f.following_id WHERE f.follower_id = ?1", countQuery = "SELECT count(*) FROM following", nativeQuery = true)
     Page<User> findFollowingsByUserId(@Param("userId") Long userId, Pageable pageable);
@@ -26,5 +24,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findFollowersByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query(value = "select u.* from _user u join _like l on u.id = l.user_id WHERE l.post_id = ?1", countQuery = "SELECT count(*) FROM _like", nativeQuery = true)
-    Page<User> findPostLikersByPostId(@Param("postId") Long postId, Pageable pageable);
+    Page<User> findUsersLikedPostPage(@Param("postId") Long postId, Pageable pageable);
 }

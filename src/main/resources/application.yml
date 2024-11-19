@@ -14,16 +14,25 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      # ddl-auto: create-drop
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: true
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format-sql: true
+    open-in-view: true
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
   codec:
     max-in-memory-size: 10MB
+  flyway:
+    baseline-on-migrate: true
+    enabled: true
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    baseline-description: "init"
+    baseline-version: 0
 
 aws:
   region: ca-central-1
@@ -40,4 +49,4 @@ application:
       allowed-methods: "*"
       allowed-headers: "*,Authorization"
     authentication-filter:
-      excludedUrl: "/auth/**,/user/isUsernameAlreadyInUse/**"
+      excludedUrl: "/auth/**,/user/isUsernameUsed/**"
