@@ -70,8 +70,8 @@ public class UserService {
     public User register(Authentication authentication, RegisterRequest registerRequest) {
         Auth auth = authService.getAuthentication(authentication);
         User user = User.builder()
-                .fullName(registerRequest.getFullName())
-                .username(registerRequest.getUsername())
+                .fullName(registerRequest.fullName())
+                .username(registerRequest.username())
                 .build();
 
         User savedUser = saveUser(user);
@@ -155,14 +155,14 @@ public class UserService {
 
     public User updateUserInfo(Authentication authentication, UserInfoUpdateRequest newUserData) {
         User user = getAuthenticatedUser(authentication);
-        user.setFullName(newUserData.getFullName());
-        user.setDescription(newUserData.getDescription());
+        user.setFullName(newUserData.fullName());
+        user.setDescription(newUserData.description());
         return saveUser(user);
     }
 
     public User updateUsername(Authentication authentication, UsernameUpdateRequest newUsernameData) {
         User user = getAuthenticatedUser(authentication);
-        String newUsername = newUsernameData.getUsername();
+        String newUsername = newUsernameData.username();
         user.setUsername(newUsername);
         return saveUser(user);
     }

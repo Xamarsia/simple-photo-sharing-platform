@@ -1,5 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.user.dto.mappers;
 
+import java.util.function.BiFunction;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -13,15 +15,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ProfileDTOMapper {
+public class ProfileDTOMapper implements BiFunction<Authentication, User, ProfileDTO> {
     private final UserDTOMapper userDTOMapper;
     private final PostService service;
     private final FollowingService followingService;
 
+    @Override
     public ProfileDTO apply(Authentication authentication, User user) {
-
         UserDTO userDTO = userDTOMapper.apply(authentication, user);
-
         return new ProfileDTO(
                 followingService.getFollowingsCountByUserId(user.getId()),
                 followingService.getFollowersCountByUserId(user.getId()),

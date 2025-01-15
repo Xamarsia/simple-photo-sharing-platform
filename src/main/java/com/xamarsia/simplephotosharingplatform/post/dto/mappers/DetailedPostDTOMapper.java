@@ -1,5 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.post.dto.mappers;
 
+import java.util.function.BiFunction;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -16,15 +18,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class DetailedPostDTOMapper {
-
+public class DetailedPostDTOMapper implements BiFunction<Authentication, Post, DetailedPostDTO> {
     private final PostDTOMapper postDTOMapper;
     private final UserDTOMapper userDTOMapper;
     private final PostService postService;
     private final LikeService likeService;
 
+    @Override
     public DetailedPostDTO apply(Authentication authentication, Post post) {
-
         PostDTO postDTO = postDTOMapper.apply(post);
         User author = postService.getPostAuthorByUsername(postDTO.username());
 
