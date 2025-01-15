@@ -38,11 +38,11 @@ public class PostService {
     public Post createPost(Authentication authentication, CreatePostRequest req) {
         User user = userService.getAuthenticatedUser(authentication);
         Post post = Post.builder()
-                .description(req.getDescription())
+                .description(req.description())
                 .user(user)
                 .build();
         post = savePost(post);
-        uploadPostImage(post.getId(), req.getImage());
+        uploadPostImage(post.getId(), req.image());
         return post;
     }
 
@@ -54,7 +54,7 @@ public class PostService {
             throw new AccessDeniedException("[UpdatePost]: Only post owner can update the post.");
         }
 
-        var description = req.getDescription();
+        var description = req.description();
         if (description != null) {
             post.setDescription(description);
         }

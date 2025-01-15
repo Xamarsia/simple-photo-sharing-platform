@@ -52,7 +52,7 @@ public class UserController {
     public ResponseEntity<?> register(Authentication authentication,
             @RequestBody @Valid RegisterRequest request) {
         User user = service.register(authentication, request);
-        UserDTO userDto = userDTOMapper.apply(user, State.CURRENT);
+        UserDTO userDto = userDTOMapper.apply(authentication, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(userDto);
     }
 
@@ -132,7 +132,7 @@ public class UserController {
     public ResponseEntity<?> updateUserInfo(Authentication authentication,
             @RequestBody @Valid UserInfoUpdateRequest newUserData) {
         User updatedUser = service.updateUserInfo(authentication, newUserData);
-        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
+        UserDTO userDTO = userDTOMapper.apply(authentication, updatedUser);
         return ResponseEntity.ok().body(userDTO);
     }
 
@@ -140,7 +140,7 @@ public class UserController {
     public ResponseEntity<?> updateUsername(Authentication authentication,
             @RequestBody @Valid UsernameUpdateRequest newUsername) {
         User updatedUser = service.updateUsername(authentication, newUsername);
-        UserDTO userDTO = userDTOMapper.apply(updatedUser, State.CURRENT);
+        UserDTO userDTO = userDTOMapper.apply(authentication, updatedUser);
         return ResponseEntity.ok().body(userDTO);
     }
 
@@ -156,7 +156,7 @@ public class UserController {
     @DeleteMapping("/image")
     public ResponseEntity<UserDTO> deleteProfileImage(Authentication authentication) {
         User user = service.deleteProfileImage(authentication);
-        UserDTO userDTO = userDTOMapper.apply(user, State.CURRENT);
+        UserDTO userDTO = userDTOMapper.apply(authentication, user);
         return ResponseEntity.ok().body(userDTO);
     }
 

@@ -1,12 +1,8 @@
 package com.xamarsia.simplephotosharingplatform.requests.user;
 
-import lombok.Getter;
-import lombok.Setter;
+public record UserInfoUpdateRequest(
+    String fullName,
 
-@Setter
-@Getter
-public class UserInfoUpdateRequest {
-    private String fullName;
-
-    private String description;
+    String description
+    ) {
 }

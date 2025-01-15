@@ -2,15 +2,12 @@ package com.xamarsia.simplephotosharingplatform.requests.user;
 
 import com.xamarsia.simplephotosharingplatform.common.validator.Username.UniqueUsername;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
-public class RegisterRequest {
-    @NotBlank(message = "Username is required.")
-    @UniqueUsername(message = "A user with username '${validatedValue}' already exists.")
-    private String username;
+public record RegisterRequest(
+    @NotBlank(message = "Username is required.") 
+    @UniqueUsername(message = "A user with username '${validatedValue}' already exists.") 
+    String username,
 
-    private String fullName;
+    String fullName
+    ) {
 }
