@@ -1,7 +1,7 @@
 services:
   server-api:
     container_name: server-api
-    image: xamarsia/spsp-server:0.0.1
+    image: xamarsia/spsp-server:0.0.2
     env_file:
       - ./.env
       - ./.aws-credentials
