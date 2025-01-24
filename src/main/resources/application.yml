@@ -38,14 +38,14 @@ aws:
   region: ca-central-1
   s3:
     buckets:
-      posts: "spsp-post-images"
-      profiles: "spsp-profile-images"
+      posts: "spsp-post-images-01"
+      profiles: "spsp-profile-images-01"
 
 application:
   security:
     token-type: "Bearer "
     cors:
-      allowed-origins: "http://localhost:3000"
+      allowed-origins: "http://localhost:3000,https://spspdemo.online,http://spspdemo.online"
       allowed-methods: "*"
       allowed-headers: "*,Authorization"
     authentication-filter:
