@@ -35,17 +35,17 @@ spring:
     baseline-version: 0
 
 aws:
-  region: ca-central-1
+  region: ${AWS_REGION}
   s3:
     buckets:
-      posts: "spsp-post-images-01"
-      profiles: "spsp-profile-images-01"
+      posts: ${AWS_S3_POSTS_BUCKET_NAME}
+      profiles: ${AWS_S3_PROFILES_BUCKET_NAME}
 
 application:
   security:
     token-type: "Bearer "
     cors:
-      allowed-origins: "http://localhost:3000,https://spspdemo.online,http://spspdemo.online"
+      allowed-origins: "http://localhost:3000,http://${DOMAIN_NAME},https://${DOMAIN_NAME}"
       allowed-methods: "*"
       allowed-headers: "*,Authorization"
     authentication-filter:
