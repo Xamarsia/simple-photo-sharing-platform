@@ -13,7 +13,8 @@
                 "inferrinizzard.prettier-sql-vscode",
                 "redhat.vscode-xml",
                 "ckolkman.vscode-postgres",
-                "vmware.vscode-spring-boot"
+                "cschlosser.doxdocgen",
+                "bbenoist.Doxygen"
             ]
         }
     },
