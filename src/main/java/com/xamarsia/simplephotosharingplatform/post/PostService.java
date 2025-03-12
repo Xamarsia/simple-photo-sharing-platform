@@ -102,7 +102,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Post> getNewsFeedPage(Authentication authentication, Integer pageSize, Integer pageNumber) {
+    public Page<Post> getNewsFeedPage(Integer pageSize, Integer pageNumber) {
         Pageable sortedByCreatedDate = PageRequest.of(pageNumber, pageSize);
         return repository.findPostsRandomly(sortedByCreatedDate);
     }
