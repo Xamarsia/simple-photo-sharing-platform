@@ -1,11 +1,13 @@
 package com.xamarsia.simplephotosharingplatform.common.validator.Username;
 
+import org.springframework.stereotype.Component;
+
 import com.xamarsia.simplephotosharingplatform.user.UserService;
+
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
 @Component

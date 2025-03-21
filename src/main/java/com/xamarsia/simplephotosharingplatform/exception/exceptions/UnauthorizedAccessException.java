@@ -1,8 +1,9 @@
 package com.xamarsia.simplephotosharingplatform.exception.exceptions;
 
-import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 
 
 @ResponseStatus(code = HttpStatus.UNAUTHORIZED)

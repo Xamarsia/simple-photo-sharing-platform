@@ -1,8 +1,9 @@
 package com.xamarsia.simplephotosharingplatform.s3;
 
-import lombok.Setter;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+import lombok.Setter;
 
 
 @Setter

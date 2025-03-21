@@ -1,5 +1,11 @@
 package com.xamarsia.simplephotosharingplatform.security.authentication;
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
@@ -7,12 +13,6 @@ import com.xamarsia.simplephotosharingplatform.exception.exceptions.Unauthorized
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Service
 @AllArgsConstructor

@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
-
 import com.xamarsia.simplephotosharingplatform.exception.exceptions.ResourceNotFoundException;
 import com.xamarsia.simplephotosharingplatform.requests.user.RegisterRequest;
 import com.xamarsia.simplephotosharingplatform.requests.user.UserInfoUpdateRequest;
