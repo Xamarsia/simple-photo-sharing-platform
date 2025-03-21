@@ -1,14 +1,14 @@
 package com.xamarsia.simplephotosharingplatform.common.validator.Username;
 
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 
 @Target({ ElementType.METHOD, ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER })
 @Retention(RUNTIME)

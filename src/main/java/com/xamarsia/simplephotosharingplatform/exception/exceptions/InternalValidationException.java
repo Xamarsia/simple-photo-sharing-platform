@@ -1,12 +1,14 @@
 package com.xamarsia.simplephotosharingplatform.exception.exceptions;
 
-import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
-import jakarta.validation.ConstraintViolation;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-import java.util.Set;
+import com.xamarsia.simplephotosharingplatform.exception.ApplicationError;
+
+import jakarta.validation.ConstraintViolation;
 
 
 @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)

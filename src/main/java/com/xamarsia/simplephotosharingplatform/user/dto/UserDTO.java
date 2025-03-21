@@ -1,10 +1,10 @@
 package com.xamarsia.simplephotosharingplatform.user.dto;
 
+import com.xamarsia.simplephotosharingplatform.user.State;
+
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
-
-import com.xamarsia.simplephotosharingplatform.user.State;
 
 public record UserDTO(
         @NotBlank(message = "Id is required.")

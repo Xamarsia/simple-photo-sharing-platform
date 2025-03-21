@@ -20,7 +20,7 @@ public class LikeService {
     private final UserService userService;
     private final LikeRepository repository;
 
-    public Like like(Authentication authentication, Long postId) {
+    public Like like(Authentication authentication, Long postId) throws IllegalArgumentException, ApplicationException {
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 
@@ -39,7 +39,7 @@ public class LikeService {
         return saveLike(like);
     }
 
-    public void deleteLike(Authentication authentication, Long postId) throws IllegalArgumentException {
+    public void deleteLike(Authentication authentication, Long postId) throws IllegalArgumentException, ApplicationException {
         Post post = postService.getPostById(postId);
         User user = userService.getAuthenticatedUser(authentication);
 
@@ -72,7 +72,7 @@ public class LikeService {
         return repository.existsById(likePK);
     }
 
-    private Like saveLike(Like like) {
+    private Like saveLike(Like like) throws ApplicationException {
         try {
             return repository.save(like);
         } catch (Exception e) {
@@ -81,7 +81,7 @@ public class LikeService {
         }
     }
 
-    private void deleteLikeById(LikePK likePK) {
+    private void deleteLikeById(LikePK likePK) throws ApplicationException {
         try {
             repository.deleteById(likePK);
         } catch (Exception e) {

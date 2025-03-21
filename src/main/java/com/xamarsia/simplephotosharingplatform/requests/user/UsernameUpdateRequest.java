@@ -1,6 +1,7 @@
 package com.xamarsia.simplephotosharingplatform.requests.user;
 
 import com.xamarsia.simplephotosharingplatform.common.validator.Username.UniqueUsername;
+
 import jakarta.validation.constraints.NotBlank;
 
 
