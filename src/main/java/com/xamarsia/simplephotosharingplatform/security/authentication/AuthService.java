@@ -40,7 +40,7 @@ public class AuthService {
         if (repository.existsById(id)) {
             Auth auth = getAuthenticationById(id);
             if (auth.user != null) {
-                throw new ApplicationException(ApplicationError.UNIQUE_AUTHENTICATION_CONSTRAINT_FAILED,
+                throw new ApplicationException(ApplicationError.UNIQUE_AUTH_CONSTRAINT_FAILED,
                         String.format("[CreateAuth]: Authentication with id '%s' already exist.", id));
             }
             return auth;
@@ -50,15 +50,15 @@ public class AuthService {
                 .id(id)
                 .build();
 
-        return createAuth(auth);
+        return saveAuth(auth);
     }
 
-    public Auth createAuth(Auth authentication) {
+    public Auth saveAuth(Auth auth) {
         try {
-            return repository.save(authentication);
+            return repository.save(auth);
         } catch (Exception e) {
             throw new ApplicationException(ApplicationError.INTERNAL_SERVER_ERROR,
-                    "[CreateAuth]: " + e.getMessage());
+                    "[SaveAuth]: " + e.getMessage());
         }
     }
 

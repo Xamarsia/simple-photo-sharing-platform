@@ -76,7 +76,7 @@ public class UserService {
         User savedUser = saveUser(user);
 
         auth.setUser(savedUser);
-        authService.createAuth(auth);
+        authService.saveAuth(auth);
         return savedUser;
     }
 
