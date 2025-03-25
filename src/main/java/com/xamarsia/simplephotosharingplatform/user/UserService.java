@@ -58,7 +58,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User getAuthenticatedUser(Authentication authentication) {
+    public User getAuthenticatedUser(Authentication authentication) throws ResourceNotFoundException {
         User user = authService.getAuthentication(authentication).getUser();
         if (user == null) {
             throw new ResourceNotFoundException("[getAuthenticatedUser]: User not found.");
@@ -125,7 +125,7 @@ public class UserService {
         return s3Service.getObject(s3Buckets.getProfilesImages(), key);
     }
 
-    public void follow(Authentication authentication, String username) {
+    public void follow(Authentication authentication, String username) throws IllegalArgumentException {
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
@@ -138,7 +138,7 @@ public class UserService {
         return;
     }
 
-    public void deleteFollowing(Authentication authentication, String username) {
+    public void deleteFollowing(Authentication authentication, String username) throws IllegalArgumentException {
         User user = getAuthenticatedUser(authentication);
 
         User follower = findUserByUsername(username);
@@ -166,7 +166,7 @@ public class UserService {
         return saveUser(user);
     }
 
-    public void uploadProfileImage(User user, MultipartFile file) {
+    public void uploadProfileImage(User user, MultipartFile file) throws ApplicationException, IllegalArgumentException {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("[UploadProfileImage]: File is empty. Cannot save an empty file");
         }
@@ -185,7 +185,7 @@ public class UserService {
         saveUser(user);
     }
 
-    public User saveUser(User user) throws IllegalArgumentException {
+    public User saveUser(User user) throws ApplicationException, IllegalArgumentException {
         try {
             return repository.save(user);
         } catch (Exception e) {
@@ -209,7 +209,7 @@ public class UserService {
         deleteUser(user);
     }
 
-    public User deleteProfileImage(Authentication authentication) {
+    public User deleteProfileImage(Authentication authentication) throws IllegalArgumentException {
         User user = getAuthenticatedUser(authentication);
 
         if (!user.getIsProfileImageExist()) {
@@ -221,7 +221,7 @@ public class UserService {
         return saveUser(user);
     }
 
-    private User findUserByUsername(String username) {
+    private User findUserByUsername(String username) throws ApplicationException {
         return repository.findUserByUsername(username).orElseThrow(() -> new ResourceNotFoundException(
                 String.format("[FindUserByUsername]: User not found with username '%s'.", username)));
     }
