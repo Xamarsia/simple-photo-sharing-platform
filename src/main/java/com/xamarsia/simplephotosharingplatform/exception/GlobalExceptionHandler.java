@@ -7,7 +7,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import com.xamarsia.simplephotosharingplatform.exception.exceptions.ApplicationException;
+import com.xamarsia.simplephotosharingplatform.enums.ApplicationError;
+import com.xamarsia.simplephotosharingplatform.exception.applicationException.ApplicationException;
+import com.xamarsia.simplephotosharingplatform.response.ErrorResponse;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
