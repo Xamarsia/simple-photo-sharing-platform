@@ -2,6 +2,7 @@ package com.xamarsia.simplephotosharingplatform.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,8 +30,10 @@ public class SecurityConfig {
                 .cors(cors -> cors
                         .configurationSource(corsConfigurationSource))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/user/isUsernameUsed/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auth").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/auth/isUsed").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/post/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .addFilterAfter(authenticationFilter, BasicAuthenticationFilter.class)

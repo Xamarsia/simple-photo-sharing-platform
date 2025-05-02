@@ -14,7 +14,6 @@ public record DetailedPostDTO(
         @NotBlank(message = "UserDTO is required.") 
         UserDTO authorDTO,
 
-        @NotBlank(message = "State is required.")
         @Enumerated(EnumType.STRING)
         LikeState state
         ) {
