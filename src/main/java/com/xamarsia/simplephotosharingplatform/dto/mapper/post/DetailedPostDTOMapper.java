@@ -11,6 +11,8 @@ import com.xamarsia.simplephotosharingplatform.dto.post.PostDTO;
 import com.xamarsia.simplephotosharingplatform.dto.user.UserDTO;
 import com.xamarsia.simplephotosharingplatform.entity.Post;
 import com.xamarsia.simplephotosharingplatform.entity.User;
+import com.xamarsia.simplephotosharingplatform.enums.LikeState;
+import com.xamarsia.simplephotosharingplatform.enums.State;
 import com.xamarsia.simplephotosharingplatform.service.LikeService;
 import com.xamarsia.simplephotosharingplatform.service.PostService;
 
@@ -30,10 +32,11 @@ public class DetailedPostDTOMapper implements BiFunction<Authentication, Post, D
         User author = postService.getPostAuthorByUsername(postDTO.username());
 
         UserDTO userDTO = userDTOMapper.apply(authentication, author);
+        LikeState likeState = userDTO.state() == State.UNDEFINED ? null : likeService.isPostLiked(authentication, post);
 
         return new DetailedPostDTO(
                 postDTO,
                 userDTO,
-                likeService.isPostLiked(authentication, post));
+                likeState);
     }
 }

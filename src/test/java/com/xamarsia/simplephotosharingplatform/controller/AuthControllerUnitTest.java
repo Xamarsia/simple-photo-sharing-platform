@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 
 import com.xamarsia.simplephotosharingplatform.common.EmptyJson;
-// import com.xamarsia.simplephotosharingplatform.controller.AuthController;
 import com.xamarsia.simplephotosharingplatform.entity.Auth;
 import com.xamarsia.simplephotosharingplatform.service.AuthService;
 

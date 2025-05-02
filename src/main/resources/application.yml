@@ -46,7 +46,7 @@ application:
     token-type: "Bearer "
     cors:
       allowed-origins: "http://localhost:3000,http://${DOMAIN_NAME},https://${DOMAIN_NAME}"
-      allowed-methods: "*"
+      allowed-methods: "GET,POST"
       allowed-headers: "*,Authorization"
     authentication-filter:
-      excludedUrl: "/auth/**,/user/isUsernameUsed/**"
+      excludedUrl: "/auth**,/post/**,/user**"
