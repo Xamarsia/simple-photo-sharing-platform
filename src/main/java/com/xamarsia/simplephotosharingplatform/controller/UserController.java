@@ -53,13 +53,13 @@ public class UserController {
     /**
      * @brief Retrieve the authenticated user's information.
      * 
-     *        Handles GET requests to the endpoint: `/user`
+     *        Handles GET requests to the endpoint: `/user/`
      * 
      * @param authentication The {@link Authentication} object.
      * @return A {@link ResponseEntity} containing the {@link UserDTO} of the
      *         authenticated user.
      */
-    @GetMapping("")
+    @GetMapping("/")
     public ResponseEntity<UserDTO> getAuthenticatedUser(Authentication authentication) {
         UserDTO userDTO = userDTOMapper.apply(authentication, service.getAuthenticatedUser(authentication));
         return ResponseEntity.ok().body(userDTO);
@@ -147,7 +147,7 @@ public class UserController {
      *                 retrieved.
      * @return A byte array representing the user's profile image in JPEG format.
      */
-    @GetMapping(value = "{username}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/{username}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public byte[] getProfileImage(@PathVariable("username") String username) {
         return service.getProfileImage(username);
     }
@@ -356,12 +356,12 @@ public class UserController {
     /**
      * @brief Delete the authenticated user account.
      * 
-     *        Handles DELETE requests to the endpoint: `/user`
+     *        Handles DELETE requests to the endpoint: `/user/`
      * 
      * @param authentication The {@link Authentication} object.
      * @return A {@link ResponseEntity} containing a empty Json.
      */
-    @DeleteMapping("")
+    @DeleteMapping("/")
     public ResponseEntity<EmptyJson> deleteUser(Authentication authentication) {
         service.deleteUser(authentication);
         return ResponseEntity.status(HttpStatus.OK).body(new EmptyJson());

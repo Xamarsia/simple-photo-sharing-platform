@@ -49,4 +49,4 @@ application:
       allowed-methods: "GET,POST"
       allowed-headers: "*,Authorization"
     authentication-filter:
-      excludedUrl: "/auth**,/post/**,/user**"
+      excludedUrl: "/auth/**,/post/**,/user/**"
