@@ -32,9 +32,9 @@ It is implemented using Next.js framework and Typescript.
 
 ### Setup environment
 
-1. Install Visual Studio Code (`ms-vscode-remote.remote-containers` extension)
-2. Install Docker Engine  [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and  [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)  
-3. Create docker network
+1. Install Visual Studio Code (`ms-vscode-remote.remote-containers` extension).
+2. Install Docker Engine  [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and  [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
+3. Create docker network.
 
 `microservice_network` are required for further communication with the frontend. Run the following command to create the network:
 
@@ -42,7 +42,7 @@ It is implemented using Next.js framework and Typescript.
 docker network create microservice_network
 ```
 
-4. Clone project
+4. Clone project.
 
 ### Setup environment variables
 
@@ -74,7 +74,7 @@ AWS_S3_PROFILES_BUCKET_NAME="AWS S3 profiles bucket name"
 ### Run
 
 1. Open project in VS Code.
-2. [Reopen project in Dev Container](https://code.visualstudio.com/docs/devcontainers/containers)
+2. [Reopen project in Dev Container](https://code.visualstudio.com/docs/devcontainers/containers).
 3. To run project, open any .java file and press `Run Java` button on the top right menu.
 
 ## Development stack
