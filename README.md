@@ -14,10 +14,17 @@
   - [Setup environment variables](Setup-environment-variables)
   - [Run](Run)
 - [Development stack](#development-stack)
+  - [Backend](#backend)
+  - [General](#general)
+- [Tests](#tests)
+- [Future Enhancements](#future-enhancements)
+- [License](#license)
 
 ## Links
 
-- [`photo-sharing-platform-frontend`](https://github.com/Xamarsia/photo-sharing-platform-frontend): frontend of the SPSP project. It is implemented using Next.js framework and Typescript.
+- [`photo-sharing-platform-frontend`](https://github.com/Xamarsia/photo-sharing-platform-frontend): frontend of the SPSP project.
+
+It is implemented using Next.js framework and Typescript.
 
 - [`spsp-deployment`](https://github.com/Xamarsia/spsp-deployment): main repository of SPSP project.
 
@@ -71,6 +78,8 @@ AWS_S3_PROFILES_BUCKET_NAME="AWS S3 profiles bucket name"
 3. To run project, open any .java file and press `Run Java` button on the top right menu.
 
 ## Development stack
+
+### Backend
 
 - `Spring` - for quickly build standalone backend application. Spring prowides dependency injection, auto-configuration, security features  and simplifies database integration.
 - `Jakarta Validation` - to write constraints on object models via annotations.
