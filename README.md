@@ -34,13 +34,13 @@ It is implemented using Next.js framework and Typescript.
 
 1. Install Visual Studio Code (`ms-vscode-remote.remote-containers` extension)
 2. Install Docker Engine  [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and  [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)  
-3. Create docker network:
+3. Create docker network
+
+`microservice_network` are required for further communication with the frontend. Run the following command to create the network:
 
 ```bash
 docker network create microservice_network
 ```
-
-`microservice_network` are required for further communication with the frontend.
 
 4. Clone project
 
