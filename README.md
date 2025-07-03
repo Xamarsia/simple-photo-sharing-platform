@@ -145,7 +145,7 @@ To keep things concise, a brief description of the endpoints is provided.
 
 For detailed documentation on the endpoints, please refer to the specific controller file. You will find Doxygen documentation there.
 
-In this project, there are several controllers that manage all endpoints. Each controller has its own specific responsibilities, and the endpoints are organized accordingly.s
+In this project, there are several controllers that manage all endpoints. Each controller has its own specific responsibilities, and the endpoints are organized accordingly.
 
 ### Auth Controller
 
