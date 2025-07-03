@@ -1,6 +1,6 @@
 
 <h1 align="center">
-  <p>Simple Photo Sharing Platform (Backend)</p>
+  <p>Simple Photo Sharing Platform (SPSP Backend)</p>
   <h4 align="left">Demo: https://spspdemo.online/</h4>
 
   This projeect is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It implemented using Spring framework. Backend is stateless and implemented as REST API.
@@ -31,7 +31,7 @@
 
 - [`photo-sharing-platform-frontend`](https://github.com/Xamarsia/photo-sharing-platform-frontend): frontend of the SPSP project.
 
-It is implemented using Next.js framework and Typescript.
+   It is implemented using Next.js framework and Typescript.
 
 - [`spsp-deployment`](https://github.com/Xamarsia/spsp-deployment): main repository of SPSP project.
 
@@ -51,59 +51,58 @@ It is implemented using Next.js framework and Typescript.
 ### General
 
 - `Docker` - helps create and manage an isolated environment for building, sharing, and running applications.
-- `Kubernetes` for deploying and managing containerized applications.
 - `Visual Studio Code` provide customizeble development environment.
 - `Jira` for project management and task tracking.
 - `GitHub` (`Git`) - for code storage, sharing, and management.
 
-## Development
-
-### Setup environment
+## Environment setup
 
 1. Install Visual Studio Code (`ms-vscode-remote.remote-containers` extension).
 2. Install Docker Engine  [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and  [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
-3. Create docker network.
+3. Docker network `microservice_network` required for further communication with the frontend.
 
-`microservice_network` are required for further communication with the frontend. Run the following command to create the network:
+   Execute the following command to create the network if it has not been created previously:
 
-```bash
-docker network create microservice_network
-```
+   ```bash
+   docker network create microservice_network
+   ```
 
 4. Clone project.
+5. Setup the environment variables by creating `.env` and `.aws-credentials` files in the root of the project directory with the following content:
 
-### Setup environment variables
+   ```ini
+   # .env
 
-Create `.env` file in the root of the project with following content (see `.env.template`)
+   POSTGRES_DB="your postgres db name" 
+   POSTGRES_USER="your postgres db user name"
+   POSTGRES_PASSWORD="your postgres db password"
+   PUBLIC_FIREBASE_PROJECT_ID="Part of Firebase setup"
+   DOMAIN_NAME="your domain name"
+   ```
 
-```ini
-# .env
+   Refer to the [Firebase setup](https://github.com/Xamarsia/spsp-deployment/tree/main#setup-firebase) article to understand about the source of the `PUBLIC_FIREBASE_PROJECT_ID` variable.
 
-POSTGRES_DB="your postgres db name" 
-POSTGRES_USER="your postgres db user name"
-POSTGRES_PASSWORD="your postgres db password"
-PUBLIC_FIREBASE_PROJECT_ID="Part of Firebase setup" # See https://github.com/Xamarsia/spsp-deployment/tree/main#setup-firebase for more details
-DOMAIN_NAME="your domain name"
-```
+   ```ini
+   # .aws-credentials
+   
+   AWS_ACCESS_KEY_ID="Access key from IAM Security credentials. Check AWS setup article: https://github.com/Xamarsia/spsp-deployment/tree/main#setup-aws"
+   AWS_SECRET_ACCESS_KEY="Secret access key from IAM Security credentials. Check AWS setup article: https://github.com/Xamarsia/spsp-deployment/tree/main#setup-aws"
 
-Create `.aws-credentials` file in the root of the project (see `.aws-credentials.template`)
+   AWS_REGION="region of S3 buckets"
+   AWS_S3_POSTS_BUCKET_NAME="AWS S3 posts bucket name"
+   AWS_S3_PROFILES_BUCKET_NAME="AWS S3 profiles bucket name"
+   ```
 
-```ini
-# .aws-credentials
+   See [`.env.template`](.env.template) & [`.aws-credentials.template`](.aws-credentials.template) files.
 
-AWS_ACCESS_KEY_ID="Access key from IAM Security credentials. Check AWS setup article: https://github.com/Xamarsia/spsp-deployment/tree/main#setup-aws"
-AWS_SECRET_ACCESS_KEY="Secret access key from IAM Security credentials. Check AWS setup article: https://github.com/Xamarsia/spsp-deployment/tree/main#setup-aws"
-
-AWS_REGION="region of S3 buckets"
-AWS_S3_POSTS_BUCKET_NAME="AWS S3 posts bucket name"
-AWS_S3_PROFILES_BUCKET_NAME="AWS S3 profiles bucket name"
-```
-
-### Run
+## Build & Run
 
 1. Open project in VS Code.
 2. [Reopen project in Dev Container](https://code.visualstudio.com/docs/devcontainers/containers).
-3. To run project, open any .java file and press `Run Java` button on the top right menu.
+3. To run project, open any .java file and press `Run Java` button on the top right menu corner. This will trigger the build process and then will run it.
+4. Connect to the API using Postman on port 8080: [`http://localhost:8080`](http://localhost:8080).
+
+   URL to connect from another Docker containers that share the same Docker network: [`http://server-api:8080`](http://server-api:8080).
 
 ## Error handling
 
