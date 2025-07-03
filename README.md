@@ -3,7 +3,7 @@
   <p>Simple Photo Sharing Platform (Backend)</p>
   <h4 align="left">Demo: https://spspdemo.online/</h4>
 
-  This projeect is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project, implemented using Spring framework. Backend is stateless and implemented as REST API.
+  This projeect is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It implemented using Spring framework. Backend is stateless and implemented as REST API.
 </h1>
 
 ## Table Of Content
@@ -13,6 +13,8 @@
   - [Setup environment](setup-environment)
   - [Setup environment variables](Setup-environment-variables)
   - [Run](Run)
+- [Error handling](#error-handling)
+  - [Error codes](#error-codes)
 - [Development stack](#development-stack)
   - [Backend](#backend)
   - [General](#general)
@@ -77,6 +79,40 @@ AWS_S3_PROFILES_BUCKET_NAME="AWS S3 profiles bucket name"
 2. [Reopen project in Dev Container](https://code.visualstudio.com/docs/devcontainers/containers).
 3. To run project, open any .java file and press `Run Java` button on the top right menu.
 
+## Error handling
+
+All exceptions in project are handled by `GlobalExceptionHandler` and returns `ResponseEntity` with `ErrorResponse` in it.
+
+`ErrorResponse` is the special custom type of Error.
+It consists of `code` and `message`.
+
+```json
+{
+  "code": "1008",
+  "message": "[SaveUser]: User with username Tom already exist.",
+}
+```
+
+For example, if a user attempts to register an account with a non-unique username, the HTTP status 500 will be returned along with the corresponding `ErrorResponse` like above.
+
+### Error codes
+
+Possible custom errors are listed in the following table.
+
+| Error code | HTTP Status | Description |
+| --- | --- | --- |
+| 1000 | 404 | Resource not found |
+| 1001 | 400 | Method argument validation failed |
+| 1002 | 401 | Unauthorized access |
+| 1003 | 403 | Access denied |
+| 1004 | 500 | Internal server error |
+| 1005 | 500 | AWS S3 error |
+| 1006 | 429 | Too many requests |
+| 1007 | 400 | Constraint violation failed |
+| 1008 | 500 | Unique username constraint failed |
+| 1009 | 500 | Illegal argument exception |
+| 1010 | 500 | Unique auth constraint failed |
+
 ## Development stack
 
 ### Backend
@@ -113,4 +149,3 @@ Tests were implemented using JUnit and Mockito mocking framework.
 ## License
 
 Licensed under the MIT License. See [LICENSE](./LICENSE) file for more details.
-
