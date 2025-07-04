@@ -13,7 +13,7 @@
   - [Backend](#backend)
   - [General](#general)
 - [Environment setup](#environment-setup)
-- [Build & Run](#build-&-run)
+- [Build & Run](#build--run)
 - [Error handling](#error-handling)
   - [Error codes](#error-codes)
 - [List of all endpoints](list-of-all-endpoints)
