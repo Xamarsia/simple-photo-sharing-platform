@@ -1,4 +1,3 @@
-
 <h1 align="center">
   <p>Simple Photo Sharing Platform (SPSP Backend)</p>
   <h4 align="left">Demo: https://spspdemo.online/</h4>
@@ -8,6 +7,7 @@
 
 ## Table Of Content
 
+- [Description](#description)
 - [Related Projects](#related-projects)
 - [Development Stack](#development-stack)
 - [Environment Setup](#environment-setup)
@@ -22,6 +22,16 @@
 - [Tests](#tests)
 - [Future Enhancements](#future-enhancements)
 - [License](#license)
+
+## Description
+
+Simple Photo Sharing Platform project is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project.
+
+The application is designed to foster user interaction and content sharing through posts.
+
+A post consists of an image and an optional description. SPSP offers an intuitive interface that allows users to create, update, and delete posts effortlessly.
+
+Users can create customizable profiles that reflect their personality through profile picture, bios, and a collection of their posts. The platform encourages social connectivity with follow and unfollow functionalities.
 
 ## Related Projects
 
@@ -42,6 +52,27 @@
 - `JUnit` is used to write unit tests.
 - `Mockito` - mocking framework for unit tests.
 - `Docker` - helps create and manage an isolated environment for building, sharing, and running applications.
+
+## Project Features
+
+- __User Authentication:__ Sign In, Sign Up, and Sign Out functionalities are provided, along with an option for Password Reset.
+  - Authentication using email addresses and passwords or popular identity provider Google.
+- __Unauthorized Preview:__ Non-authenticated users can view a news feed, posts, and other users' profiles.
+- __User Profiles:__ Customizable profiles with profile picture, bios and posts.
+- __User Interaction:__  Follow and unfollow functionality.
+  - Only authorized users are permitted to follow or unfollow users.
+  - All users can view the list of followers or followings.
+- __User Search:__ Search for users by username or full name.
+- __Content Sharing:__ Intuitive interface for viewing, creating, updating, or deleting posts.
+- __Content Interaction:__ Like and dislike feature for posts to enhance user engagement.
+  - Only authorized users are permitted to like or dislike posts.
+  - All users can view the list of users who liked a post.
+- __News:__ News feed of posts is displayed for all users.
+- __Security:__
+  - Authentication is implemented using Firebase Authentication because it leverages industry standards such as OAuth 2.0.
+  - Strict validation for user inputs and data integrity.
+  - Custom exception handler to identify and debug errors.
+  - Using DTOs to encapsulate data and transport it without any business logic.
 
 ## Environment Setup
 
