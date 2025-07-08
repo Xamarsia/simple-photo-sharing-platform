@@ -2,7 +2,7 @@
   <p>Simple Photo Sharing Platform (SPSP Backend)</p>
   <h4 align="left">Demo: https://spspdemo.online/</h4>
 
-  This projeect is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It implemented using Spring framework. Backend is stateless and implemented as REST API.
+  This repository is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It implemented using Spring framework.
 </h1>
 
 ## Table Of Content
@@ -27,28 +27,22 @@
 
 Simple Photo Sharing Platform project is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project.
 
-The application is designed to foster user interaction and content sharing through posts.
-
-A post consists of an image and an optional description. SPSP offers an intuitive interface that allows users to create, update, and delete posts effortlessly.
-
-Users can create customizable profiles that reflect their personality through profile picture, bios, and a collection of their posts. The platform encourages social connectivity with follow and unfollow functionalities.
+The application is written in Java, using Spring framework. Backend is stateless and implemented as REST API.
 
 ## Related Projects
 
 - [`photo-sharing-platform-frontend`](https://github.com/Xamarsia/photo-sharing-platform-frontend): frontend of the SPSP project.
 
-   It is implemented using Next.js framework and Typescript.
-
 - [`spsp-deployment`](https://github.com/Xamarsia/spsp-deployment): main repository of SPSP project.
 
 ## Development Stack
 
-- `Spring` - for quickly build standalone backend application. Spring prowides dependency injection, auto-configuration, security features  and simplifies database integration.
+- `Spring` - for quickly build standalone backend application. Spring prowides dependency injection, auto-configuration, security features and simplifies database integration.
 - `Jakarta Validation` - to write constraints on object models via annotations.
 - `Hibernate ORM` simplifies database interactions by mapping Java objects to database tables.
 - `PostgreSQL` used as main database. Stores posts and users information.
 - `Amazon S3` used as image storage (for posts and users).
-- `Flyway`  control main database(postgresql) migration scripts.
+- `Flyway` control main database(postgresql) migration scripts.
 - `JUnit` is used to write unit tests.
 - `Mockito` - mocking framework for unit tests.
 - `Docker` - helps create and manage an isolated environment for building, sharing, and running applications.
@@ -56,10 +50,11 @@ Users can create customizable profiles that reflect their personality through pr
 ## Project Features
 
 - __User Authentication:__ Sign In, Sign Up, and Sign Out functionalities are provided, along with an option for Password Reset.
-  - Authentication using email addresses and passwords or popular identity provider Google.
-- __Unauthorized Preview:__ Non-authenticated users can view a news feed, posts, and other users' profiles.
+  - Authentication using email address and password or external identity provider ( Google ).
+- __Unauthorized Preview:__ Non-authenticated users can view a news feed, posts, and other user's profiles.
 - __User Profiles:__ Customizable profiles with profile picture, bios and posts.
-- __User Interaction:__  Follow and unfollow functionality.
+  - Users also have the option to delete their profiles.
+- __User Interaction:__ Follow and unfollow functionality.
   - Only authorized users are permitted to follow or unfollow users.
   - All users can view the list of followers or followings.
 - __User Search:__ Search for users by username or full name.
@@ -69,7 +64,7 @@ Users can create customizable profiles that reflect their personality through pr
   - All users can view the list of users who liked a post.
 - __News:__ News feed of posts is displayed for all users.
 - __Security:__
-  - Authentication is implemented using Firebase Authentication because it leverages industry standards such as OAuth 2.0.
+  - Authentication is implemented using OAuth 2.0 ( Firebase Authentication ).
   - Strict validation for user inputs and data integrity.
   - Custom exception handler to identify and debug errors.
   - Using DTOs to encapsulate data and transport it without any business logic.
@@ -77,16 +72,15 @@ Users can create customizable profiles that reflect their personality through pr
 ## Environment Setup
 
 1. Install Visual Studio Code (`ms-vscode-remote.remote-containers` extension).
-2. Install Docker Engine  [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and  [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
-3. Docker network `microservice_network` required for further communication with the frontend.
+2. [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and go through [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
+3. Clone project.
+4. Docker network `microservice_network` required for further communication between the frontend and the backend.
 
    Execute the following command to create the network if it has not been created previously:
 
    ```bash
    docker network create microservice_network
    ```
-
-4. Clone project.
 5. Setup the environment variables by creating `.env` and `.aws-credentials` files in the root of the project directory with the following content:
 
    ```ini
@@ -184,13 +178,13 @@ It handles endpoints for user authentication, registration, and profile manageme
 
 | Method | URI Template | Action | Authorisation Required |
 | --- | --- | --- | :-: |
-| GET | [`/user/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) |  Retrieve the authenticated user's information. | + |
+| GET | [`/user/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve the authenticated user's information. | + |
 | GET | [`/user/isUsernameUsed/{username}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Check if a username is already in use. | - |
 | GET | [`/user/isRegistered`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Check if the authenticated user is registered.| + |
-| GET | [`/user/{username}/profile`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) |  Retrieve the user profile information by username. | + |
-| GET | [`/user/{username}/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) |  Retrieve the profile image of a user by username. | - |
-| GET | [`/user/{username}/followers`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) |  Retrieve a paginated list of followers for a user by username.| + |
-| GET | [`/user/{username}/followings`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) |  Retrieve a paginated list of followings for a user by username. | + |
+| GET | [`/user/{username}/profile`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve the user profile information by username. | + |
+| GET | [`/user/{username}/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve the profile image of a user by username. | - |
+| GET | [`/user/{username}/followers`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve a paginated list of followers for a user by username.| + |
+| GET | [`/user/{username}/followings`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve a paginated list of followings for a user by username. | + |
 | GET | [`/user/{postId}/liked`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve a paginated list of users who liked a specific post. | + |
 | GET | [`/user/search`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Search for users based on a query. Users are selected by username or full name. | + |
 | POST | [`/user/register`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Register a new user. | + |
@@ -210,8 +204,8 @@ It manages the endpoints related to posts, including creating, retrieving, updat
 
 | Method | URI Template | Action | Authorisation Required |
 | --- | --- | --- | :-: |
-| GET | [`/post/{postId}/detailed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) |  Retrieves detailed information about a post by its ID. | + |
-| GET | [`/post/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) |  Retrieves a post by its ID. | - |
+| GET | [`/post/{postId}/detailed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves detailed information about a post by its ID. | + |
+| GET | [`/post/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves a post by its ID. | - |
 | GET | [`/post/{postId}/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves the image associated with a post by its ID. | - |
 | GET | [`/post/preview/{username}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieve a paginated preview of posts for specific user by username. | - |
 | GET | [`/post/newsFeed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieve a paginated news feed of posts. | + |
