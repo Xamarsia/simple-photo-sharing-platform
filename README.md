@@ -2,7 +2,7 @@
   Simple Photo Sharing Platform (SPSP Backend)
 </h1>
 
-<h4 align="left">Demo: https://spspdemo.online/</h4>
+__Demo: [spspdemo.online](https://spspdemo.online/)__
 
 This repository contains the backend for the [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It is implemented using Spring framework.
 
@@ -231,7 +231,7 @@ Tests were implemented using JUnit and Mockito mocking framework.
 ## Future Enhancements
 
 - [ ] Utilize `slf4j` logging.
-- [ ] Add functionality for comments and tags.
+- [ ] Add functionality for comments and hashtags.
 - [ ] Increase test coverage.
 
 ## License
