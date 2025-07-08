@@ -60,7 +60,7 @@ The service is stateless and implemented as a REST API using Java and the Spring
   - Only authorized users are permitted to follow or unfollow users.
   - All users can view the list of followers or followings.
 - __User Search:__ Search for users by username or full name.
-- __Content Sharing:__ Intuitive interface for viewing, creating, updating, or deleting posts.
+- __Content Sharing:__ Interface for viewing, creating, updating, or deleting posts.
 - __Content Interaction:__ Like and dislike features for posts to enhance user engagement.
   - Only authorized users are permitted to like or dislike posts.
   - All users can view the list of users who liked a post.
