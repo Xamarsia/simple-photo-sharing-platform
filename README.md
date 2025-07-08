@@ -1,15 +1,17 @@
 <h1 align="center">
-  <p>Simple Photo Sharing Platform (SPSP Backend)</p>
-  <h4 align="left">Demo: https://spspdemo.online/</h4>
-
-  This repository is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It is implemented using Spring framework.
+  Simple Photo Sharing Platform (SPSP Backend)
 </h1>
+
+<h4 align="left">Demo: https://spspdemo.online/</h4>
+
+This repository contains the backend for the [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It is implemented using Spring framework.
 
 ## Table Of Content
 
 - [Description](#description)
 - [Related Projects](#related-projects)
 - [Development Stack](#development-stack)
+- [Project Features](#project-features)
 - [Environment Setup](#environment-setup)
 - [Build & Run](#build--run)
 - [Error Handling](#error-handling)
@@ -25,15 +27,15 @@
 
 ## Description
 
-Simple Photo Sharing Platform project is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project.
+The Simple Photo Sharing Platform is a backend of [SPSP](https://github.com/Xamarsia/spsp-deployment) project.
 
-The application is written in Java, using Spring framework. Backend is stateless and implemented as REST API.
+The service is stateless and implemented as a REST API using Java and the Spring framework.
 
 ## Related Projects
 
 - [`photo-sharing-platform-frontend`](https://github.com/Xamarsia/photo-sharing-platform-frontend): frontend of the SPSP project.
 
-- [`spsp-deployment`](https://github.com/Xamarsia/spsp-deployment): main repository of SPSP project.
+- [`spsp-deployment`](https://github.com/Xamarsia/spsp-deployment): main repository of the SPSP project.
 
 ## Development Stack
 
@@ -41,38 +43,38 @@ The application is written in Java, using Spring framework. Backend is stateless
 - `Jakarta Validation` - to write constraints on object models via annotations.
 - `Hibernate ORM` - to simplify database interactions by mapping Java objects to database tables.
 - `PostgreSQL` - used as the main database. Stores posts and users information.
-- `Amazon S3` - used as the image storage (for posts and users).
-- `Flyway` - controls main database(postgresql) migration scripts.
+- `Amazon S3` - used for image storage (for posts and user profiles).
+- `Flyway` - manages database migration scripts for PostgreSQL.
 - `JUnit` - to write unit tests.
 - `Mockito` - to write mocks for unit tests.
-- `Docker` - for isolated development enviroment, deployment.
+- `Docker` - for isolated development enviroment and deployment.
 
 ## Project Features
 
-- __User Authentication:__ Sign In, Sign Up, and Sign Out functionalities are provided, along with an option for Password Reset.
-  - Authentication using email address and password or external identity provider ( Google ).
+- __User Authentication:__ Sign In, Sign Up, and Sign Out functionalities, including password reset option.
+  - Supports authentication via email and password or external identity provider ( Google ).
 - __Unauthorized Preview:__ Non-authenticated users can view a news feed, posts, and other user's profiles.
 - __User Profiles:__ Customizable profiles with profile picture, bios and posts.
-  - Users also have the option to delete their profiles.
+  - Users can delete their profiles.
 - __User Interaction:__ Follow and unfollow functionality.
   - Only authorized users are permitted to follow or unfollow users.
   - All users can view the list of followers or followings.
 - __User Search:__ Search for users by username or full name.
 - __Content Sharing:__ Intuitive interface for viewing, creating, updating, or deleting posts.
-- __Content Interaction:__ Like and dislike feature for posts to enhance user engagement.
+- __Content Interaction:__ Like and dislike features for posts to enhance user engagement.
   - Only authorized users are permitted to like or dislike posts.
   - All users can view the list of users who liked a post.
-- __News:__ News feed of posts is displayed for all users.
+- __News Feed:__ A news feed of posts is displayed for all users.
 - __Security:__
   - Authentication is implemented using OAuth 2.0 ( Firebase Authentication ).
   - Strict validation for user inputs and data integrity.
-  - Custom exception handler to identify and debug errors.
+  - Custom exception handler for error identification and debugging.
 
 ## Environment Setup
 
 1. Install Visual Studio Code (`ms-vscode-remote.remote-containers` extension).
-2. [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and go through [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
-3. Clone project.
+2. [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and follow the [Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/).
+3. Clone the project repository.
 4. Docker network `microservice_network` required for further communication between the frontend and the backend.
 
    Execute the following command to create the network if it has not been created previously:
@@ -98,31 +100,32 @@ The application is written in Java, using Spring framework. Backend is stateless
    ```ini
    # .aws-credentials
    
-   AWS_ACCESS_KEY_ID="Access key from IAM Security credentials. Check AWS setup article: https://github.com/Xamarsia/spsp-deployment/tree/main#setup-aws"
-   AWS_SECRET_ACCESS_KEY="Secret access key from IAM Security credentials. Check AWS setup article: https://github.com/Xamarsia/spsp-deployment/tree/main#setup-aws"
+   AWS_ACCESS_KEY_ID="Access key from IAM Security credentials"
+   AWS_SECRET_ACCESS_KEY="Secret access key from IAM Security credentials"
 
    AWS_REGION="region of S3 buckets"
    AWS_S3_POSTS_BUCKET_NAME="AWS S3 posts bucket name"
    AWS_S3_PROFILES_BUCKET_NAME="AWS S3 profiles bucket name"
    ```
 
+   Refer to the [AWS setup](https://github.com/Xamarsia/spsp-deployment/tree/main#setup-aws) article to understand about the source of the `AWS_*` variables.
+
    See [`.env.template`](.env.template) & [`.aws-credentials.template`](.aws-credentials.template) files.
 
 ## Build & Run
 
-1. Open project in VS Code.
-2. [Reopen project in Dev Container](https://code.visualstudio.com/docs/devcontainers/containers).
-3. To run project, open any .java file and press `Run Java` button on the top right menu corner. This will trigger the build process and then will run it.
+1. Open the project in VS Code.
+2. [Reopen the project in Dev Container](https://code.visualstudio.com/docs/devcontainers/containers).
+3. To run the project, open any .java file and press `Run Java` button in the top right corner. This will trigger the build process and run the application.
 4. Connect to the API using Postman on port 8080: [`http://localhost:8080`](http://localhost:8080).
 
-   URL to connect from another Docker containers that share the same Docker network: [`http://server-api:8080`](http://server-api:8080).
+   To connect from another Docker containers that share the same Docker network, use: [`http://server-api:8080`](http://server-api:8080).
 
 ## Error Handling
 
-All exceptions in project are handled by `GlobalExceptionHandler` and returns `ResponseEntity` with `ErrorResponse` in it.
+All exceptions in the project are handled by `GlobalExceptionHandler` which returns `ResponseEntity` with `ErrorResponse` in it.
 
-`ErrorResponse` is the special custom type of Error.
-It consists of `code` and `message`.
+`ErrorResponse` is a custom Error type. It consists of `code` and `message`.
 
 Example of error response:
 
@@ -133,7 +136,7 @@ Example of error response:
 }
 ```
 
-For example, if a user attempts to register an account with a non-unique username, the HTTP status 500 will be returned along with the corresponding `ErrorResponse` like above.
+For instance, if a user attempts to register with a non-unique username, the HTTP status 500 will be returned along with the corresponding `ErrorResponse` like above.
 
 ### Error Codes
 
@@ -161,69 +164,63 @@ In this project, there are several controllers that manage all endpoints. Each c
 
 ### Auth Controller
 
-This controller manages authentication operations endpoints.
+Manages authentication operations endpoints.
 
 It creates, saves, and operates on an unique `Auth` object, which is based on the authentication generated by the external authentication provider. This step is essential before user registration.
 
 | Method | URI Template | Action | Authorisation Required |
 | --- | --- | --- | :-: |
-| GET | [`/auth/isUsed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/AuthController.java) | It checks if the authentication generated by the authentication provider is in use. This authentication must be unique to continue with the registration process. | + |
-| POST | [`/auth/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/AuthController.java) | A required step before user registration. It involves creating and saving an `Auth` object based on the authentication generated by the authentication provider. | + |
+| GET | [`/auth/isUsed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/AuthController.java) | Checks if the authentication generated by the authentication provider is in use. This authentication must be unique to continue with the registration process. | + |
+| POST | [`/auth/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/AuthController.java) | A required step before user registration. Creates and saves an `Auth` object based on the authentication generated by the authentication provider. | + |
 
 ### User Controller
 
-Controller for managing user-related operations endpoints.
-
-It handles endpoints for user authentication, registration, and profile management.
+Manages user-related operation endpoints, including user authentication, registration and profile management.
 
 | Method | URI Template | Action | Authorisation Required |
 | --- | --- | --- | :-: |
-| GET | [`/user/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve the authenticated user's information. | + |
-| GET | [`/user/isUsernameUsed/{username}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Check if a username is already in use. | - |
-| GET | [`/user/isRegistered`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Check if the authenticated user is registered.| + |
-| GET | [`/user/{username}/profile`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve the user profile information by username. | + |
-| GET | [`/user/{username}/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve the profile image of a user by username. | - |
-| GET | [`/user/{username}/followers`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve a paginated list of followers for a user by username.| + |
-| GET | [`/user/{username}/followings`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve a paginated list of followings for a user by username. | + |
-| GET | [`/user/{postId}/liked`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieve a paginated list of users who liked a specific post. | + |
-| GET | [`/user/search`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Search for users based on a query. Users are selected by username or full name. | + |
-| POST | [`/user/register`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Register a new user. | + |
-| PUT | [`/user/follow/{followerUsername}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Add a follower for the authenticated user. | + |
-| PUT | [`/user/deleteFollowing/{followerUsername}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Remove a follower for the authenticated user. | + |
-| PUT | [`/user/updateUserInfo`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Update the authenticated user's information. | + |
-| PUT | [`/user/updateUsername`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Update the authenticated user's username. | + |
-| PUT | [`/user/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Upload a new profile image for the authenticated user. | + |
-| DELETE | [`/user/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Delete the profile image of the authenticated user. | + |
-| DELETE | [`/user/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Delete the authenticated user account. | + |
+| GET | [`/user/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieves the authenticated user's information. | + |
+| GET | [`/user/isUsernameUsed/{username}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Checks if a username is already in use. | - |
+| GET | [`/user/isRegistered`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Checks if the authenticated user is registered.| + |
+| GET | [`/user/{username}/profile`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieves the user profile information by username. | + |
+| GET | [`/user/{username}/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieves the profile image of a user by username. | - |
+| GET | [`/user/{username}/followers`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieves a paginated list of followers for a user by username.| + |
+| GET | [`/user/{username}/followings`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieves a paginated list of followings for a user by username. | + |
+| GET | [`/user/{postId}/liked`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Retrieves a paginated list of users who liked a specific post. | + |
+| GET | [`/user/search`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Searches for users based on a query (username or full name). | + |
+| POST | [`/user/register`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Registers a new user. | + |
+| PUT | [`/user/follow/{followerUsername}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Adds a follower for the authenticated user. | + |
+| PUT | [`/user/deleteFollowing/{followerUsername}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Removes a follower for the authenticated user. | + |
+| PUT | [`/user/updateUserInfo`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Updates the authenticated user's information. | + |
+| PUT | [`/user/updateUsername`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Updates the authenticated user's username. | + |
+| PUT | [`/user/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Uploads a new profile image for the authenticated user. | + |
+| DELETE | [`/user/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Deletes the profile image of the authenticated user. | + |
+| DELETE | [`/user/`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/UserController.java) | Deletes the authenticated user account. | + |
 
 ### Post Controller
 
-Controller for handling post-related operations endpoints.
-
-It manages the endpoints related to posts, including creating, retrieving, updating, and deleting posts.
+Handles endpoints related to posts, including creating, retrieving, updating and deleting.
 
 | Method | URI Template | Action | Authorisation Required |
 | --- | --- | --- | :-: |
 | GET | [`/post/{postId}/detailed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves detailed information about a post by its ID. | + |
 | GET | [`/post/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves a post by its ID. | - |
 | GET | [`/post/{postId}/image`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves the image associated with a post by its ID. | - |
-| GET | [`/post/preview/{username}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieve a paginated preview of posts for specific user by username. | - |
-| GET | [`/post/newsFeed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieve a paginated news feed of posts. | + |
+| GET | [`/post/preview/{username}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves a paginated preview of posts for specific user by username. | - |
+| GET | [`/post/newsFeed`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Retrieves a paginated news feed of posts. | + |
 | POST | [`/post/create`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Creates a new post. | + |
-| PUT | [`/post/{postId}/updateImage`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Update the image of an existing post. | + |
-| PUT | [`/post/{postId}/updatePostInfo`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Update the information of an existing post by its ID. | + |
-| DELETE | [`/post/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Delete a specific post identified by its ID. | + |
+| PUT | [`/post/{postId}/updateImage`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Updates the image of an existing post. | + |
+| PUT | [`/post/{postId}/updatePostInfo`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Updates the information of an existing post by its ID. | + |
+| DELETE | [`/post/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/PostController.java) | Deletes a specific post identified by its ID. | + |
 
 ### Like Controller
 
-Controller for handling like operations on posts endpoints.
-
-It provides endpoints for users to like and unlike posts.
+Handles like operations endpoints on posts.
 
 | Method | URI Template | Action | Authorisation Required |
 | --- | --- | --- | :-: |
-| POST | [`/like/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/LikeController.java) | Like a post by its ID. | + |
-| DELETE | [`/like/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/LikeController.java) | Unlike a post by its ID. | + |
+| POST | [`/like/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/LikeController.java) | Likes a post by its ID. | + |
+| DELETE | [`/like/{postId}`](./src/main/java/com/xamarsia/simplephotosharingplatform/controller/LikeController.java) | Unlikes a post by its ID. | + |
 
 ## Tests
 
