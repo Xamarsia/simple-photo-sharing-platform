@@ -1,6 +1,5 @@
 package com.xamarsia.simplephotosharingplatform.service;
 
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 
@@ -17,7 +16,6 @@ import com.xamarsia.simplephotosharingplatform.config.s3.S3Buckets;
 import com.xamarsia.simplephotosharingplatform.entity.Post;
 import com.xamarsia.simplephotosharingplatform.entity.User;
 import com.xamarsia.simplephotosharingplatform.enums.ApplicationError;
-import com.xamarsia.simplephotosharingplatform.exception.applicationException.AWSException;
 import com.xamarsia.simplephotosharingplatform.exception.applicationException.AccessDeniedException;
 import com.xamarsia.simplephotosharingplatform.exception.applicationException.ApplicationException;
 import com.xamarsia.simplephotosharingplatform.exception.applicationException.ResourceNotFoundException;
@@ -141,21 +139,6 @@ public class PostService {
     }
 
     private void uploadPostImage(Long postId, MultipartFile file) {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("[UploadPostImage]: File is empty. Unable to save empty file");
-        }
-
-        String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
-        if (!(Objects.equals(extension, "jpg") || Objects.equals(extension, "jpeg "))) {
-            throw new IllegalArgumentException(String.format("[UploadPostImage]: Wrong file extension '%s' found. "
-                    + "Only .jpg and .jpeg files are allowed.", extension));
-        }
-        try {
-            s3Service.putObject(s3Buckets.getPostsImages(),
-                    postId.toString(),
-                    file.getBytes());
-        } catch (IOException e) {
-            throw new AWSException("[UploadPostImage]: " + e.getMessage());
-        }
+        s3Service.putObject(s3Buckets.getPostsImages(), postId.toString(), file);
     }
 }
