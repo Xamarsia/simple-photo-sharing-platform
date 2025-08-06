@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Setter
 @Configuration
-@ConfigurationProperties(prefix = "aws.s3.buckets")
+@ConfigurationProperties(prefix = "minio.buckets")
 public class S3Buckets {
     private String posts;
     private String profiles;

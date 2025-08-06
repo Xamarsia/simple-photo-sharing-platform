@@ -1,6 +1,5 @@
 package com.xamarsia.simplephotosharingplatform.service;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import org.springframework.data.domain.Page;
@@ -171,21 +170,8 @@ public class UserService {
         return saveUser(user);
     }
 
-    public void uploadProfileImage(User user, MultipartFile file)
-            throws ApplicationException, IllegalArgumentException {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("[UploadProfileImage]: File is empty. Cannot save an empty file");
-        }
-        String extension = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[1];
-        if (!(Objects.equals(extension, "jpg") || Objects.equals(extension, "jpeg "))) {
-            throw new IllegalArgumentException(String.format("[UploadProfileImage]: Wrong file extension '%s' found. "
-                    + "Only .jpg and .jpeg files are allowed.", extension));
-        }
-        try {
-            s3Service.putObject(s3Buckets.getProfilesImages(), user.getId().toString(), file.getBytes());
-        } catch (IOException e) {
-            throw new ApplicationException(ApplicationError.AWS_S3_ERROR, "[UploadProfileImage]: " + e.getMessage());
-        }
+    public void uploadProfileImage(User user, MultipartFile file) {
+        s3Service.putObject(s3Buckets.getProfilesImages(), user.getId().toString(), file);
 
         user.setIsProfileImageExist(true);
         saveUser(user);

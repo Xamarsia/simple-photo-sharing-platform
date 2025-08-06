@@ -7,7 +7,7 @@ services:
     image: simple-photo-sharing-platform-api
     env_file:
       - ../.env
-      - ../.aws-credentials
+      - ../.minio-credentials
     ports:
       - 8080:8080
     volumes:
@@ -22,7 +22,6 @@ services:
     image: postgres:latest
     ports:
       - 5432:5432
-    # restart: always
     restart: unless-stopped
     env_file:
       - ../.env
@@ -31,8 +30,24 @@ services:
     networks:
       - db_network
 
+  minio-db:
+    container_name: minio-db
+    image: minio/minio:latest
+    ports:
+      - "9000:9000" # file upload&preview port
+      - "9001:9001" # console access port
+    restart: unless-stopped
+    env_file:
+      - ../.minio-credentials
+    volumes:
+      - "minio-data:/data"
+    networks:
+      - db_network
+    command: server /data  --console-address ":9001"
+
 volumes:
   db-data:
+  minio-data:
 
 networks:
   external_network:
