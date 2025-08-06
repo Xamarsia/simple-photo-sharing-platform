@@ -1,7 +1,6 @@
 package com.xamarsia.simplephotosharingplatform.service;
 
 import java.time.OffsetDateTime;
-import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

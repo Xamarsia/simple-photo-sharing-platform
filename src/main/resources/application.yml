@@ -34,19 +34,11 @@ spring:
     baseline-description: "init"
     baseline-version: 0
 
-aws:
-  region: ${AWS_REGION}
-  s3:
-    buckets:
-      posts: ${AWS_S3_POSTS_BUCKET_NAME}
-      profiles: ${AWS_S3_PROFILES_BUCKET_NAME}
-
-
 minio:
   region: ${MINIO_REGION}
-  endpoint: "http://minio-db:9000/"
-  accessKey: minioadmin
-  secretKey: minioadmin_pasword
+  endpoint: http://minio-db:9000/
+  access-key: ${MINIO_ROOT_USER}
+  secret-key: ${MINIO_ROOT_PASSWORD}
   buckets:
     posts: ${MINIO_POSTS_BUCKET_NAME}
     profiles: ${MINIO_PROFILE_BUCKET_NAME}
