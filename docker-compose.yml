@@ -1,7 +1,7 @@
 services:
   server-api:
     container_name: server-api
-    image: xamarsia/spsp-server:1.0.5
+    image: xamarsia/spsp-server:2.0.0
     env_file:
       - ./.env
       - ./.minio-credentials

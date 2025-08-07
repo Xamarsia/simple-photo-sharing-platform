@@ -41,7 +41,7 @@ minio:
   secret-key: ${MINIO_ROOT_PASSWORD}
   buckets:
     posts: ${MINIO_POSTS_BUCKET_NAME}
-    profiles: ${MINIO_PROFILE_BUCKET_NAME}
+    profiles: ${MINIO_PROFILES_BUCKET_NAME}
 
 application:
   security:
