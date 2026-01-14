@@ -2,8 +2,6 @@
   Simple Photo Sharing Platform (SPSP Backend)
 </h1>
 
-__Demo: [spspdemo.online](https://spspdemo.online/)__
-
 This repository contains the backend for the [SPSP](https://github.com/Xamarsia/spsp-deployment) project. It is implemented using Spring framework.
 
 ## Table Of Content
