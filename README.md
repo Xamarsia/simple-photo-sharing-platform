@@ -10,6 +10,7 @@ This repository contains the backend for the [SPSP](https://github.com/Xamarsia/
 - [Related Projects](#related-projects)
 - [Development Stack](#development-stack)
 - [Project Features](#project-features)
+- [PostgreSQL ER Diagram](#postgresql-er-diagram)
 - [Environment Setup](#environment-setup)
 - [Build & Run](#build--run)
 - [Error Handling](#error-handling)
@@ -67,6 +68,49 @@ The service is stateless and implemented as a REST API using Java and the Spring
   - Authentication is implemented using OAuth 2.0 ( Firebase Authentication ).
   - Strict validation for user inputs and data integrity.
   - Custom exception handler for error identification and debugging.
+
+## PostgreSQL ER Diagram
+
+```mermaid
+erDiagram
+    USER {
+        BIGSERIAL id PK
+        VARCHAR username
+        VARCHAR full_name
+        VARCHAR description
+        BOOLEAN is_profile_image_exist
+        VARCHAR role
+    }
+
+    AUTH {
+        VARCHAR id PK
+        BIGINT user_id FK
+    }
+
+    POST {
+        BIGSERIAL id PK
+        TIMESTAMPTZ creation_date_time
+        TIMESTAMPTZ update_date_time
+        VARCHAR description
+        BIGINT user_id FK
+    }
+
+    LIKE {
+        BIGINT post_id FK, PK
+        BIGINT user_id FK, PK
+    }
+
+    FOLLOWING {
+        BIGINT follower_id FK, PK
+        BIGINT following_id FK, PK
+    }
+
+    USER ||--o{ AUTH : has
+    USER ||--o{ POST : creates
+    USER ||--o{ LIKE : likes
+    USER |{--o{ FOLLOWING : follows
+    POST ||--o{ LIKE : receives
+```
 
 ## Environment Setup
 
